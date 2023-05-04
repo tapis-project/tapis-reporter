@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Workbench {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+{% block styles %}
+  <link rel="stylesheet" href="">
+  <link rel="stylesheet" href="">
+{% endblock %}
+<body>
+{% block content %}
+    <h3>
+    JupyterHub Log Data
+    </h3>
+    <p>
+    View the activity of the JupyterHub
+    </p>
+
+    <form method="POST" id="post-form">{% csrf_token %}
+        <label for="start">Start date:</label><br>
+
+        <input type="date" id="start" name="start_date"
+            value="2023-03-04"
+            min="2023-02-01"><br>
+
+        <label for="end">End date:</label><br>
+
+        <input type="date" id="end" name="end_date"
+            value="2023-03-08"
+            min="2023-02-01"><br>
+
+        <button type="submit" class="btn btn-primary" name="file_logs">View File Access Info</button>
+        <button type="submit" class="btn btn-primary" name="login_logs">View Login Info</button>
+        <button type="submit" class="btn btn-primary" name="jhub_stats">View JupyterHub Stats</button>
+    </form>
+
+    {% if queried == True %}
+    <table border=1 class="table">
+        <thead>
+          <tr>
+            <th>Tenant</th>
+            <th>User</th>
+            {% if file_logs == True%}
+                <th>Action</th>
+                <th>Filepath</th>
+                <th>Filename</th>
+            {% endif %}
+            <th>Date</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for obj in query %}
+            <tr>
+                <td>
+                    {{ obj.tenant }}
+                </td>
+                <td>
+                    {{ obj.user }}
+                </td>
+                {% if file_logs == True%}
+                    <td>
+                        {{ obj.action }}
+                    </td>
+                    <td>
+                        {{ obj.filepath }}
+                    </td>
+                    <td>
+                        {{ obj.filename }}
+                    </td>
+                {% endif %}
+                <td>
+                    {{ obj.date }}
+                </td>
+                <td>
+                    {{ obj.time }}
+                </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+    <button type="button" onClick="tableToCSV()">Download Report</button>
+    {% endif %}
+    {% if jhub_stats == True %}
+        <h4>
+            Unique Users: {{ unique_user_count }}
+        </h4>
+        <h4>
+            Total Logins: {{ total_login_count }}
+        </h4>
+        <h4>
+            Unique Logins: {{ unique_login_count }}
+        </h4>
+        <h4>
+            Number of Opened Files: {{ num_opened_files }}
+        </h4>
+        <h4>
+            Number of Created Files: {{ num_created_files }}
+        </h4>
+        
+        <table border=1 class="table">
+            <thead>
+                <tr>
+                    <th>Directory</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dir in dirs %}
+                    <tr>
+                        <td>{{ dir.directory }}</td>
+                        <td>{{ dir.count }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    
+{% endblock %}
+
+<script>
+    function tableToCSV() {
+        console.log('in tabletocsv');
+        var csv_data = [];
+
+        var rows = document.getElementsByTagName('tr');
+        console.log(rows);
+        for (var i = 0; i < rows.length; i++) {
+ 
+            // Get each column data
+            var cols = rows[i].querySelectorAll('td,th');
+            console.log(cols);
+
+            // Stores each csv row data
+            var csvrow = [];
+            for (var j = 0; j < cols.length; j++) {
+
+                // Get the text data of each cell of
+                // a row and push it to csvrow
+                if(j==5 && i!=0) {
+                    var d = new Date(cols[j].innerText);
+                    month = '' + (d.getMonth() + 1);
+                    day = '' + d.getDate();
+                    year = d.getFullYear();
+                    //console.log(month, day, year)
+
+                    if (month.length < 2) 
+                        month = '0' + month;
+                    if (day.length < 2) 
+                        day = '0' + day;
+                    
+                    newdate = [year, month, day].join('-');
+                    csvrow.push(newdate)
+                }
+                else {
+                    csvrow.push(cols[j].innerText);
+                }
+                //console.log(csvrow);
+            }
+
+            // Combine each column value with comma
+            csv_data.push(csvrow.join(","));
+            console.log(csv_data);
+        }
+
+        csv_data = csv_data.join('\n');
+        // console.log(csv_data)
+
+        downloadCSVFile(csv_data);
+
+    }
+
+    function downloadCSVFile(csv_data) {
+        CSVFile = new Blob([csv_data], { type: "text/csv" });
+
+        // Create to temporary link to initiate
+        // download process
+        var temp_link = document.createElement('a');
+
+        // Download csv file
+        temp_link.download = "logdata.csv";
+        var url = window.URL.createObjectURL(CSVFile);
+        temp_link.href = url;
+
+        // This link should not be displayed
+        temp_link.style.display = "none";
+        document.body.appendChild(temp_link);
+
+        // Automatically click the link to trigger download
+        temp_link.click();
+        document.body.removeChild(temp_link);
+    }
+</script>
+</body>

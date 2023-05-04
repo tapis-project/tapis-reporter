@@ -1,0 +1,10 @@
+version: "3"
+services:
+  tacc_admin:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    container_name: tacc_admin
+    command: [ "gunicorn", "--preload", "-w 4", "-b :8000",  "-t 200", "tacc_admin.wsgi:application" ]

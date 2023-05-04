@@ -1,0 +1,56 @@
+{# WARNING: Some markup is duplicated in other repositories #}
+{# SEE: https://confluence.tacc.utexas.edu/x/LoCnCQ #}
+{# FAQ: Extra lines exist to ease CMS/Portal/Guide template comparison #}
+
+<!-- Sponsor Logos -->
+{% include "includes/header_branding.html" %}
+
+<!-- Navigation Bar -->
+<nav id="s-header" class="navbar navbar-expand-lg navbar-light bg-light">
+  <!-- branding link
+  <a class="navbar-brand" href="{% url 'main:index' %}">JupyterHub Admin Portal</a>
+  -->
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item {% ifequal request.resolver_match.view_name 'main:index' %} active {% endifequal %}">
+        <a class="nav-link" href="{% url 'main:index' %}">Home<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Hub
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a
+            class="dropdown-item {% if request.resolver_match.app_name == 'mounts' %}active{% endif %}"
+            href="{% url 'jupyterhub:index' %}"
+          >
+            JupyterHub
+          </a>
+          <a
+            class="dropdown-item {% if request.resolver_match.app_name == 'images' %}active{% endif %}"
+            href="{% url 'tapis:index' %}"
+          >
+            Tapis
+          </a>
+        </div>
+      </li>
+    </ul>
+    <ul class="navbar-nav">
+      {% if request.user.is_authenticated %}
+        <li class="nav-item">
+          <span class="navbar-text">
+            {{ request.user.username}}
+            (<a href="{% url 'auth:logout' %}">Log Out</a>)
+          </span>
+        </li>
+      {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'auth:tapis_oauth' %}">Log In</a>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>

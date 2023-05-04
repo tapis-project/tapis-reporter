@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Workbench {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+{% block styles %}
+  <link rel="stylesheet" href="">
+  <link rel="stylesheet" href="">
+{% endblock %}
+{% block content %}
+<h2>TACC Admin Portal</h2>
+<p>
+  Welcome to the TACC Admin portal.
+</p>
+<h3>View Usage of different TACC Services</h3>
+<ul>
+  <li><a href="{% url 'jupyterhub:index' %}">JupyterHub</a></li>
+  <li><a href="{% url 'tapis:index' %}">Tapis</a></li>
+</ul>
+{% endblock %}
+{% block scripts %}
+{% endblock %}

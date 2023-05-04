@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% endblock %}
+{% block head_extra %}
+{% endblock %}
+{% block styles %}
+{% endblock %}
+{% block content %}
+  <h3>
+    You must <a href="{% url 'auth:tapis_oauth' %}">
+      log in
+    </a> as an administrative user to use this JupyterHub Admin Portal
+  </h3>
+{% endblock %}
