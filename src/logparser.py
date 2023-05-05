@@ -1,19 +1,11 @@
-import os
-import django
-import argparse
-import re
-from datetime import datetime
-import json
-import logging
-from collections import defaultdict
-import sys
-import gzip
+import os, sys, argparse
+import django, logging
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.apps.jupyterhub.functions import JupyterHubUsage
-from reporter.apps.tapis.service_config import TapisServiceConfig
+from reporter.parsers import JupyterHubUsage, TapisUsage
+from reporter.apps.main import Service
 
 
 logger = logging.getLogger(__name__)
@@ -22,10 +14,10 @@ parser = argparse.ArgumentParser(description='Process arguments')
 parser.add_argument('service')
 args = parser.parse_args()
 
-#services = Services.objects.all().values('tenant')
-valid_services = ['jupyterhub', 'tapis']
-# for service in list(services):
-#     valid_services.append(service['service'])
+valid_services = []
+services = Service.objects.all().values('tenant')
+for service in list(services):
+    valid_services.append(service['service'])
 
 service = args.service
 if service not in valid_services:

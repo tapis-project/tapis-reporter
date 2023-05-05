@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from .models import FileLog, LoginLog, ParsedAccessLog
+from ..apps.jupyterhub.models import FileLog, LoginLog, ParsedAccessLog
 
 
 class JupyterHubUsage:
@@ -67,6 +67,7 @@ class JupyterHubUsage:
                     # Get opened notebooks and where they are
                     elif request_type == 'GET' and '/user/' in split_log[6] and '.ipynb' in split_log[6]:
                         self.add_opened_file(split_log)
+                        
             success = True
             if len(self.file_entries_to_add) > 0:
                 files_added = self.add_file_entries_to_db()

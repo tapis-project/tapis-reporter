@@ -14,39 +14,46 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from reporter.helpers import generate_email_data
-
 logger = logging.getLogger(__name__)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
+
+from .models import FileLog, LoginLog, Tenant
 
 
 host = 'relay.tacc.utexas.edu'
 port = 25
 
 parser = argparse.ArgumentParser(description='Process arguments for email')
-parser.add_argument('service')
 parser.add_argument('tenant')
 args = parser.parse_args()
 
-services = Service.objects.all().values('service')
-valid_services = []
-for service in list(services):
-    valid_services.append(service['service'])
+tenants = Tenant.objects.all().values('tenant')
+valid_tenants = []
+for tenant in list(tenants):
+    valid_tenants.append(tenant['tenant'])
 
-service = args.service
-if service not in valid_services:
-    logger.error(f'{service} not a valid service, expecting one of: {valid_services}')
+tenant = args.tenant
+if tenant not in valid_tenants:
+    logger.error(f'{tenant} not a valid tenant, expecting one of: {valid_tenants}')
     sys.exit()
 
-if services[service]['tenants']
-
+tenant_config = Tenant.objects.get(pk=tenant)
+proper_name = tenant_config.proper_name
+temp_directories = tenant_config.tenantdirectory_set.all().values('directory')
+tenant_directories = []
+for dir in list(temp_directories):
+    tenant_directories.append(dir['directory'])
+temp_recipients = tenant_config.tenantrecipient_set.all().values('recipient')
+tenant_recipients = []
+for rec in list(temp_recipients):
+    tenant_recipients.append(rec['recipient'])
 
 def send_email(plot_path, week_begin, week_end, jupyterhub_stats):
     sender_email = "no-reply@tacc.cloud"
-    receiver_emails = service_recipients
-    primary_receiver = service_config.primary_receiver
+    receiver_emails = tenant_recipients
+    primary_receiver = tenant_config.primary_receiver
 
     message = MIMEMultipart()
     message['Subject'] = f"{proper_name} JupyterHub Usage for {week_begin} - {week_end}"
@@ -98,6 +105,50 @@ def send_email(plot_path, week_begin, week_end, jupyterhub_stats):
     except Exception as e:
         logger.debug(f'ERROR SENDING EMAIL: {e}')
 
+def create_graph(directories, counts):
+    plt.bar(directories, counts, color='green')
+    plt.title('File Access - Notebook Data Depot Locations', fontsize=14)
+    plt.xlabel('Directory', fontsize=14)
+    plt.ylabel('Count', fontsize=14)
+    plt.grid(True)
+
+    filename = str(date.date.today()) + ".png"
+    dir = pathlib.Path(__file__).parent.absolute()
+    
+    folder = r"/results"
+
+    plot_path = str(dir) + folder + filename
+
+    plt.savefig(plot_path)
+
+    return plot_path
+
+def get_directories_and_counts(accessed_files):
+    filepaths = list(accessed_files)
+    dir_counts = {}
+    directories = tenant_directories
+
+    for path in filepaths:
+        dir = path['filepath']
+        for d in directories:
+            if d in dir:
+                dir_counts[d] = dir_counts.get(d, 0) + 1
+
+    directories = []
+    counts = []
+    for dir in dir_counts.keys():
+        directories.append(dir)
+        counts.append(dir_counts[dir])
+
+    counts, directories = zip(*sorted(zip(counts, directories)))
+    
+    directories = list(directories)
+    counts = list(counts)
+    directories.reverse()
+    counts.reverse()
+
+    return directories, counts
+
 def generate_stats(accessed_files, week_begin, week_end):
     created_files = accessed_files.filter(action='created')
     opened_files = accessed_files.filter(action='opened')
@@ -105,7 +156,7 @@ def generate_stats(accessed_files, week_begin, week_end):
     num_created_files = created_files.count()
     num_opened_files = opened_files.count()
 
-    login_users = LoginLog.objects.filter(service=service, date__range=(week_begin, week_end))
+    login_users = LoginLog.objects.filter(tenant=tenant, date__range=(week_begin, week_end))
     unique_login_count = login_users.values('user').distinct().count()
     total_login_count = login_users.count()
 
@@ -132,8 +183,7 @@ if __name__ == '__main__':
     week_end = date.date.today() - date.timedelta(days=1)
     week_begin = week_end - date.timedelta(days=6)
 
-    data = initialize_data(service, week_begin, week_end)
-    accessed_files = FileLog.objects.filter(service=service, date__range=(week_begin, week_end))
+    accessed_files = FileLog.objects.filter(tenant=tenant, date__range=(week_begin, week_end))
     directories, counts = get_directories_and_counts(accessed_files.values('filepath'))
     plot_path = create_graph(directories, counts)
     jupyterhub_stats = generate_stats(accessed_files, week_begin, week_end)
