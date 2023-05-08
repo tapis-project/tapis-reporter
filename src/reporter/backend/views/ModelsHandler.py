@@ -1,52 +1,52 @@
-from apps.main.models import Service, Admin, Tenant, TenantDirectory, TenantRecipient
+from ...apps.main.models import Service, Admin, Tenant, TenantDirectory, TenantRecipient
 
 
-def parse_config(config):
-    save_services(config)
-
-def save_services(config):
-    service = Service(
-        name = config['name']
+def save_service(service):
+    ser = Service(
+        name = service['name']
     )
-    service.save()
-    save_admins(service, config['admins'])
-    save_tenants(config['tenants'])
+    ser.save()
+    save_admins(ser, service['admins'])
 
-def save_admins(service, admins):
+    if service['tenants'] != []:
+        save_tenants(ser, service['tenants'])
+
+def save_admins(ser, admins):
     for admin in admins:
         entry = Admin(
-            service = service,
-            name = admin
+            service = ser,
+            user = admin
         )
         entry.save()
 
-def save_tenants(tenants):
+def save_tenants(ser, tenants):
     for tenant in tenants:
-        primary_receiver = tenant['primary_receiver']
-        proper_name = tenant['proper_name']
         entry = Tenant(
-            tenant = tenant,
-            primary_receiver = primary_receiver,
-            proper_name = proper_name
+            service = ser,
+            name = tenant['name'],
+            primary_receiver = tenant['primary_receiver'],
+            proper_name = tenant['proper_name']
         )
         entry.save()
-    save_directories(entry, tenants['directories'])
-    save_recipients(entry, tenants['recipients'])
 
-def save_directories(entry, config):
-    directories = config['directories']
+        if tenant['directories'] != []:
+            save_directories(entry, tenant['directories'])
+
+        if tenant['recipients'] != []:
+            save_recipients(entry, tenant['recipients'])
+
+def save_directories(entry, directories):
     for directory in directories:
         dir = TenantDirectory(
-            tenant=entry,
-            directory=directory
+            tenant = entry,
+            directory = directory
         )
         dir.save()
 
-def save_recipients(entry, config):
-    recipients = config['recipients']
+def save_recipients(entry, recipients):
     for recipient in recipients:
         rec = TenantRecipient(
-            tenant=entry,
-            recipient=recipient
+            tenant = entry,
+            recipient = recipient
         )
         rec.save()

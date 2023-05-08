@@ -7,8 +7,8 @@ services = [
                 'name': 'designsafe',
                 'proper_name': 'DesignSafe',
                 'directories': ['CommunityData', 'MyData', 'MyProjects', 'NEES', 'NHERI-Published'],
-                'primary_receiver': 'jfreeze@tacc.utexas.edu',
-                'recipients': ['jfreeze@tacc.utexas.edu', 'jstubbs@tacc.utexas.edu', 'ajamthe@tacc.utexas.edu', 'gcurbelo@tacc.utexas.edu', 'hammock@tacc.utexas.edu']
+                'primary_receiver': 'gcurbelo@tacc.utexas.edu',
+                'recipients': ['gcurbelo@tacc.utexas.edu']
             },
             {
                 'name': 'tacc',

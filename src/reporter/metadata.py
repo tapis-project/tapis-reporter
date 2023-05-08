@@ -1,4 +1,3 @@
-from agavepy import Agave
 from tapipy.tapis import Tapis
 from django.conf import settings
 import json

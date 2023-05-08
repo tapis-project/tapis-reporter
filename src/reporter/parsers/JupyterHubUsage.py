@@ -49,7 +49,6 @@ class JupyterHubUsage:
         return True
 
     def parse_jhub_file(self, file, filename):
-        logger.error(f'parse jhub file: {file}')
         try:
             with gzip.open(file, 'rt') as logfile:
                 ParsedAccessLog.objects.filter(pk=filename).update(status='Opened')

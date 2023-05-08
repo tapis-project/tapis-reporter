@@ -5,7 +5,7 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
 from reporter.parsers import JupyterHubUsage, TapisUsage
-from reporter.apps.main import Service
+from reporter.apps.main.models import Service
 
 
 logger = logging.getLogger(__name__)
@@ -14,14 +14,10 @@ parser = argparse.ArgumentParser(description='Process arguments')
 parser.add_argument('service')
 args = parser.parse_args()
 
-valid_services = []
-services = Service.objects.all().values('tenant')
-for service in list(services):
-    valid_services.append(service['service'])
-
-service = args.service
-if service not in valid_services:
-    logger.error(f'{service} not a valid service, expecting one of: {valid_services}')
+try:
+    service = Service.objects.get(pk=args.service)
+except Exception as e:
+    logger.error(f"{args.service} not a valid service")
     sys.exit()
 
 class LogParser:
@@ -31,16 +27,7 @@ class LogParser:
     """
     def __init__(self, service):
         self.service = service
-        #self.service_handler = self.get_service_handler(service)
         self.file_dir = self.get_file_dir(service)
-    
-    @classmethod
-    def get_service_handler(self, service):
-        match service:
-            case 'jupyterhub':
-                return JupyterHubUsage()
-            case 'tapis':
-                return
     
     @classmethod
     def get_file_dir(self, service):
@@ -84,9 +71,8 @@ class LogParser:
         """
         filename = os.path.basename(file)
 
-        match service:
+        match self.service:
             case 'jupyterhub':
-                logger.error('Case: jupyterhub')
                 parser = JupyterHubUsage()
                 status = parser.check_for_jhub_file(filename)
                 if not status:
@@ -99,5 +85,5 @@ class LogParser:
                 return
 
 if __name__ == '__main__':
-    logParser = LogParser(service)
+    logParser = LogParser(args.service)
     logParser.parse()

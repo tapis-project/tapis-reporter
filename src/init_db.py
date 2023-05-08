@@ -6,12 +6,12 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
 from reporter.configs import services
-from reporter.backend.views import parse_config
+from reporter.backend.views import save_service
 
 
 def add_service_configs():
-    for config in services:
-        parse_config(config)
+    for service in services:
+        save_service(service)
 
 if __name__ == '__main__':
     add_service_configs()

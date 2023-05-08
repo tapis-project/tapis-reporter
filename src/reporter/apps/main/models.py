@@ -1,16 +1,27 @@
 from django.db import models
 
+
 # Create your models here.
 
 class Service(models.Model):
     name = models.CharField(max_length=255, primary_key=True)
 
+    def __str__(self):
+        return self.name
+
 class Admin(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, primary_key=True)
+    user = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ['service', 'user']
+
+    def __str__(self):
+        return self.service.name + " " + self.user
 
 class Tenant(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, primary_key=True)
     primary_receiver = models.EmailField()
     proper_name = models.CharField(max_length=255)
 
@@ -18,7 +29,7 @@ class Tenant(models.Model):
         self.save()
     
     def __str__(self):
-        return self.service + " " + self.primary_receiver
+        return self.name
 
 class TenantDirectory(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
@@ -28,7 +39,7 @@ class TenantDirectory(models.Model):
         self.save()
 
     def __str__(self):
-        return self.service.service + " " + self.directory
+        return self.tenant.name + " " + self.directory
     
     class Meta:
         verbose_name_plural = "Tenant Directories"
@@ -41,7 +52,7 @@ class TenantRecipient(models.Model):
         self.save()
 
     def __str__(self):
-        return self.service.service + " " + self.recipient
+        return self.tenant.name + " " + self.recipient
     
     class Meta:
         verbose_name_plural = "Tenant Recipients"
