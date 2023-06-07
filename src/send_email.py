@@ -20,10 +20,7 @@ parser.add_argument('tenant')
 args = parser.parse_args()
 
 services = Service.objects.all().values('name')
-valid_services = []
-for service in list(services):
-    logger.debug(service)
-    valid_services.append(service['name'])
+valid_services = [service['name'] for service in list(services)]
 
 if args.service not in valid_services:
     logger.error(f'{args.service} not a valid service, expecting one of: {valid_services}')
@@ -35,14 +32,9 @@ tenants = service.tenant_set.all()
 service_tenants = [tenant.name for tenant in tenants]
 
 if args.tenant not in service_tenants:
-    logger.error(f"CLI Tenant and Type: {args.tenant} - {type(args.tenant)} ")
-    logger.error(f"Service Tenants {service_tenants} ")
-    logger.error(f"{args.tenant} not a valid tenant for {args.service}")
     sys.exit()
 
-for service_tenant in service_tenants:
-    if service_tenant == args.tenant:
-        tenant = Tenant.objects.get(pk=service_tenant)
+tenant = Tenant.objects.get(pk=args.tenant)
 
 if __name__ == '__main__':
     week_end = date.date.today() - date.timedelta(days=1)

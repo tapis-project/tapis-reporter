@@ -1,10 +1,24 @@
 version: "3"
 services:
-  tacc_admin:
+  web:
     build: .
     env_file:
       - .env
+  web_run:
+    extends:
+      service: web
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8000:8000
-    container_name: tacc_admin
-    command: [ "gunicorn", "--preload", "-w 4", "-b :8000",  "-t 200", "tacc_admin.wsgi:application" ]
+    depends_on:
+      - web_migrate
+  web_migrate:
+    extends:
+      service: web
+    command: python manage.py migrate
+    depends_on:
+      - web_make_migrate
+  web_make_migrate:
+    extends:
+      service: web
+    command: python manage.py makemigrations
