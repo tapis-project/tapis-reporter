@@ -1,0 +1,1 @@
+from .EmailFunctions import generate_email_data
