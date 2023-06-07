@@ -4,21 +4,8 @@ services:
     build: .
     env_file:
       - .env
-  web_run:
-    extends:
-      service: web
+    entrypoint:
+      - /entrypoint.sh
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8000:8000
-    depends_on:
-      - web_migrate
-  web_migrate:
-    extends:
-      service: web
-    command: python manage.py migrate
-    depends_on:
-      - web_make_migrate
-  web_make_migrate:
-    extends:
-      service: web
-    command: python manage.py makemigrations

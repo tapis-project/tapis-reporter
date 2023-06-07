@@ -39,6 +39,10 @@ if not TENANT:
 INSTANCE = os.environ.get('INSTANCE', None)
 if not TENANT:
     logger.warning("Missing INSTANCE environment variable")
+
+METADATA_NAME = os.environ.get('METADATA_NAME', None)
+if not METADATA_NAME:
+    logger.warning("Missing METADATA_NAME environment variable")
     
 # TAPIS API for Metadata
 TAPIS_API_URL = os.environ.get('TAPIS_API_URL', None)
@@ -128,6 +132,17 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': 'db',
+#         'PORT': 5432,
+#     }
+# }
 
 
 # Password validation
