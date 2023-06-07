@@ -35,7 +35,7 @@ def index(request):
         try:
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
-            tenant = settings.TENANT
+            tenant = request.POST.get('tenant')
             query = ''
             if 'file_logs' in request.POST:
                 context['file_logs'] = True 

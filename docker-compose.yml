@@ -6,6 +6,7 @@ services:
       - .env
     entrypoint:
       - /entrypoint.sh
+      - /init_db.sh
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8000:8000
