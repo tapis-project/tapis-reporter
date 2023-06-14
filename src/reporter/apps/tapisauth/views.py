@@ -78,7 +78,7 @@ def tapis_oauth_callback(request):
         logger.warning(msg)
         return HttpResponseBadRequest('Authorization State Failed')
 
-    logger.debug(f"GET request: {request.GET}")
+    logger.error(f"GET request: {request.GET}")
     if 'code' in request.GET:
         redirect_uri = _get_redirect_uri(request)
         METRICS.debug('redirect_uri %s', redirect_uri)
@@ -89,9 +89,9 @@ def tapis_oauth_callback(request):
         client_id = getattr(settings, 'TAPIS_CLIENT_ID')
         client_key = getattr(settings, 'TAPIS_CLIENT_KEY')
 
-        logger.debug(tenant_base_url)
-        logger.debug(client_id)
-        logger.debug(client_key)
+        logger.error(tenant_base_url)
+        logger.error(client_id)
+        logger.error(client_key)
 
         body = {
             "grant_type":"authorization_code",
@@ -99,11 +99,11 @@ def tapis_oauth_callback(request):
             "redirect_uri":redirect_uri
         }
 
-        logger.debug(F"BODY: {body}")
+        logger.error(f"BODY: {body}")
 
         url = '%s/oauth2/tokens' % tenant_base_url
 
-        logger.debug(url)
+        logger.error(url)
 
         data = None
         try:
@@ -113,8 +113,8 @@ def tapis_oauth_callback(request):
                 auth=HTTPBasicAuth(client_id, client_key)
             )
 
-            logger.debug(f"RESPONSE: {response.json()}")
-            
+            logger.error(f"RESPONSE: {response.json()}")
+
             data = response.json()
         except Exception as e:
             logger.debug(e)
