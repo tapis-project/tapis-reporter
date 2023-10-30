@@ -22,7 +22,7 @@ except Exception as e:
 
 class LogParser:
     """
-    Handles parsing the log files pertaining to JupyterHub's NGINX network activity
+    Handles parsing the log files pertaining to Service's NGINX network activity
 
     """
     def __init__(self, service):

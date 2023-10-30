@@ -1,0 +1,172 @@
+{
+    "gateways": [
+        {
+            "name": "3-D Electron Microscopy",
+            "urls": ["https://3dem.org"],
+            "versions": ["2"],
+            "tenant": "3dem",
+            "release_year": "2017"
+        },
+        {
+            "name": "Acute to Chronic Pain Signatures",
+            "urls": ["https://a2cps.org"],
+            "versions": ["2","3"],
+            "tenant": "a2cps",
+            "release_year": "2021"
+        },
+        {
+            "name": "DesignSafe",
+            "urls": ["https://www.designsafe-ci.org"],
+            "versions": ["2","3"],
+            "tenant": "designsafe",
+            "release_year": "2015"
+        },
+        {
+            "name": "CyVerse",
+            "urls": ["https://cyverse.org"],
+            "versions": ["2"],
+            "tenant": "iplantc",
+            "release_year": "2010"
+        },
+        {
+            "name": "Synergistic Discovery and Design",
+            "urls": ["http://www.sd2e.org"],
+            "versions": ["2"],
+            "tenant": "sd2e",
+            "release_year": "2017"
+        },
+        {
+            "name": "Science Gateways Community Institute (Software Catalog)",
+            "urls": ["https://sciencegateways.org","https://catalog.sciencegateways.org"],
+            "versions": ["2"],
+            "tenant": "sgci",
+            "release_year": ""
+        },
+        {
+            "name": "VDJServer",
+            "urls": ["https://vdjserver.org"],
+            "versions": ["2","3"],
+            "tenant": "vdjserver",
+            "release_year": "2015"
+        },
+        {
+            "name": "Univeristy of Texas Research CI Portal",
+            "urls": ["https://utrc.tacc.utexas.edu"],
+            "versions": ["2","3"],
+            "tenant": "tacc",
+            "release_year": "2019"
+        },
+        {
+            "name": "Frontera User Portal",
+            "urls": ["https://frontera-portal.tacc.utexas.edu"],
+            "versions": ["2"],
+            "tenant": "",
+            "release_year": "2018"
+        },
+        {
+            "name": "Araport",
+            "urls": ["https://araport.org"],
+            "versions": ["2"],
+            "tenant": "aip",
+            "release_year": "2015"
+        },
+        {
+            "name": "DARPA SHADE",
+            "urls": ["https://shade-aie.org"],
+            "versions": ["3"],
+            "tenant": "shade",
+            "release_year": "2021"
+        },
+        {
+            "name": "ProTX (Cooks Children's)",
+            "urls": ["https://ccprotx.org"],
+            "versions": ["2"],
+            "tenant": "portals-api",
+            "release_year": "2021"
+        },
+        {
+            "name": "All Payer Claims Database",
+            "urls": ["https://pprd.apcd.tacc.utexas.edu"],
+            "versions": ["2"],
+            "tenant": "portals-api",
+            "release_year": "2022"
+        },
+        {
+            "name": "Hawaii Cliemate Data Portal (HDCP)",
+            "urls": ["https://www.hawaii.edu/climate-data-portal"],
+            "versions": ["2","3"],
+            "tenant": "<uh>",
+            "release_year": "2022"
+        },
+        {
+            "name": "Ike Wai Gateway",
+            "urls": ["https://ikewai.its.hawaii.edu"],
+            "versions": ["2","3"],
+            "tenant": "<uh>",
+            "release_year": "2015"
+        },
+        {
+            "name": "CII (Construction Institute)",
+            "urls": ["https://www.construction-institute.org"],
+            "versions": ["3"],
+            "tenant": "cii",
+            "release_year": "2021"
+        },
+        {
+            "name": "Hawaii Ground Water Recharge Tool",
+            "urls": ["https://recharge.ikewai.org/#/workspace"],
+            "versions": ["2"],
+            "tenant": "<uh>",
+            "release_year": "2019"
+        },
+        {
+            "name": "C-MAIKI",
+            "urls": ["cmaiki.its.hawaii.edu"],
+            "versions": ["2"],
+            "tenant": "<uh>",
+            "release_year": "2015"
+        },
+        {
+            "name": "Micro Ike Wai",
+            "urls": ["http://micro.ikewai.org"],
+            "versions": ["2"],
+            "tenant": "<uh>",
+            "release_year": "2022"
+        },
+        {
+            "name": "Planet Texas 2050",
+            "urls": ["https://ptdatax.tacc.utexas.edu"],
+            "versions": ["2"],
+            "tenant": "portals-api",
+            "release_year": "2019"
+        },
+        {
+            "name": "Covid-19 Portal",
+            "urls": ["https://covid-19.tacc.utexas.edu"],
+            "versions": ["2"],
+            "tenant": "portals-api",
+            "release_year": "2020"
+        },
+        {
+            "name": "Drug Discovery Portal",
+            "urls": ["https://drugdiscovery.tacc.utexas.edu/#/"],
+            "versions": ["2"],
+            "tenant": "tacc",
+            "release_year": "2015"
+        },
+        {
+            "name": "NASA JPL NEID Pipelines (Dashboard)",
+            "urls": ["https://neid-dash.tacc.utexas.edu"],
+            "versions": ["3"],
+            "tenant": "tacc",
+            "release_year": "2021"
+        },
+        {
+            "name": "iReceptor-plus",
+            "urls": ["https://www.ireceptor-plus.com"],
+            "versions": ["2"],
+            "tenant": "irec",
+            "release_year": "2022"
+        }
+    ]
+}

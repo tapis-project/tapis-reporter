@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Gateways {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>Gateways Data for {{ tenant }}</h3>
+    <h4>There have been {{ gateway_count }} gateways between {{ oldest_gateway }} and {{ latest_gateway }}</h4>
+
+
+    <table border=1 class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>URLs</th>
+                <th>Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for gateway in tenant_gateways %}
+                <tr>
+                    <td>
+                        {{ gateway.name }}
+                    </td>
+                    <td>
+                        {{ gateway.urls }}
+                    </td>
+                    <td>
+                        {{ gateway.release_year }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+</body>

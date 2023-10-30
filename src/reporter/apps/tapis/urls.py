@@ -4,4 +4,11 @@ from . import views
 app_name="tapis"
 urlpatterns = [
     path('', views.index, name='index'),
+    path('tenants/', views.tenants, name='tenants'),
+    path('trainings/', views.trainings, name='trainings'),
+    path('gateways/', views.gateways, name='gateways'),
+    path('gateways/<str:tenant>', views.tenant_gateways, name='tenant_gateways'),
+    path('github/', views.github, name='github'),
+    path('papers/', views.papers, name='papers'),
+    path('streams/', views.streams, name='streams'),
 ]

@@ -8,3 +8,4 @@ pytest-mock==3.5.1
 pyjwt[crypto]==1.7.1
 tapipy
 matplotlib
+google-search-results

@@ -62,6 +62,9 @@ def send_jupyterhub_email(data, week_begin, week_end):
                 Number of Notebooks Created: """+str(data['jupyterhub_stats']['num_created_files'])+"""
             </h4>
             <p><img src="cid:0"></p>
+            <h5>
+                Servers with no activity for 7+ Days: """+str(data['old_servers'])+"""
+            </h5>
         </body>
     </html>
     """

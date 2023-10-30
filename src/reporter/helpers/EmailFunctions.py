@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import pathlib
 import django
 import logging
+from django.conf import settings
+import requests
+from datetime import datetime
 
 from itertools import chain
 
@@ -27,12 +30,14 @@ def generate_email_data(service, tenant, week_begin, week_end) -> dict:
             directories, counts = get_directories_and_counts(service, tenant, accessed_files.values('filepath'))
             plot_path = create_graph(directories, counts)
             jupyterhub_stats = generate_stats(service, tenant, accessed_files, week_begin, week_end)
+            old_servers = get_old_servers()
             data = {
                 'tenant_recipients': tenant_recipients,
                 'primary_receiver': tenant.primary_receiver,
                 'proper_name': proper_name,
                 'plot_path': plot_path,
-                'jupyterhub_stats': jupyterhub_stats
+                'jupyterhub_stats': jupyterhub_stats,
+                'old_servers': old_servers
             }
             return data
         case 'tapis':
@@ -143,3 +148,27 @@ def generate_stats(service, tenant, accessed_files, week_begin, week_end):
             pass
         case _:
             pass
+
+def get_old_servers():
+    api_url = settings.JUPYTERHUB_API_URL + '/hub/api/users'
+    headers = {
+        'Authorization': 'token %s' % settings.JUPYTERHUB_TOKEN
+    }
+
+    response = requests.get(api_url, params=None, headers=headers).json()
+    last_activity = [{'user': user['name'], 'last_activity': user['last_activity']} for user in response]
+    old_servers = []
+
+    for entry in last_activity:
+        if entry['last_activity'] is not None:
+            last_datestamp = datetime.strptime(entry['last_activity'], "%Y-%m-%dT%H:%M:%S.%f%z")
+            last_dt = last_datestamp.replace(tzinfo=None)
+            now = datetime.now()
+            
+            diff = now - last_dt
+            days = diff.days
+
+            if days > 7:
+                old_servers.append({'user': entry['user'], 'days': days})
+
+    return old_servers

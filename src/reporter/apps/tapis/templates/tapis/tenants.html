@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Gateways {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>Tenants Data</h3>
+    <h4>There are currently {{ tenant_count }} tenants</h4>
+
+    <table border=1 class="table" id="tenants">
+        <thead>
+            <tr>
+                <th>Tenant</th>
+                <th>Site</th>
+                <th>Description</th>
+                <th>Owner Name</th>
+                <th>Owner Email</th>
+                <th>Institution</th>
+                <th>Date Created</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tenant in tenants %}
+                <tr>
+                    <td>
+                        {{ tenant.tenant_id }}
+                    </td>
+                    <td>
+                        {{ tenant.site_id }}
+                    </td>
+                    <td>
+                        {{ tenant.description }}
+                    </td>
+                    <td>
+                        {{ tenant.name }}
+                    </td>
+                    <td>
+                        {{ tenant.email }}
+                    </td>
+                    <td>
+                        {{ tenant.institution }}
+                    </td>
+                    <td>
+                        {{ tenant.date_created }}
+                    </td>
+                    <td>
+                        {{ tenant.last_updated }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+</body>

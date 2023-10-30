@@ -43,6 +43,26 @@ if not TENANT:
 METADATA_NAME = os.environ.get('METADATA_NAME', None)
 if not METADATA_NAME:
     logger.warning("Missing METADATA_NAME environment variable")
+
+# Token used for JupyterHub access
+JUPYTERHUB_TOKEN = os.environ.get('JUPYTERHUB_TOKEN', None)
+if not JUPYTERHUB_TOKEN:
+    logger.warning("Missing JUPYTERHUB_TOKEN environment variable")
+
+# Token used for GitHub API access
+GITHUB_API_TOKEN = os.environ.get('GITHUB_API_TOKEN', None)
+if not GITHUB_API_TOKEN:
+    logger.warning("Missing GITHUB_API_TOKEN environment variable")
+
+# Token used for Google Serp API
+SERP_API_KEY = os.environ.get('SERP_API_KEY', None)
+if not SERP_API_KEY:
+    logger.warning("Missing SERP_API_KEY environment variable")
+
+# API URL for JupyterHub
+JUPYTERHUB_SERVER = os.environ.get('JUPYTERHUB_SERVER', None)
+if not JUPYTERHUB_SERVER:
+    logger.warning("Missing JUPYTERHUB_API environment variable")
     
 # TAPIS API for Metadata
 TAPIS_API_URL = os.environ.get('TAPIS_API_URL', None)
@@ -89,7 +109,7 @@ INSTALLED_APPS = [
     "reporter.apps.main",
     "reporter.apps.tapisauth",
     "reporter.apps.jupyterhub",
-    "reporter.apps.tapis",
+    "reporter.apps.tapis"
 ]
 
 MIDDLEWARE = [
@@ -132,18 +152,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgres',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         'HOST': 'db',
-#         'PORT': 5432,
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

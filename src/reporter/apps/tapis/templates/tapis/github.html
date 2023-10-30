@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Repositories {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>GitHub Repository Data</h3>
+
+    <table border=1 class="table">
+        <thead>
+            <tr>
+                <th>Repo Owner</th>
+                <th>Repo Name</th>
+                <th>Year Created</th>
+                <th>Total Issues</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for repo in repos %}
+                <tr>
+                    <td>
+                        {{ repo.owner }}
+                    </td>
+                    <td>
+                        {{ repo.name }}
+                    </td>
+                    <td>
+                        {{ repo.year }}
+                    </td>
+                    <td>
+                        {{ repo.total_issues }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+</body>

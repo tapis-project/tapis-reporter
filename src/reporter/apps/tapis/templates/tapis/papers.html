@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Papers {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>Tapis Research Papers</h3>
+
+    <table border=1 class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Primary Author</th>
+                <th>Publication Source</th>
+                <th>Publication Date</th>
+                <th>Co-Authors</th>
+                <th>Citations URL</th>
+                <th># of Citations</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paper in tapis_papers %}
+                <tr>
+                    <td>
+                        {{ paper.title }}
+                    </td>
+                    <td>
+                        {{ paper.primary_author }}
+                    </td>
+                    <td>
+                        {{ paper.publication_source }}
+                    </td>
+                    <td>
+                        {{ paper.publication_date }}
+                    </td>
+                    <td>
+                        {{ paper.co_authors }}
+                    </td>
+                    <td>
+                        <a href="{{ paper.citation_url }}">Link</a>
+                    </td>
+                    <td>
+                        {{ paper.citations }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+</body>
