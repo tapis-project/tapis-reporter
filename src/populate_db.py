@@ -1,11 +1,11 @@
-from reporter.apps.services.tapis.models import TapisInfo, TenantInfo, JobsData
-
 import os
 import django
 import logging
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
+
+from reporter.apps.services.tapis.models import TapisInfo, TenantInfo, JobsData
 
 logger = logging.getLogger(__name__)
 

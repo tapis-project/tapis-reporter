@@ -10,7 +10,7 @@ from itertools import chain
 import json
 from django.urls import reverse
 import requests
-from .models import Paper, SplunkData
+from .models import Paper, TenantServiceUsage
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,6 @@ def tenants(request):
         else:
             context['tenants'] = tenants
             context['tenant_count'] = len(tenants)
-            
 
         return HttpResponse(template.render(context, request))
 

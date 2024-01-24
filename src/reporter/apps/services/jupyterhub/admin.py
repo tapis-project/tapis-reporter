@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import FileLog, LoginLog, ParsedAccessLog
+from .models import FileLog, LoginLog, ParsedNginxFile
 
 # Register your models here.
 admin.site.register(FileLog)
 admin.site.register(LoginLog)
-admin.site.register(ParsedAccessLog)
+admin.site.register(ParsedNginxFile)
