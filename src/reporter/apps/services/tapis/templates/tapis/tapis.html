@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Tapis {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>Tapis Data</h3>
+
+    <table border=1 class="table" id="tapis">
+        <thead>
+            <tr>
+                <th>Tokens</th>
+                <th>Users</th>
+                <th>Containerized Apps</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    {{ tokens }}
+                </td>
+                <td>
+                    {{ users }}
+                </td>
+                <td>
+                    {{ num_ctr_apps }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
+</body>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Gateways {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>Training Data</h3>
+
+    <table border=1 class="table">
+        <thead>
+            <tr>
+                <th>Training</th>
+                <th>Forum</th>
+                <th>Date</th>
+                <th>Number of Attendees</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for training in trainings_data %}
+                <tr>
+                    <td>
+                        {{ training.name }}
+                    </td>
+                    <td>
+                        {{ training.forum }}
+                    </td>
+                    <td>
+                        {{ training.date }}
+                    </td>
+                    <td>
+                        {{ training.num_attendees }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+</body>

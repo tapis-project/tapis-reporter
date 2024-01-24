@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Workbench {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+{% block styles %}
+  <link rel="stylesheet" href="">
+  <link rel="stylesheet" href="">
+{% endblock %}
+<body>
+{% block content %}
+    <h3>
+    Tapis Service Data
+    </h3>
+    <p>
+    View how different Tapis services are utilized
+    </p>
+    
+    <ul>
+        <li><a href="{% url 'tapis:tenants' %}">Tenants</a></li>
+        <li><a href="{% url 'tapis:gateways' %}">Gateways</a></li>
+        <li><a href="{% url 'tapis:trainings' %}">Trainings</a></li>
+        <li><a href="{% url 'tapis:github' %}">GitHub</a></li>
+        <li><a href="{% url 'tapis:papers' %}">Papers</a></li>
+        <li><a href="{% url 'tapis:streams' %}">Streams</a></li>
+        <li><a href="{% url 'tapis:splunk' %}">Splunk</a></li>
+        <li>
+            Link to Tapis read the docs: <a href="{{ tapisdocs }}">{{ tapisdocs }}</a>
+        </li>
+    </ul>
+
+{% endblock %}
+</body>

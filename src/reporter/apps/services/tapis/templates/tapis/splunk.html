@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Splunk {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>Splunk Data</h3>
+
+
+    <!-- <form method="POST" id="gateways-form">{% csrf_token %}
+        <select name="tenant" id="tenant">
+            {% for gateway in gateways_data %}
+                <option value={{ gateway.tenant }}>{{ gateway.tenant }}</option> 
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary" name="tenants_gateways">View Tenant Gateway</button>
+    </form> -->
+
+    <table border=1 class="table">
+        <thead>
+            <tr>
+                <th>Tenant</th>
+                <th>Service</th>
+                <th># of Calls</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in splunk_data %}
+                <tr>
+                    <td>
+                        {{ data.tenant }}
+                    </td>
+                    <td>
+                        {{ data.service }}
+                    </td>
+                    <td>
+                        {{ data.num_calls }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+</body>
