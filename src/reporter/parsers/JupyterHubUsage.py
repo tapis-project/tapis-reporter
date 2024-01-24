@@ -1,14 +1,12 @@
-import os
-import django
 import re
 import gzip
 from datetime import datetime
-
 import logging
 
-logger = logging.getLogger(__name__)
+from ..apps.services.jupyterhub.models import FileLog, LoginLog, ParsedNginxFile
+from ..helpers import get_home_path, get_symbolic_links
 
-from ..apps.jupyterhub.models import FileLog, LoginLog, ParsedAccessLog
+logger = logging.getLogger(__name__)
 
 
 class JupyterHubUsage:
@@ -24,48 +22,62 @@ class JupyterHubUsage:
         self.home_path = ""
         self.symbolic_links = {}
         self.file_entries_to_add = []
-        self.login_entries_to_add =[]
+        self.login_entries_to_add = []
 
-    def check_for_jhub_file(self, filename):
+    def is_file_parsed(self, filename):
         logger.error(f'filename: {filename}')
-        file_exists = ParsedAccessLog.objects.filter(pk = filename).exists()
+        file_exists = ParsedNginxFile.objects.filter(pk=filename).exists()
         if file_exists:
-            fileobj = ParsedAccessLog.objects.filter(pk=filename)[0]
-            status = fileobj.status
-            if status == 'Success':
+            fileobj = ParsedNginxFile.objects.filter(pk=filename)[0]
+            parsed_status = fileobj.status
+            if parsed_status == 'Success':
                 logger.error(f"{filename} exists -- skipping")
-                return False
-        elif not file_exists:
+                return True
+        return False
+
+    def add_file_to_db(self, filename):
+        '''
+        Add NGINX file entry to ParsedNginxFile table
+        '''
+        file_exists = ParsedNginxFile.objects.filter(pk=filename).exists()
+        if not file_exists:
             try:
-                ParsedAccessLog.objects.create(
-                    filename = filename,
-                    status = 'Queued',
-                    error = ''
+                ParsedNginxFile.objects.create(
+                    filename=filename,
+                    status='Queued',  # Initialize parsed status to 'queued'
+                    error=''
                 )
+                return True
             except Exception as e:
-                logger.exception(f"Error creating entry for file: {filename}")
+                logger.exception(f"Error creating database entry for file: {filename}")
                 logger.exception(e)
                 return False
-        return True
-
+        
     def parse_jhub_file(self, file, filename):
         try:
             with gzip.open(file, 'rt') as logfile:
-                ParsedAccessLog.objects.filter(pk=filename).update(status='Opened')
+                # Update ParsedNginxFile status to 'opened'
+                ParsedNginxFile.objects.filter(pk=filename).update(status='Opened')
+
                 for log in logfile:
                     self.set_tenant(log)
-                    split_log = re.split(r'\s' ,log)
-                    request_type = split_log[5][1:]
-                    request_status = split_log[8]
-                    # Check if user is authorized by TAPIS auth
-                    if '/hub/api/oauth2/authorize' in log:
-                        self.parse_login_info(split_log)
-                    # Check if user created a notebook
-                    elif request_type == 'GET' and 'Untitled.ipynb?kernel_name' in split_log[6]:
-                        self.add_created_file(split_log)
-                    # Get opened notebooks and where they are
-                    elif request_type == 'GET' and '/user/' in split_log[6] and '.ipynb' in split_log[6]:
-                        self.add_opened_file(split_log)
+                    self.home_path = get_home_path(self.tenant)
+                    self.symbolic_links = get_symbolic_links(self.tenant)
+
+                    log_info = self.get_info_from_log(log)
+                    if log_info is not None:
+                        request_type = log_info['request_type']
+                        path = log_info['raw_path']
+
+                        if '/hub/api/oauth2/authorize' in log:
+                            self.add_login_entry(log_info)
+                        if log_info['file'] is not None:
+                            # Check if user created a notebook
+                            if request_type == 'GET' and 'Untitled.ipynb?kernel_name' in path:
+                                self.add_created_file(log_info)
+                            # Get opened notebooks and where they are
+                            elif request_type == 'GET' and '/user' in path and '.ipynb' in log_info['file']:
+                                self.add_opened_file(log_info)
                         
             success = True
             if len(self.file_entries_to_add) > 0:
@@ -77,18 +89,18 @@ class JupyterHubUsage:
                 success = False if not logins_added == 'Added' else success
                 error = logins_added if not logins_added == 'Added' else ''
             if success:
-                logger.info(f"{filename} -- Success")
-                ParsedAccessLog.objects.filter(pk=filename).update(status='Success')
+                logger.info(f"{filename} -- Succeeded")
+                ParsedNginxFile.objects.filter(pk=filename).update(status='Succeeded')
                 return True
             else:
                 logger.info(f"{filename} -- Failed")
-                ParsedAccessLog.objects.filter(pk=filename).update(status='Failed', error=error)
+                ParsedNginxFile.objects.filter(pk=filename).update(status='Failed', error=error)
                 return False
         except Exception as e:
-            ParsedAccessLog.objects.filter(pk=filename).update(status='Failed', error=e)
+            ParsedNginxFile.objects.filter(pk=filename).update(status='Failed', error=e)
             logger.exception(e)
             return False
-    
+
     def add_file_entries_to_db(self):
         """
         Add file entries to database
@@ -145,36 +157,6 @@ class JupyterHubUsage:
                     time=info['time']
                 ))
 
-    def set_home_path(self):
-        """
-        Set home path based off of tenant
-
-        :return: home path of tenant
-        """
-        home_paths = {
-            'tacc': '/home/jovyan',
-            'designsafe': '/home/jupyter'
-        }
-        return home_paths.get(self.tenant, "")
-
-    def set_symbolic_links(self):
-        """
-        Set symbolic link based off of tenant
-
-        :return: symbolic link(s) of tenant
-        """
-        symbolic_links = {
-            'tacc': {
-                '/home/jovyan/shared': '/home/jovyan/team_classify/shared'
-            },
-            'designsafe': {
-                '/home/jupyter/community': '/home/jupyter/CommunityData',
-                '/home/jupyter/mydata': '/home/jupyter/MyData',
-                '/home/jupyter/projects': '/home/jupyter/MyProjects'
-            }
-        }
-        return symbolic_links.get(self.tenant, {})
-
     def set_tenant(self, log):
         """
         Set tenant if tenant not provided
@@ -188,28 +170,25 @@ class JupyterHubUsage:
         elif 'jupyter.designsafe-ci.org' in log or '/home/jupyter/' in split_log[6]:
             self.tenant = 'designsafe'
 
-        self.home_path = self.set_home_path()
-        self.symbolic_links = self.set_symbolic_links()
-
-    def get_user(self, split_log):
+    def get_user(self, path):
         """
         Gets user from HTTP call
 
         :param split_log: current log split into an array
         :return: username or None if not found
         """
-        hub_call = split_log[6]
-        if 'client_id=' in hub_call:
-            hub_call = hub_call.split('client_id=')
-            jhub_user = hub_call[1].split('&', 1)[0]
-            return jhub_user.split('-')[2]
-        elif '/user/' in hub_call:
-            split_call = hub_call.split('/')
-            user_index = split_call.index('user')
-            jhub_user = split_call[user_index+1]
+        split_with_user = None
+        if 'client_id=' in path:
+            split_client = path.split('client_id=')
+            split_path = split_client[1].split('&', 1)[0]
+            split_with_user = split_path.split('-')
+        elif '/user/' in path:
+            split_with_user = path.split('/')
+
+        if split_with_user is not None:
+            user_index = split_with_user.index('user')
+            jhub_user = split_with_user[user_index+1]
             return jhub_user
-        else:
-            return None
 
     def parse_special_characters(self, str):
         """
@@ -258,7 +237,7 @@ class JupyterHubUsage:
                 if self.home_path != "":
                     true_path = path.replace(network_path, self.home_path)
                     true_path = self.check_for_symbolic_link(true_path)
-                return true_path
+                    return true_path
         return path
 
     def get_path(self, split_log):
@@ -276,67 +255,80 @@ class JupyterHubUsage:
         path = self.parse_special_characters(path)
         return path
 
-    def get_file(self, split_log):
+    def get_file(self, path):
         """
         Gets file accessed in HTTP call
 
         :param split_log: current log split into an array
         :return: file accessed
         """
-        file = re.search(r'[^/]*.ipynb', split_log[6]).group()
-        file = self.parse_special_characters(file)
+        file = re.search(r'[^/]*.ipynb', path)
+        if file:
+            file = file.group()
+            file = self.parse_special_characters(file)
         return file
 
-    def get_date_time(self, split_log):
+    def get_date(self, date):
         """
         Change date to YYYY-MM-DD format
 
         :param init_date: date from log
         :return: formatted date
         """
-        timestamp = split_log[3][1:].split(':', 1)
+        date_obj = datetime.strptime(date, "%d/%b/%Y")
+        return date_obj.strftime("%Y-%m-%d")
 
-        time = timestamp[1]
-        dateobj = datetime.strptime(timestamp[0], "%d/%b/%Y").date()
-        date = dateobj.strftime('%Y-%m-%d')
-        return {'date': date, 'time': time}
-
-    def get_info_from_log(self, split_log):
+    def get_info_from_log(self, log):
         """
         Change date to YYYY-MM-DD format
 
         :param init_date: date from log
         :return: formatted date
         """
-        user = self.get_user(split_log)
-        raw_filepath = self.get_path(split_log)
-        path = self.get_true_path(user, raw_filepath)
-        file = self.get_file(split_log)
-        datetime_dict = self.get_date_time(split_log)
-        date = datetime_dict['date']
-        time = datetime_dict['time']
-        ip_address = split_log[0]
+        regex = re.compile(r'(?P<jup_client_ip>\S+) - - \[(?P<jup_date>\d{2}\/\w+\/\d{4}):(?P<jup_time>\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] "(?P<jup_method>\S+) (?P<jup_path>\S+) \S+" (?P<jup_status_code>\d+) (?P<jup_bytes_sent>\d+) "(?P<jup_referer>[^"]+)" "(?P<jup_user_agent>[^"]+)" "-"')
+        match = regex.match(log)
 
-        return {'user': user, 'raw_filepath': raw_filepath, 'path': path, 'file': file, 'date': date, 'time': time, 'ip_address': ip_address}
+        if not match:
+            return
 
-    def parse_login_info(self, split_log):
+        log_info = {name: match.group(name) for name in match.groupdict()}
+        try:
+            user = self.get_user(log_info['jup_path'])
+            raw_path = log_info['jup_path']
+            network_path = self.get_path(log_info['jup_path'])
+            path = self.get_true_path(user, network_path)
+            file = self.get_file(log_info['jup_path'])
+            date = self.get_date(log_info['jup_date'])
+            request_type = log_info['jup_method']
+
+            time = log_info['jup_time'].split(' ')[0]
+            ip_address = log_info['jup_client_ip']
+            system_info = log_info['jup_user_agent']
+        except Exception as e:
+            print(f"Error parsing out info: {e}")
+
+        return {'user': user, 'raw_path': raw_path, 'network_path': network_path, 'path': path, 'file': file, 'date': date, 'time': time, 'ip_address': ip_address, 'request_type': request_type, 'system_info': system_info}
+
+    def add_login_entry(self, log_info):
         """
-        Get info from Tapis authorization call and log users
+        Count login entry from current log
 
-        :param split_log: current log split into an array
+        :param log_info: current log's info
         :return: nothing
         """
-        user = self.get_user(split_log)
-        datetime_dict = self.get_date_time(split_log)
-        date = datetime_dict['date']
-        time = datetime_dict['time']
+        user = log_info['user']
+        date = log_info['date']
+        time = log_info['time']
+
         info = {
             'user': user,
             'date': date,
             'time': time,
             'action': 'login',
-            'ip_address': split_log[0]
+            'ip_address': log_info['ip_address'],
+            'system_info': log_info['system_info']
         }
+
         insert = False
 
         if date in self.login_dates:
@@ -357,17 +349,17 @@ class JupyterHubUsage:
             self.login_times[user] = time
             self.login_counts[user] = 1
             insert = True
-        
-        if insert: self.add_log_to_entries(info)
 
-    def add_created_file(self, split_log):
+        if insert:
+            self.add_log_to_entries(info)
+
+    def add_created_file(self, info):
         """
         Add file to created files dict
 
         :param split_log: current log split into an array
         :return: nothing
         """
-        info = self.get_info_from_log(split_log)
         user = info['user']
         path = info['path']
         file = info['file']
@@ -377,7 +369,7 @@ class JupyterHubUsage:
         new_date = True
 
         if user in self.created_files:
-            if [path,file] not in self.created_files[user]:
+            if [path, file] not in self.created_files[user]:
                 self.created_files[user].append([path, file])
             else:
                 new_file = False
@@ -397,18 +389,16 @@ class JupyterHubUsage:
 
         if new_file or new_date:
             self.add_log_to_entries(info)
-        elif new_file == False and new_date:
+        elif not new_file and new_date:
             self.add_log_to_entries(info)
 
-
-    def add_opened_file(self, split_log):
+    def add_opened_file(self, info):
         """
         Add file to opened files dict
 
         :param split_log: current log split into an array
         :return:  nothing
         """
-        info = self.get_info_from_log(split_log)
         user = info['user']
         path = info['path']
         file = info['file']
@@ -418,13 +408,13 @@ class JupyterHubUsage:
         new_date = True
 
         if user in self.opened_files:
-            if [path,file] not in self.opened_files[user]:
+            if [path, file] not in self.opened_files[user]:
                 self.opened_files[user].append([path, file])
             else:
                 new_file = False
         else:
             self.opened_files[user] = [[path, file]]
-        
+
         if date in self.daily_files:
             if user not in self.daily_files[date]:
                 self.daily_files[date][user] = {}
@@ -435,8 +425,8 @@ class JupyterHubUsage:
             self.daily_files[date] = {}
             self.daily_files[date][user] = {}
             self.daily_files[date][user]['opened'] = self.opened_files[user]
-        
+
         if new_file or new_date:
             self.add_log_to_entries(info)
-        elif new_file == False and new_date:
+        elif not new_file and new_date:
             self.add_log_to_entries(info)

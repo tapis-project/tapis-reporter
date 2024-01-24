@@ -1,21 +1,19 @@
 import os
-
 import django
 import logging
 from django.conf import settings
 import requests
-from datetime import datetime
 
-from itertools import chain
-from serpapi import GoogleSearch 
+from serpapi import GoogleSearch
 
-from ..apps.tapis.models import Paper
+from ..apps.services.tapis.models import Paper
 
 
 logger = logging.getLogger(__name__)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
+
 
 def save_tapis_papers(tapis_papers):
     """
@@ -29,6 +27,7 @@ def save_tapis_papers(tapis_papers):
     except Exception as e:
         logger.error(f"Unable to add tapis papers; error: {e}")
         return False
+
 
 def get_tapis_papers():
     papers_url = requests.get('https://raw.githubusercontent.com/tapis-project/tapis-reporting/main/tapis_papers.json')
@@ -67,13 +66,13 @@ def get_tapis_papers():
                         co_authors = ','.join(authors[1:])
 
                         paper = Paper(
-                            title = article['title'],
-                            primary_author = authors[0],
-                            publication_source = article['publication'],
-                            publication_date = article['year'],
-                            co_authors = co_authors,
-                            citation_url = article['link'],
-                            citations = article['cited_by']['value']
+                            title=article['title'],
+                            primary_author=authors[0],
+                            publication_source=article['publication'],
+                            publication_date=article['year'],
+                            co_authors=co_authors,
+                            citation_url=article['link'],
+                            citations=article['cited_by']['value']
                         )
 
                         tapis_papers.append(paper)
@@ -81,17 +80,21 @@ def get_tapis_papers():
         if paper_source['source'] == 'researchgate':
             for article in paper_source['papers']:
                 paper = Paper(
-                    title = article['title'],
-                    primary_author = article['primary_author'],
-                    publication_source = article['publication_source'],
-                    publication_date = article['publication_date'],
-                    co_authors = ','.join(article['co_authors']),
-                    citation_url = article['citation_url'],
-                    citations = article['citations']
+                    title=article['title'],
+                    primary_author=article['primary_author'],
+                    publication_source=article['publication_source'],
+                    publication_date=article['publication_date'],
+                    co_authors=','.join(article['co_authors']),
+                    citation_url=article['citation_url'],
+                    citations=article['citations']
                 )
                 tapis_papers.append(paper)
 
     logger.error(f'tapis_papers in get_tapis_papers function: {tapis_papers}')
-    
+
     status = save_tapis_papers(tapis_papers)
     return status
+
+
+if __name__ == '__main__':
+    get_tapis_papers()
