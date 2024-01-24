@@ -26,11 +26,13 @@ services = [
             {
                 'name': 'tacc',
                 'proper_name': 'TACC',
+                'primary_receiver': 'jstubbs@tacc.utexas.edu',
                 'key_name': 'TAPIS_SERVICE_TOKEN'
             },
             {
                 'name': 'dev.develop',
                 'proper_name': 'Dev',
+                'primary_receiver': 'jstubbs@tacc.utexas.edu',
                 'key_name': 'DEV_TAPIS_TOKEN'
             }
         ]
