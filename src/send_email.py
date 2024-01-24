@@ -1,5 +1,10 @@
-import os, sys, argparse
+from reporter.helpers import generate_email_data
+from reporter.apps.main.models import Service, Tenant
+from reporter.apps.services.jupyterhub.utils import send_jupyterhub_email
 
+import os
+import sys
+import argparse
 import django
 import datetime as date
 import logging
@@ -8,11 +13,6 @@ logger = logging.getLogger(__name__)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
-
-from reporter.helpers import generate_email_data
-from reporter.apps.main.models import Service, Tenant
-from reporter.apps.jupyterhub.utils import send_jupyterhub_email
-
 
 parser = argparse.ArgumentParser(description='Process arguments for email')
 parser.add_argument('service')
@@ -23,7 +23,9 @@ services = Service.objects.all().values('name')
 valid_services = [service['name'] for service in list(services)]
 
 if args.service not in valid_services:
-    logger.error(f'{args.service} not a valid service, expecting one of: {valid_services}')
+    logger.error(
+        f'{args.service} not valid service, expecting one of: {valid_services}'
+    )
     sys.exit()
 
 service = Service.objects.get(pk=args.service)
