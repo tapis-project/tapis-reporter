@@ -1,3 +1,6 @@
 */**/__pycache__
 */**/filelogs
 .env
+*/docs
+*-DEPRECATED*
+*/**/general/
