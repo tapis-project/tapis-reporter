@@ -1,16 +1,11 @@
 """Auth backends"""
 import logging
 import requests
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from reporter.metadata import get_tapis_config_metadata
-import jwt
-from tapipy.tapis import Tapis
 
-#pylint: disable=invalid-name
 logger = logging.getLogger(__name__)
-#pylint: enable=invalid-name
 
 class TapisOAuthBackend(ModelBackend):
     def authenticate(self, *args, **kwargs):
