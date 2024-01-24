@@ -3,10 +3,11 @@ import django
 import logging
 from typing import List
 
-from ..parsers import JupyterHubUsage, TapisUsage
-
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
+
+from ..parsers.JupyterHubUsage import JupyterHubUsage
+from ..parsers.TapisUsage import TapisUsage
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ class LogParser:
                 if not has_been_parsed:
                     # add file entry to ParsedNginxFile db
                     parser.add_file_to_db(filename)
-                    
+
                     # parse the file
                     file_parsed = parser.parse_jhub_file(file, filename)
 

@@ -6,13 +6,12 @@ import requests
 
 from serpapi import GoogleSearch
 
-from ..apps.services.tapis.models import Paper
-
-
 logger = logging.getLogger(__name__)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
+
+from ..apps.services.tapis.models import Paper
 
 
 def save_tapis_papers(tapis_papers):
@@ -94,7 +93,3 @@ def get_tapis_papers():
 
     status = save_tapis_papers(tapis_papers)
     return status
-
-
-if __name__ == '__main__':
-    get_tapis_papers()

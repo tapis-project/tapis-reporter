@@ -12,9 +12,10 @@ from urllib.parse import urlparse, urlunparse
 import splunklib.client as client
 import splunklib.results as results
 
-from ..apps.services.tapis.models import TenantServiceUsage
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
+
+from ..apps.services.tapis.models import TenantServiceUsage
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +37,13 @@ class TapisUsage:
         
         midnight = datetime.combine(datetime.today(), time.min)
         yesterday_midnight = midnight - timedelta(days=1)
+        start_time = yesterday_midnight
 
         hours = []
-        while yesterday_midnight <= midnight:
-            hours.append(yesterday_midnight)
-            yesterday_midnight += timedelta(hours=1)
-        
+        while start_time <= midnight:
+            hours.append(start_time)
+            start_time += timedelta(hours=1)
+
         bulk_splunk_data = []
         tenants_and_services = {}
         total_result_count = 0
@@ -117,14 +119,14 @@ class TapisUsage:
                                     tenants_and_services[tenant] = tenants_and_services.get(tenant, {})
                                     tenants_and_services[tenant][tap_service] = tenants_and_services[tenant].get(tap_service, 0) + 1
                         except Exception as e:
-                            print(f"Error parsing log: {e}")
-                            print(result["_raw"])
+                            logger.error(f"Error parsing log: {e}")
+                            logger.error(result["_raw"])
                             nginx_log_format = re.compile(
                                 r'(?P<tap_datetimestamp>[\d\-:T\.+]+) \S+ \S+ (?P<tap_client_ip>\d+\.\d+\.\d+\.\d+) - - \[(?P<tap_date>\d{2}/\w+/\d{4}):(?P<tap_time>\d{2}:\d{2}:\d{2}) (\+|\-)\d{4}\] "(?P<tap_host>(?P<tap_tenant>.*?)\.\S+)" "(?P<tap_request_method>\S+) (?P<tap_path>\S+) \S+" (?P<tap_status_code>\d+) (?P<tap_bytes_sent>\d+) "(?P<tap_referer>[^"]*)" "(?P<tap_user_agent>[^"]*)" "-"'
                             )
                             
                             log_data = re.match(nginx_log_format, log)
-                            print(log_data)
+                            logger.error(log_data)
                     
                     offset += count
                 
@@ -141,7 +143,8 @@ class TapisUsage:
                             log_count=tenants_and_services[tenant][service]
                         )
                         bulk_splunk_data.append(splunk_data)
-                
+
+                logger.debug(tenants_and_services)
                 tenants_and_services = {}
 
         saved = False

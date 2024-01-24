@@ -1,10 +1,3 @@
-import logging
-
-logger = logging.getLogger(__name__)
-
-from ..apps.services.jupyterhub.models import ParsedNginxFile
-
-
 def get_home_path(tenant):
     """
     Set home path based off of tenant

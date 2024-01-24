@@ -11,14 +11,13 @@ from datetime import datetime
 
 from itertools import chain
 
-from ..apps.services.jupyterhub.models import FileLog, LoginLog
-from ..apps.main.models import Service
-
-
 logger = logging.getLogger(__name__)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
+
+from ..apps.services.jupyterhub.models import FileLog, LoginLog
+
 
 def generate_email_data(service, tenant, week_begin, week_end) -> dict:
     proper_name = tenant.proper_name
