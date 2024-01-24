@@ -11,7 +11,7 @@ from datetime import datetime
 
 from itertools import chain
 
-from ..apps.jupyterhub.models import FileLog, LoginLog
+from ..apps.services.jupyterhub.models import FileLog, LoginLog
 from ..apps.main.models import Service
 
 
