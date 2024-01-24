@@ -9,3 +9,4 @@ pyjwt[crypto]==1.7.1
 tapipy
 matplotlib
 google-search-results
+splunk-sdk==1.7.4

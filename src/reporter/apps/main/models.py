@@ -5,9 +5,14 @@ from django.db import models
 
 class Service(models.Model):
     name = models.CharField(max_length=255, primary_key=True)
+    source = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('name', 'source')
 
     def __str__(self):
         return self.name
+
 
 class Admin(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
@@ -19,6 +24,7 @@ class Admin(models.Model):
     def __str__(self):
         return self.service.name + " " + self.user
 
+
 class Tenant(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, primary_key=True)
@@ -27,9 +33,10 @@ class Tenant(models.Model):
 
     def saveserviceconfig(self):
         self.save()
-    
+
     def __str__(self):
         return self.name
+
 
 class TenantDirectory(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
@@ -40,9 +47,10 @@ class TenantDirectory(models.Model):
 
     def __str__(self):
         return self.tenant.name + " " + self.directory
-    
+
     class Meta:
         verbose_name_plural = "Tenant Directories"
+
 
 class TenantRecipient(models.Model):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
@@ -53,6 +61,6 @@ class TenantRecipient(models.Model):
 
     def __str__(self):
         return self.tenant.name + " " + self.recipient
-    
+
     class Meta:
         verbose_name_plural = "Tenant Recipients"
