@@ -78,8 +78,27 @@ if not TAPIS_SERVICE_TOKEN:
 TAPIS_CLIENT_ID = os.environ.get('TAPIS_CLIENT_ID', None)
 TAPIS_CLIENT_KEY = os.environ.get('TAPIS_CLIENT_KEY', None)
 if not TAPIS_CLIENT_ID or not TAPIS_CLIENT_KEY:
-    logger.warning("Missing TAPIS_CLIENT_ID or TAPIS_CLIENT_KEY environment variable")
+    logger.warning(
+        "Missing TAPIS_CLIENT_ID or TAPIS_CLIENT_KEY environment variable"
+    )
 
+# Splunk credentials
+SPLUNK_HOST = os.environ.get('SPLUNK_HOST', None)
+SPLUNK_PORT = os.environ.get('SPLUNK_PORT', None)
+SPLUNK_USER = os.environ.get('SPLUNK_USER', None)
+SPLUNK_PASS = os.environ.get('SPLUNK_PASS', None)
+if not SPLUNK_HOST or not SPLUNK_PORT or not SPLUNK_USER or not SPLUNK_PASS:
+    logger.warning(
+        "Missing SPLUNK_HOST or SPLUNK_PORT or SPLUNK_USER or SPLUNK_PASS"
+    )
+
+SLACK_CHANNEL = os.environ.get('SLACK_CHANNEL', None)
+SLACK_USER = os.environ.get('SLACK_USER', None)
+SLACK_URL = os.environ.get('SLACK_URL', None)
+if not SLACK_CHANNEL or not SLACK_USER or not SLACK_URL:
+    logger.warning(
+        "Miss SLACK_CHANNEL or SLACK_USER or SLACK_URL"
+    )
 
 ALLOWED_HOSTS = ['*']
 
@@ -108,8 +127,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "reporter.apps.main",
     "reporter.apps.tapisauth",
-    "reporter.apps.jupyterhub",
-    "reporter.apps.tapis"
+    "reporter.apps.services.jupyterhub",
+    "reporter.apps.services.tapis",
 ]
 
 MIDDLEWARE = [
@@ -150,6 +169,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+
     }
 }
 
@@ -196,3 +216,20 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+STATICFILE_DIRS = [
+    BASE_DIR / "static"
+]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}
