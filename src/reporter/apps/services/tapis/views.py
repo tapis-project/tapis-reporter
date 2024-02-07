@@ -109,7 +109,6 @@ def gateways(request):
             context['gateways_data'] = gateways_data
             context['num_gateways'] = num_gateways
             context['oldest_gateway'] = oldest_gateway['release_year']
-            logger.debug(f"context sent to html: {context}")
 
         except Exception as e:
             logger.error(f"ERROR: {e}")
@@ -176,6 +175,7 @@ def github(request):
 
         return HttpResponse(template.render(context, request))
 
+
 @login_required
 def papers(request):
     if request.method == 'GET':
@@ -197,6 +197,7 @@ def papers(request):
         
         return HttpResponse(template.render(context, request))
 
+
 @login_required
 def streams(request):
     if request.method == 'GET':
@@ -216,6 +217,7 @@ def streams(request):
         context['message'] = e
     
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 def splunk(request):
@@ -238,6 +240,7 @@ def splunk(request):
         
         return HttpResponse(template.render(context, request))
 
+
 def build_tenant_model(tenant_info, owner_info):
     tenant = {
         'tenant_id': tenant_info['tenant_id'],
@@ -250,6 +253,7 @@ def build_tenant_model(tenant_info, owner_info):
         'last_updated': owner_info['last_update_time']
     }
     return tenant
+
 
 def get_streams_data():
 
@@ -285,24 +289,29 @@ def get_streams_data():
 
     return streams_data
 
+
 def load_splunk_data():
     logger.info('in load splunk data for html')
-    splunk_data_qs = SplunkData.objects.all()
-    logger.info(f'splunk_data_qs: {splunk_data_qs}')
+    tenant_service_qs = TenantServiceUsage.objects.all()
+    logger.info(f'tenant_service_qs: {tenant_service_qs}')
     all_splunk_data = []
 
-    for splunk_data in splunk_data_qs:
+    for splunk_data in tenant_service_qs:
         logger.error(f'splunk_data: {splunk_data}')
+        date = f"{splunk_data.log_month}/{splunk_data.log_day}/{splunk_data.log_year}"
         all_splunk_data.append({
+            'date': date,
+            'start_time': splunk_data.start_time,
+            'end_time': splunk_data.end_time,
             'tenant': splunk_data.tenant,
-            'env': splunk_data.env,
             'service': splunk_data.service,
-            'num_calls': splunk_data.num_calls
+            'count': splunk_data.log_count
         })
 
     logger.error(f'all_splunk_data from db: {all_splunk_data}')
     
     return all_splunk_data
+
 
 def load_tapis_papers():
     logger.error('in get tapis papers for html')
@@ -326,6 +335,7 @@ def load_tapis_papers():
     
     return tapis_papers
 
+
 def get_gateways_data():
     gateways_url = requests.get('https://raw.githubusercontent.com/tapis-project/tapis-reporting/main/tapis_gateways.json')
     gateways_data = gateways_url.json()
@@ -333,6 +343,7 @@ def get_gateways_data():
     gateways_data = populate_missing_gateway_data(gateways_data)
 
     return gateways_data
+
 
 def get_gateways_for_tenant(tenant):
     gateways_data = get_gateways_data()
@@ -349,6 +360,7 @@ def get_gateways_for_tenant(tenant):
             tenant_gateways.append(gateway_info)
 
     return tenant_gateways
+
 
 def populate_missing_gateway_data(gateways_data):
     temp_gateways_data = gateways_data
@@ -372,53 +384,57 @@ def populate_missing_gateway_data(gateways_data):
     
     return temp_gateways_data
 
+
 def get_oldest_gateway(gateways):
     return min(gateways, key=lambda x:x['release_year'])
+
 
 def get_latest_gateway(gateways):
     return max(gateways, key=lambda x:x['release_year'])
 
+
 def get_repos(org):
-    repos = requests.get(f'https://api.github.com/orgs/{org}/repos')
-
     repos_with_counts = []
+    try:
+        repos = requests.get(f'https://api.github.com/orgs/{org}/repos')
+        for repo in repos.json():
+            if repo['has_issues']:
+                url = 'https://api.github.com/graphql'
+                headers = {'Authorization': f"bearer {settings.GITHUB_API_TOKEN}"}
 
-    for repo in repos.json():
-        if repo['has_issues']:
-            url = 'https://api.github.com/graphql'
-            headers = {'Authorization': f"bearer {settings.GITHUB_API_TOKEN}"}
+                repo_owner = repo['owner']['login']
+                repo_name = repo['name']
 
-            repo_owner = repo['owner']['login']
-            repo_name = repo['name']
-
-            query = """
-                query GetRepos($owner: String!, $name: String!) { 
-                    repository(owner: $owner, name: $name) { 
-                        issues {
-                        totalCount
+                query = """
+                    query GetRepos($owner: String!, $name: String!) { 
+                        repository(owner: $owner, name: $name) { 
+                            issues {
+                            totalCount
+                            }
                         }
                     }
+                """
+                variables = {'owner': repo_owner, 'name': repo_name}
+
+                body = {
+                    "query": query,
+                    "variables": variables
                 }
-            """
-            variables = {'owner': repo_owner, 'name': repo_name}
+                
+                response = requests.post(url=url, headers=headers, json=body)
+                total_issues = response.json()['data']['repository']['issues']['totalCount']
+                
+                date = repo['created_at']
 
-            body = {
-                "query": query,
-                "variables": variables
-            }
-            
-            response = requests.post(url=url, headers=headers, json=body)
-            total_issues = response.json()['data']['repository']['issues']['totalCount']
-            
-            date = repo['created_at']
+                repo = {
+                    'owner': repo_owner,
+                    'name': repo_name,
+                    'year': date,
+                    'total_issues': total_issues
+                }
 
-            repo = {
-                'owner': repo_owner,
-                'name': repo_name,
-                'year': date,
-                'total_issues': total_issues
-            }
-
-            repos_with_counts.append(repo)
+                repos_with_counts.append(repo)
+    except Exception as e:
+        logger.error(f"Unable to get repos for: {org}; error: {e}")
 
     return repos_with_counts
