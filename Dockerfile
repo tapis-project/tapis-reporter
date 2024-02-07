@@ -24,9 +24,7 @@ RUN chmod +x /entrypoint.sh
 COPY ./src/ /app
 
 # ENTRYPOINT ["./entrypoint.sh"]
-RUN python manage.py makemigrations
-RUN python manage.py migrate
-RUN python manage.py collectstatic --no-input
-
+#RUN python manage.py makemigrations
+#RUN python manage.py migrate
+#RUN python manage.py collectstatic --no-input
 #RUN python init_db.py
-#RUN python logparser.py jupyterhub
