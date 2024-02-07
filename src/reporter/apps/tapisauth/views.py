@@ -117,7 +117,7 @@ def tapis_oauth_callback(request):
 
             data = response.json()
         except Exception as e:
-            logger.debug(e)
+            logger.error(e)
 
         token = data['result']['access_token']['access_token']
 
