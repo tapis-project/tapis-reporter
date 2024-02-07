@@ -30,7 +30,7 @@ class JupyterHubUsage:
         if file_exists:
             fileobj = ParsedNginxFile.objects.filter(pk=filename)[0]
             parsed_status = fileobj.status
-            if parsed_status == 'Success':
+            if parsed_status == 'Succeeded':
                 logger.error(f"{filename} exists -- skipping")
                 return True
         return False
@@ -52,7 +52,7 @@ class JupyterHubUsage:
                 logger.exception(f"Error creating database entry for file: {filename}")
                 logger.exception(e)
                 return False
-        
+
     def parse_jhub_file(self, file, filename):
         try:
             with gzip.open(file, 'rt') as logfile:
@@ -71,14 +71,14 @@ class JupyterHubUsage:
 
                         if '/hub/api/oauth2/authorize' in log:
                             self.add_login_entry(log_info)
-                        if log_info['file'] is not None:
+                        if log_info['file'] is not None and path is not None:
                             # Check if user created a notebook
                             if request_type == 'GET' and 'Untitled.ipynb?kernel_name' in path:
                                 self.add_created_file(log_info)
                             # Get opened notebooks and where they are
                             elif request_type == 'GET' and '/user' in path and '.ipynb' in log_info['file']:
                                 self.add_opened_file(log_info)
-                        
+
             success = True
             if len(self.file_entries_to_add) > 0:
                 files_added = self.add_file_entries_to_db()
@@ -143,17 +143,17 @@ class JupyterHubUsage:
                     tenant=self.tenant,
                     user=user,
                     action=info['action'],
-                    filepath=info['path'], 
-                    filename=info['file'], 
-                    date=info['date'], 
+                    filepath=info['path'],
+                    filename=info['file'],
+                    date=info['date'],
                     time=info['time'],
-                    raw_filepath=info['raw_filepath']
+                    raw_filepath=info['raw_path']
                 ))
         else:
             self.login_entries_to_add.append(LoginLog(
                     tenant=self.tenant,
                     user=user,
-                    date=info['date'], 
+                    date=info['date'],
                     time=info['time']
                 ))
 
@@ -189,6 +189,8 @@ class JupyterHubUsage:
             user_index = split_with_user.index('user')
             jhub_user = split_with_user[user_index+1]
             return jhub_user
+
+        return None
 
     def parse_special_characters(self, str):
         """
@@ -240,20 +242,19 @@ class JupyterHubUsage:
                     return true_path
         return path
 
-    def get_path(self, split_log):
+    def get_path(self, path):
         """
         Gets path accessed in HTTP call
 
         :param split_log: current log split into an array
         :return: path accessed
         """
-        init_path = split_log[6].rsplit('/',1)
+        init_path = path.rsplit('/',1)
         if '.ipynb' in init_path[0]:
-            path = init_path[0].rsplit('/',1)[0]
+            file_path = init_path[0].rsplit('/',1)[0]
         else:
-            path = init_path[0]
-        path = self.parse_special_characters(path)
-        return path
+            file_path = init_path[0]
+        return self.parse_special_characters(file_path)
 
     def get_file(self, path):
         """
@@ -295,7 +296,7 @@ class JupyterHubUsage:
         try:
             user = self.get_user(log_info['jup_path'])
             raw_path = log_info['jup_path']
-            network_path = self.get_path(log_info['jup_path'])
+            network_path = self.get_path(log_info['jup_path']) if log_info['jup_path'] is not None else ''
             path = self.get_true_path(user, network_path)
             file = self.get_file(log_info['jup_path'])
             date = self.get_date(log_info['jup_date'])
@@ -304,10 +305,11 @@ class JupyterHubUsage:
             time = log_info['jup_time'].split(' ')[0]
             ip_address = log_info['jup_client_ip']
             system_info = log_info['jup_user_agent']
+            return {'user': user, 'raw_path': raw_path, 'network_path': network_path, 'path': path, 'file': file, 'date': date, 'time': time, 'ip_address': ip_address, 'request_type': request_type, 'system_info': system_info}
         except Exception as e:
-            print(f"Error parsing out info: {e}")
+            logger.error(f"Error for log: {log}; error: {e}")
 
-        return {'user': user, 'raw_path': raw_path, 'network_path': network_path, 'path': path, 'file': file, 'date': date, 'time': time, 'ip_address': ip_address, 'request_type': request_type, 'system_info': system_info}
+        return None
 
     def add_login_entry(self, log_info):
         """
@@ -326,7 +328,8 @@ class JupyterHubUsage:
             'time': time,
             'action': 'login',
             'ip_address': log_info['ip_address'],
-            'system_info': log_info['system_info']
+            'system_info': log_info['system_info'],
+            'raw_path': log_info['raw_path'],
         }
 
         insert = False

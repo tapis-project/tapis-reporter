@@ -27,22 +27,33 @@ class TapisUsage:
         self.slack_username = settings.SLACK_USER
         self.slack_url = settings.SLACK_URL
 
-    def query_splunk(self):
+    def query_splunk(self, args):
         splunk_service = client.connect(
             host=settings.SPLUNK_HOST,
             port=settings.SPLUNK_PORT,
             username=settings.SPLUNK_USER,
             password=settings.SPLUNK_PASS,
             scheme="https")
-        
-        midnight = datetime.combine(datetime.today(), time.min)
-        yesterday_midnight = midnight - timedelta(days=1)
-        start_time = yesterday_midnight
+
+        end_date = datetime.combine(datetime.today(), time.min)
+        start_date = end_date - timedelta(days=1)
+
+        if args.start_date is not None:
+            start_date = datetime.strptime(args.start_date, '%m/%d/%Y')
+            if args.end_date is not None:
+                end_date = datetime.strptime(args.end_date, '%m/%d/%Y')
+
+                if start_date > end_date:
+                    logger.error(f"Error querying splunk, start date {start_date} later than end date {end_date}")
+                    return
+
+        print(start_date, end_date)
+        temp_date = start_date
 
         hours = []
-        while start_time <= midnight:
-            hours.append(start_time)
-            start_time += timedelta(hours=1)
+        while temp_date <= end_date:
+            hours.append(temp_date)
+            temp_date += timedelta(hours=1)
 
         bulk_splunk_data = []
         tenants_and_services = {}
@@ -64,12 +75,12 @@ class TapisUsage:
             search_query = f"search index=kube_events namespace=tapis-prod \
                 container_name=tapis-nginx NOT Gatus NOT healthcheck \
                 earliest={earliest} AND latest={latest} AND tapis_version=v3"
-            
+
             search_results = splunk_service.jobs.create(search_query)
 
             while not search_results.is_done():
                 sleep(.2)
-            
+
             result_count = int(search_results["resultCount"])
 
             if result_count > 0:
@@ -144,7 +155,6 @@ class TapisUsage:
                         )
                         bulk_splunk_data.append(splunk_data)
 
-                logger.debug(tenants_and_services)
                 tenants_and_services = {}
 
         saved = False
@@ -154,7 +164,10 @@ class TapisUsage:
         except Exception as e:
             logger.error(f"Unable to save splunk data; error: {e}")
 
-        message = f"Got {total_result_count} TAPIS NGNINX logs from Splunk API call for {yesterday_midnight} - {midnight}"
+        if args.start_date is not None:
+            message = f"Finished parsing splunk logs from {start_date} - {end_date}"
+        else:
+            message = f"Got {total_result_count} TAPIS NGNINX logs from Splunk API call for {start_date} - {end_date}"
 
         if not saved:
             message += " -- Got error saving info!"

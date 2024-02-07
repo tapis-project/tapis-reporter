@@ -17,9 +17,10 @@ class LogParser:
     Handles parsing the NGINX log files from the service's network activity
 
     """
-    def __init__(self, service):
+    def __init__(self, service, args):
         self.service = service
         self.file_dir = self.get_file_dir(service)
+        self.args = args
 
     @classmethod
     def get_file_dir(self, service):
@@ -88,14 +89,14 @@ class LogParser:
             case 'jupyterhub':
                 parser = JupyterHubUsage()
                 has_been_parsed = parser.is_file_parsed(filename)
-
+                
                 if not has_been_parsed:
                     # add file entry to ParsedNginxFile db
                     parser.add_file_to_db(filename)
 
                     # parse the file
                     file_parsed = parser.parse_jhub_file(file, filename)
-
+                    
                     if file_parsed: files_successfully_parsed.append(filename)
                     else: files_failed_to_parse.append(filename)
             case _:
@@ -105,6 +106,6 @@ class LogParser:
         match self.service:
             case 'tapis':
                 parser = TapisUsage()
-                parser.query_splunk()
+                parser.query_splunk(self.args)
             case _:
                 return
