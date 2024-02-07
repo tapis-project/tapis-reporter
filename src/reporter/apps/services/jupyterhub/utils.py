@@ -73,7 +73,7 @@ def send_jupyterhub_email(data, week_begin, week_end):
     try:
         server = smtplib.SMTP(host, port)
         server.sendmail(sender_email, receiver_emails, message.as_string())
-        logger.debug("Email sent successfully")
+        logger.info("Email sent successfully")
         if os.path.isfile(data['plot_path']):
             os.remove(data['plot_path'])
     except Exception as e:

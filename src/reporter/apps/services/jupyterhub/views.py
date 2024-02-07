@@ -106,8 +106,6 @@ def get_directories(accessed_files):
         dir = path['filepath']
         dir_counts[dir] = dir_counts.get(dir, 0) + 1
 
-    logger.debug(dir_counts)
-
     dirs = []
     for path in dir_counts.keys():
         dir = path
@@ -120,5 +118,4 @@ def get_directories(accessed_files):
 
     dirs = sorted(dirs, key=lambda d: d['count'], reverse=True)
 
-    logger.debug(dirs)
     return dirs
