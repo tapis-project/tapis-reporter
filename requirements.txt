@@ -10,3 +10,4 @@ tapipy
 matplotlib
 google-search-results
 splunk-sdk==1.7.4
+pandas
