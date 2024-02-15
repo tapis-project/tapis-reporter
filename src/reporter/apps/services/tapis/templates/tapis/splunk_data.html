@@ -20,7 +20,6 @@
 
         <button type="submit" class="btn btn-primary" name="tenants_gateways">View Tenant Gateway</button>
     </form> -->
-
     <table border=1 class="table">
         <thead>
             <tr>
@@ -33,7 +32,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for data in splunk_data %}
+            {% for data in tapis_data %}
                 <tr>
                     <td>
                         {{ data.date }}

@@ -144,9 +144,7 @@ class TapisUsage:
                 for tenant in tenants_and_services:
                     for service in tenants_and_services[tenant]:
                         splunk_data = TenantServiceUsage(
-                            log_day=current_day,
-                            log_month=current_month,
-                            log_year=current_year,
+                            log_date=f"{current_year}-{current_month}-{current_day}",
                             start_time=start_time,
                             end_time=end_time,
                             tenant=tenant,

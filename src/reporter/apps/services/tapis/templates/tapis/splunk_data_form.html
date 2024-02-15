@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Tapis {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+<body>
+{% block content %}
+    <h3>
+    Tapis Log Data
+    </h3>
+    <p>
+    View the activity different Tapis tenants and services
+    </p>
+
+    <form method="POST" id="post-form">{% csrf_token %}
+        <label for="tenant">Tenant: </label><br>
+        <input type="text" id="tenant" name="tenant"><br>
+
+        <label for="service">Service (optional): </label><br>
+        <input type="text" id="service" name="service"><br>
+
+        <label for="start">Start date:</label><br>
+        <input type="date" id="start" name="start_date"
+            value="2023-07-01"
+            min="2023-07-01"><br>
+
+        <label for="end">End Date:</label><br>
+        <input type="date" id="end" name="end_date"
+            value="2023-07-01"
+            min="2023-07-01"><br>
+
+        <button type="submit" class="btn btn-primary" name="data_form">Get Log Data</button>
+    </form>
+{% endblock %}
+</body>

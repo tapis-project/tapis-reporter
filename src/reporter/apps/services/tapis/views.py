@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.template import loader
+from django.db.models import Q
 import os
 from django.core.files.storage import default_storage
 import glob
@@ -208,36 +209,46 @@ def streams(request):
             'error': False
         }
     
-    try:
-        streams_data = get_streams_data()
-        context['streams_data'] = streams_data
-
-    except Exception as e:
-        context['error'] = True
-        context['message'] = e
-    
-    return HttpResponse(template.render(context, request))
-
-
-@login_required
-def splunk(request):
-    if request.method == 'GET':
-        logger.debug(f'In {request.method} method of splunk')
-        template = loader.get_template("tapis/splunk.html")
-
-        context = {
-            'error': False
-        }
-    
         try:
-            splunk_data = load_splunk_data()
-            logger.info(f'splunk data in splunk html: {splunk_data}')
-            context['splunk_data'] = splunk_data
+            streams_data = get_streams_data()
+            context['streams_data'] = streams_data
 
         except Exception as e:
             context['error'] = True
             context['message'] = e
         
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
+def splunk(request):
+    if request.method == 'GET':
+        logger.debug(f'In {request.method} method of Splunk')
+        template = loader.get_template("tapis/splunk_data_form.html")
+
+        context = {
+            'error': False
+        }
+
+        return HttpResponse(template.render(context, request))
+
+    elif request.method == 'POST':
+        logger.debug(f'In {request.method} method of Splunk')
+        template = loader.get_template("tapis/splunk_data.html")
+
+        context = {
+            'error': False
+        }
+
+        logger.debug(request.POST)
+        
+        tenant = request.POST.get('tenant')
+        service = request.POST.get('service')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        tapis_data = load_tapis_data(tenant, service, start_date, end_date)
+        context['tapis_data'] = tapis_data
         return HttpResponse(template.render(context, request))
 
 
@@ -290,27 +301,40 @@ def get_streams_data():
     return streams_data
 
 
-def load_splunk_data():
-    logger.info('in load splunk data for html')
-    tenant_service_qs = TenantServiceUsage.objects.all()
-    logger.info(f'tenant_service_qs: {tenant_service_qs}')
-    all_splunk_data = []
+def load_tapis_data(tenant, service, start_date, end_date):
+    logger.info('in load tapis data for html')
+    query = Q()
 
-    for splunk_data in tenant_service_qs:
-        logger.error(f'splunk_data: {splunk_data}')
-        date = f"{splunk_data.log_month}/{splunk_data.log_day}/{splunk_data.log_year}"
-        all_splunk_data.append({
-            'date': date,
-            'start_time': splunk_data.start_time,
-            'end_time': splunk_data.end_time,
-            'tenant': splunk_data.tenant,
-            'service': splunk_data.service,
-            'count': splunk_data.log_count
+    if tenant and tenant != "null" and tenant != '':
+        query &= Q(tenant=tenant)
+    else:
+        return None
+
+    if service and service != "null" and service != '':
+        query &= Q(service=service)
+
+    query &= Q(log_date__gte=start_date)
+    query &= Q(log_date__lte=end_date)
+
+    tenant_service_qs = TenantServiceUsage.objects.filter(query)
+
+    logger.info(f'tenant_service_qs: {tenant_service_qs}')
+    tapis_data = []
+
+    for tenant_service_data in tenant_service_qs:
+        logger.error(f'tapis_data: {tenant_service_data}')
+        tapis_data.append({
+            'date': tenant_service_data.log_date,
+            'start_time': tenant_service_data.start_time,
+            'end_time': tenant_service_data.end_time,
+            'tenant': tenant_service_data.tenant,
+            'service': tenant_service_data.service,
+            'count': tenant_service_data.log_count
         })
 
-    logger.error(f'all_splunk_data from db: {all_splunk_data}')
-    
-    return all_splunk_data
+    logger.error(f'all data from db: {tapis_data}')
+
+    return tapis_data
 
 
 def load_tapis_papers():
