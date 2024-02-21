@@ -4,12 +4,16 @@
 {% block head_extra %}
   <base href="{% url 'main:index' %}">
 {% endblock %}
-
+<head>
+    <link rel="stylesheet" href="static/css/buttons.css">
+</head>
 <body>
 {% block content %}
 
     <h3>Tapis Research Papers</h3>
-
+    <form method="POST" id="new-paper">{% csrf_token %}
+        <button type="submit" class="btn info" name="add-paper">+ Add Paper</button>
+    </form>
     <table border=1 class="table">
         <thead>
             <tr>
