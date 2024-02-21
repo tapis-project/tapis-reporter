@@ -2,28 +2,24 @@
 Auth views.
 """
 import logging
-import time
 import requests
 import secrets
-import base64
-import json
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render
 from requests.auth import HTTPBasicAuth
 
 
 logger = logging.getLogger(__name__)
-METRICS = logging.getLogger('metrics.{}'.format(__name__))
+METRICS = logging.getLogger("metrics.{}".format(__name__))
 
 
 def logged_out(request):
     logout(request)
-    return render(request, 'auth/logged_out.html')
+    return render(request, "auth/logged_out.html")
 
 
 def _get_auth_state():
@@ -31,86 +27,84 @@ def _get_auth_state():
 
 
 def _get_redirect_uri(request):
-    redirect_uri = 'https://{}{}'
+    redirect_uri = "https://{}{}"
     if request.get_host() == "localhost:8000":
-        redirect_uri = 'http://{}{}'
+        redirect_uri = "http://{}{}"
     redirect_uri = redirect_uri.format(
-        request.get_host(),
-        reverse('auth:tapis_oauth_callback')
+        request.get_host(), reverse("auth:tapis_oauth_callback")
     )
     return redirect_uri
 
 
 # Create your views here.
 def tapis_oauth(request):
-    """First step for Tapis OAuth workflow.
-    """
-    tenant_base_url = getattr(settings, 'TAPIS_API_URL')
-    client_id = getattr(settings, 'TAPIS_CLIENT_ID')
-    client_key = getattr(settings, 'TAPIS_CLIENT_KEY')
+    """First step for Tapis OAuth workflow."""
+    tenant_base_url = getattr(settings, "TAPIS_API_URL")
+    client_id = getattr(settings, "TAPIS_CLIENT_ID")
+    client_key = getattr(settings, "TAPIS_CLIENT_KEY")
 
     session = request.session
-    session['auth_state'] = _get_auth_state()
-    next_page = request.GET.get('next')
+    session["auth_state"] = _get_auth_state()
+    next_page = request.GET.get("next")
     if next_page:
-        session['next'] = next_page
+        session["next"] = next_page
     redirect_uri = _get_redirect_uri(request)
 
     authorization_url = (
-        '%s/oauth2/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s' % (
+        "%s/oauth2/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s"
+        % (
             tenant_base_url,
             client_id,
             redirect_uri,
-            session['auth_state'],
+            session["auth_state"],
         )
     )
     return HttpResponseRedirect(authorization_url)
 
 
 def tapis_oauth_callback(request):
-    """Tapis OAuth callback handler.
-    """
-    state = request.GET.get('state')
+    """Tapis OAuth callback handler."""
+    state = request.GET.get("state")
 
-    if request.session['auth_state'] != state:
-        msg = ('OAuth Authorization State mismatch!? auth_state=%s '
-               'does not match returned state=%s' % (request.session['auth_state'], state))
+    if request.session["auth_state"] != state:
+        msg = (
+            "OAuth Authorization State mismatch!? auth_state=%s "
+            "does not match returned state=%s" % (request.session["auth_state"], state)
+        )
         logger.warning(msg)
-        return HttpResponseBadRequest('Authorization State Failed')
+        return HttpResponseBadRequest("Authorization State Failed")
 
     logger.error(f"GET request: {request.GET}")
-    if 'code' in request.GET:
+    if "code" in request.GET:
         redirect_uri = _get_redirect_uri(request)
-        METRICS.debug('redirect_uri %s', redirect_uri)
+        METRICS.debug("redirect_uri %s", redirect_uri)
 
-        code = request.GET['code']
+        code = request.GET["code"]
 
-        tenant_base_url = getattr(settings, 'TAPIS_API_URL')
-        client_id = getattr(settings, 'TAPIS_CLIENT_ID')
-        client_key = getattr(settings, 'TAPIS_CLIENT_KEY')
+        tenant_base_url = getattr(settings, "TAPIS_API_URL")
+        client_id = getattr(settings, "TAPIS_CLIENT_ID")
+        client_key = getattr(settings, "TAPIS_CLIENT_KEY")
 
         logger.error(tenant_base_url)
         logger.error(client_id)
         logger.error(client_key)
 
         body = {
-            "grant_type":"authorization_code",
-            "code":code,
-            "redirect_uri":redirect_uri
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri,
         }
 
         logger.error(f"BODY: {body}")
 
-        url = '%s/oauth2/tokens' % tenant_base_url
+        url = "%s/oauth2/tokens" % tenant_base_url
 
         logger.error(url)
 
         data = None
         try:
             response = requests.post(
-                url,
-                json=body,
-                auth=HTTPBasicAuth(client_id, client_key)
+                url, json=body, auth=HTTPBasicAuth(client_id, client_key)
             )
 
             logger.error(f"RESPONSE: {response.json()}")
@@ -119,10 +113,10 @@ def tapis_oauth_callback(request):
         except Exception as e:
             logger.error(e)
 
-        token = data['result']['access_token']['access_token']
+        token = data["result"]["access_token"]["access_token"]
 
         # log user in
-        user = authenticate(backend='tapis', token=token, base_url=tenant_base_url)
+        user = authenticate(backend="tapis", token=token, base_url=tenant_base_url)
 
         if user:
             login(request, user)
@@ -130,26 +124,25 @@ def tapis_oauth_callback(request):
         else:
             messages.error(
                 request,
-                'Authentication failed. Please try again. If this problem '
-                'persists please submit a support ticket.'
+                "Authentication failed. Please try again. If this problem "
+                "persists please submit a support ticket.",
             )
-            return HttpResponseRedirect(reverse('auth:logout'))
+            return HttpResponseRedirect(reverse("auth:logout"))
     else:
-        if 'error' in request.GET:
-            error = request.GET['error']
-            logger.warning('Authorization failed: %s', error)
+        if "error" in request.GET:
+            error = request.GET["error"]
+            logger.warning("Authorization failed: %s", error)
 
-        return HttpResponseRedirect(reverse('auth:logout'))
+        return HttpResponseRedirect(reverse("auth:logout"))
 
-    if 'next' in request.session:
-        next_uri = request.session.pop('next')
+    if "next" in request.session:
+        next_uri = request.session.pop("next")
         return HttpResponseRedirect(next_uri)
     else:
-        login_url = getattr(settings, 'LOGIN_REDIRECT_URL')
-        return HttpResponseRedirect(reverse('main:index'))
+        login_url = getattr(settings, "LOGIN_REDIRECT_URL")
+        return HttpResponseRedirect(reverse("main:index"))
 
 
 def tapis_session_error(request):
-    """Tapis token error handler.
-    """
+    """Tapis token error handler."""
     pass

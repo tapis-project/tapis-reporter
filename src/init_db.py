@@ -14,6 +14,6 @@ def add_service_configs():
         save_service(service)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     add_service_configs()
     # get_tapis_papers()

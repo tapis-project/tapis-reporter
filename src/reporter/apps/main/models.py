@@ -3,12 +3,13 @@ from django.db import models
 
 # Create your models here.
 
+
 class Service(models.Model):
     name = models.CharField(max_length=255, primary_key=True)
     source = models.CharField(max_length=255)
 
     class Meta:
-        unique_together = ('name', 'source')
+        unique_together = ("name", "source")
 
     def __str__(self):
         return self.name
@@ -19,7 +20,7 @@ class Admin(models.Model):
     user = models.CharField(max_length=255)
 
     class Meta:
-        unique_together = ['service', 'user']
+        unique_together = ["service", "user"]
 
     def __str__(self):
         return self.service.name + " " + self.user

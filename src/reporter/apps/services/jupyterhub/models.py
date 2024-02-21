@@ -19,34 +19,60 @@ class FileLog(Log):
     raw_filepath = models.TextField()
 
     class Meta:
-        unique_together = ['tenant', 'user', 'action', 'filepath', 'filename', 'date', 'time', 'raw_filepath']
+        unique_together = [
+            "tenant",
+            "user",
+            "action",
+            "filepath",
+            "filename",
+            "date",
+            "time",
+            "raw_filepath",
+        ]
 
     def savefilelog(self):
         self.save()
 
     def __str__(self):
-        return self.tenant + " " + self.user + " " + self.action + " " + self.filepath + " " + self.filename + " " + str(self.date) + " " + str(self.time)
+        return (
+            self.tenant
+            + " "
+            + self.user
+            + " "
+            + self.action
+            + " "
+            + self.filepath
+            + " "
+            + self.filename
+            + " "
+            + str(self.date)
+            + " "
+            + str(self.time)
+        )
 
 
 class LoginLog(Log):
     class Meta:
-        unique_together = ['tenant', 'user', 'date', 'time']
+        unique_together = ["tenant", "user", "date", "time"]
 
     def saveloginlog(self):
         self.save()
 
     def __str__(self):
-        return self.tenant + " " + self.user + " " + str(self.date) + " " + str(self.time)
+        return (
+            self.tenant + " " + self.user + " " + str(self.date) + " " + str(self.time)
+        )
 
 
 class ParsedNginxFile(models.Model):
-    '''
+    """
     Responsible for keeping track of NGINX files with status: "queued", "failed", or "succeeded"
-    '''
+    """
+
     filename = models.CharField(max_length=255, primary_key=True)
     status = models.CharField(max_length=255)
     last_line_added = models.IntegerField(default=0)
-    error = models.TextField(default='')
+    error = models.TextField(default="")
 
     def saveparsedlog(self):
         self.save()

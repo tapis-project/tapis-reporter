@@ -35,18 +35,33 @@ class ParseSplunkCsv:
 
         for file in files_to_parse:
             try:
-                df = pd.read_csv(file, usecols=['log_day', 'log_month', 'log_year', 'start_time', 'end_time', 'tenant', 'service', 'log_count'])
+                df = pd.read_csv(
+                    file,
+                    usecols=[
+                        "log_day",
+                        "log_month",
+                        "log_year",
+                        "start_time",
+                        "end_time",
+                        "tenant",
+                        "service",
+                        "log_count",
+                    ],
+                )
                 df = df.drop_duplicates()
-                df_records = df.to_dict(orient='records')
-                
-                splunk_data = [TenantServiceUsage(
-                    log_date=f"{record['log_year']}-{record['log_month']}-{record['log_day']}",
-                    start_time=record['start_time'],
-                    end_time=record['end_time'],
-                    tenant=record['tenant'],
-                    service=record['service'],
-                    log_count=record['log_count']
-                ) for record in df_records]
+                df_records = df.to_dict(orient="records")
+
+                splunk_data = [
+                    TenantServiceUsage(
+                        log_date=f"{record['log_year']}-{record['log_month']}-{record['log_day']}",
+                        start_time=record["start_time"],
+                        end_time=record["end_time"],
+                        tenant=record["tenant"],
+                        service=record["service"],
+                        log_count=record["log_count"],
+                    )
+                    for record in df_records
+                ]
 
                 TenantServiceUsage.objects.bulk_create(splunk_data)
             except Exception as e:

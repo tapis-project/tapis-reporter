@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 
 class TapisUsage:
-
     def __init__(self):
         self.slack_channel = settings.SLACK_CHANNEL
         self.slack_username = settings.SLACK_USER
@@ -33,18 +32,21 @@ class TapisUsage:
             port=settings.SPLUNK_PORT,
             username=settings.SPLUNK_USER,
             password=settings.SPLUNK_PASS,
-            scheme="https")
+            scheme="https",
+        )
 
         end_date = datetime.combine(datetime.today(), time.min)
         start_date = end_date - timedelta(days=1)
 
         if args.start_date is not None:
-            start_date = datetime.strptime(args.start_date, '%m/%d/%Y')
+            start_date = datetime.strptime(args.start_date, "%m/%d/%Y")
             if args.end_date is not None:
-                end_date = datetime.strptime(args.end_date, '%m/%d/%Y')
+                end_date = datetime.strptime(args.end_date, "%m/%d/%Y")
 
                 if start_date > end_date:
-                    logger.error(f"Error querying splunk, start date {start_date} later than end date {end_date}")
+                    logger.error(
+                        f"Error querying splunk, start date {start_date} later than end date {end_date}"
+                    )
                     return
 
         print(start_date, end_date)
@@ -59,9 +61,9 @@ class TapisUsage:
         tenants_and_services = {}
         total_result_count = 0
 
-        for i in range(len(hours)-1):
+        for i in range(len(hours) - 1):
             current_timestamp = hours[i]
-            next_timestamp = hours[i+1]
+            next_timestamp = hours[i + 1]
 
             start_time = current_timestamp.strftime("%H:%M:%S")
             end_time = next_timestamp.strftime("%H:%M:%S")
@@ -79,7 +81,7 @@ class TapisUsage:
             search_results = splunk_service.jobs.create(search_query)
 
             while not search_results.is_done():
-                sleep(.2)
+                sleep(0.2)
 
             result_count = int(search_results["resultCount"])
 
@@ -88,11 +90,11 @@ class TapisUsage:
                 offset = 0
                 count = 50000
 
-                while (offset < result_count):
+                while offset < result_count:
                     kwargs_paginate = {
                         "count": count,
                         "offset": offset,
-                        "output_mode": 'json'
+                        "output_mode": "json",
                     }
 
                     block_results = search_results.results(**kwargs_paginate)
@@ -111,36 +113,47 @@ class TapisUsage:
                                 if log_data:
                                     data_dict = log_data.groupdict()
 
-                                    datetimestamp = data_dict['tap_datetimestamp']
+                                    datetimestamp = data_dict["tap_datetimestamp"]
                                     dt_string = datetimestamp[:-6]
-                                    dt_microseconds = dt_string.split('.')[1]
-                                    dt_string = dt_string.split('.')[0] + '.' + dt_microseconds[0:3]
+                                    dt_microseconds = dt_string.split(".")[1]
+                                    dt_string = (
+                                        dt_string.split(".")[0]
+                                        + "."
+                                        + dt_microseconds[0:3]
+                                    )
                                     datetime_object = datetime.fromisoformat(dt_string)
                                     timestamp = datetime_object.timestamp()
 
-                                    tap_service = data_dict['tap_path'].split('/')[2]
+                                    tap_service = data_dict["tap_path"].split("/")[2]
                                     parsed_service = urlparse(tap_service)
-                                    tap_service = urlunparse(parsed_service._replace(query=''))
+                                    tap_service = urlunparse(
+                                        parsed_service._replace(query="")
+                                    )
 
-                                    tenant = data_dict['tap_tenant']
+                                    tenant = data_dict["tap_tenant"]
 
-                                    if tenant == 'www':
-                                        tenant = data_dict['tap_host'].split('.')[1]
+                                    if tenant == "www":
+                                        tenant = data_dict["tap_host"].split(".")[1]
 
-                                    tenants_and_services[tenant] = tenants_and_services.get(tenant, {})
-                                    tenants_and_services[tenant][tap_service] = tenants_and_services[tenant].get(tap_service, 0) + 1
+                                    tenants_and_services[
+                                        tenant
+                                    ] = tenants_and_services.get(tenant, {})
+                                    tenants_and_services[tenant][tap_service] = (
+                                        tenants_and_services[tenant].get(tap_service, 0)
+                                        + 1
+                                    )
                         except Exception as e:
                             logger.error(f"Error parsing log: {e}")
                             logger.error(result["_raw"])
                             nginx_log_format = re.compile(
                                 r'(?P<tap_datetimestamp>[\d\-:T\.+]+) \S+ \S+ (?P<tap_client_ip>\d+\.\d+\.\d+\.\d+) - - \[(?P<tap_date>\d{2}/\w+/\d{4}):(?P<tap_time>\d{2}:\d{2}:\d{2}) (\+|\-)\d{4}\] "(?P<tap_host>(?P<tap_tenant>.*?)\.\S+)" "(?P<tap_request_method>\S+) (?P<tap_path>\S+) \S+" (?P<tap_status_code>\d+) (?P<tap_bytes_sent>\d+) "(?P<tap_referer>[^"]*)" "(?P<tap_user_agent>[^"]*)" "-"'
                             )
-                            
+
                             log_data = re.match(nginx_log_format, log)
                             logger.error(log_data)
-                    
+
                     offset += count
-                
+
                 for tenant in tenants_and_services:
                     for service in tenants_and_services[tenant]:
                         splunk_data = TenantServiceUsage(
@@ -149,7 +162,7 @@ class TapisUsage:
                             end_time=end_time,
                             tenant=tenant,
                             service=service,
-                            log_count=tenants_and_services[tenant][service]
+                            log_count=tenants_and_services[tenant][service],
                         )
                         bulk_splunk_data.append(splunk_data)
 
@@ -173,8 +186,8 @@ class TapisUsage:
         self.message_slack(message)
 
     def message_slack(self, message):
-        data = {'channel': self.slack_channel, 'username': self.slack_username}
-        data['text'] = message
+        data = {"channel": self.slack_channel, "username": self.slack_username}
+        data["text"] = message
 
         try:
             requests.post(self.slack_url, data=json.dumps(data))

@@ -1,5 +1,1 @@
-patterns = {
-    "jupyterhub": {
-        
-    }
-}
+patterns = {"jupyterhub": {}}

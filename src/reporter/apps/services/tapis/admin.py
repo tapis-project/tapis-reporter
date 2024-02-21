@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Paper, TrainingData, TapisInfo, TenantTapisInfo, JobsData, TenantServiceUsage
+from .models import (
+    Paper,
+    TrainingData,
+    TapisInfo,
+    TenantTapisInfo,
+    JobsData,
+    TenantServiceUsage,
+)
 
 # Register your models here.
 admin.site.register(Paper)

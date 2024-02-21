@@ -13,7 +13,7 @@ class Paper(models.Model):
     citations = models.IntegerField()
 
     class Meta:
-        unique_together = ['title', 'primary_author']
+        unique_together = ["title", "primary_author"]
 
     def savepaper(self):
         self.save()
@@ -56,7 +56,7 @@ class TenantServiceUsage(models.Model):
     log_count = models.IntegerField()
 
     class Meta:
-        unique_together = ['log_date', 'start_time', 'end_time', 'tenant', 'service']
+        unique_together = ["log_date", "start_time", "end_time", "tenant", "service"]
 
     def savetenantserviceusage(self):
         self.save()

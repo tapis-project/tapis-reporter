@@ -17,9 +17,9 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('reporter.apps.main.urls')),
-    path('auth/', include('reporter.apps.tapisauth.urls')),
-    path('jupyterhub/', include('reporter.apps.services.jupyterhub.urls')),
-    path('tapis/', include('reporter.apps.services.tapis.urls')),
+    path("admin/", admin.site.urls),
+    path("", include("reporter.apps.main.urls")),
+    path("auth/", include("reporter.apps.tapisauth.urls")),
+    path("jupyterhub/", include("reporter.apps.services.jupyterhub.urls")),
+    path("tapis/", include("reporter.apps.services.tapis.urls")),
 ]
