@@ -4,6 +4,9 @@
 {% block head_extra %}
   <base href="{% url 'main:index' %}">
 {% endblock %}
+<head>
+    <link rel="stylesheet" href="static/css/nice-forms.css">
+</head>
 <body>
 {% block content %}
     <h3>
@@ -14,23 +17,47 @@
     </p>
 
     <form method="POST" id="post-form">{% csrf_token %}
-        <label for="tenant">Tenant: </label><br>
-        <input type="text" id="tenant" name="tenant"><br>
+        <div class="nice-form-group">
+            <label>Tenant</label>
+            <input 
+                type="text"
+                id="tenant"
+                name="tenant"
+            />
+        </div>
 
-        <label for="service">Service (optional): </label><br>
-        <input type="text" id="service" name="service"><br>
+        <div class="nice-form-group">
+            <label>Service (optional)</label>
+            <input 
+                type="text"
+                id="service"
+                name="service"
+            />
+        </div>
 
-        <label for="start">Start date:</label><br>
-        <input type="date" id="start" name="start_date"
-            value="2023-07-01"
-            min="2023-07-01"><br>
+        <div class="nice-form-group">
+            <label>Start Date</label>
+            <input
+                type="date"
+                id="start_date"
+                name="start_date"
+                value="2023-07-01"
+                min="2023-07-01"
+            />
+        </div>
 
-        <label for="end">End Date:</label><br>
-        <input type="date" id="end" name="end_date"
-            value="2023-07-01"
-            min="2023-07-01"><br>
+        <div class="nice-form-group">
+            <label>End Date</label>
+            <input
+                type="date"
+                id="end_date"
+                name="end_date"
+                value="2023-07-01"
+                min="2023-07-01"
+            />
+        </div>
 
-        <button type="submit" class="btn btn-primary" name="data_form">Get Log Data</button>
+        <button type="submit" class="btn btn-primary" name="submit_form">Get Log Data</button>
     </form>
 {% endblock %}
 </body>
