@@ -197,6 +197,28 @@ def papers(request):
             context['message'] = e
         
         return HttpResponse(template.render(context, request))
+    
+    elif request.method == 'POST':
+        logger.debug(f'In {request.method} method of papers')
+
+        context = {
+            'error': False
+        }
+
+        return redirect("tapis:add_paper")
+    
+
+@login_required
+def add_paper(request):
+    if request.method == 'GET':
+        logger.debug(f'In {request.method} method of add_paper')
+        template = loader.get_template("tapis/add_paper.html")
+
+        context = {
+            'error': False
+        }
+
+        return HttpResponse(template.render(context, request))
 
 
 @login_required
