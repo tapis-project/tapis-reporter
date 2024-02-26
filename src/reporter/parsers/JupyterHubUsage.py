@@ -3,7 +3,7 @@ import gzip
 from datetime import datetime
 import logging
 
-from ..apps.services.jupyterhub.models import FileLog, LoginLog, ParsedNginxFile
+from ..apps.jupyterhub.models import FileLog, LoginLog, ParsedNginxFile
 from ..helpers.jupyterhub_usage_funcions import get_home_path, get_symbolic_links
 
 logger = logging.getLogger(__name__)

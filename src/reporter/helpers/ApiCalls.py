@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from ..apps.services.tapis.models import Paper
+from ..apps.tapis.models import Paper
 
 
 def save_tapis_papers(tapis_papers):

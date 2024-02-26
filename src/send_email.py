@@ -12,7 +12,7 @@ django.setup()
 
 from reporter.helpers import generate_email_data
 from reporter.apps.main.models import Service, Tenant
-from reporter.apps.services.jupyterhub.utils import send_jupyterhub_email
+from reporter.apps.jupyterhub.utils import send_jupyterhub_email
 
 parser = argparse.ArgumentParser(description='Process arguments for email')
 parser.add_argument('service')

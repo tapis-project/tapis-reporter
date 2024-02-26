@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class TapisConfig(AppConfig):
+class JupyterhubConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "reporter.apps.services.tapis"
+    name = "reporter.apps.jupyterhub"

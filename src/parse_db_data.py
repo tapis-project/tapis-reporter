@@ -5,7 +5,7 @@ import logging
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.apps.services.tapis.models import TapisInfo, TenantTapisInfo, JobsData
+from reporter.apps.tapis.models import TapisInfo, TenantTapisInfo, JobsData
 
 logger = logging.getLogger(__name__)
 

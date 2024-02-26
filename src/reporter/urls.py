@@ -20,6 +20,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("reporter.apps.main.urls")),
     path("auth/", include("reporter.apps.tapisauth.urls")),
-    path("jupyterhub/", include("reporter.apps.services.jupyterhub.urls")),
-    path("tapis/", include("reporter.apps.services.tapis.urls")),
+    path("jupyterhub/", include("reporter.apps.jupyterhub.urls")),
+    path("tapis/", include("reporter.apps.tapis.urls")),
 ]

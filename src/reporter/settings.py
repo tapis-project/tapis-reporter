@@ -123,8 +123,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "reporter.apps.main",
     "reporter.apps.tapisauth",
-    "reporter.apps.services.jupyterhub",
-    "reporter.apps.services.tapis",
+    "reporter.apps.jupyterhub",
+    "reporter.apps.tapis",
     # "reporter.apps.services.hazmapper",
 ]
 
@@ -214,7 +214,7 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-STATICFILE_DIRS = [BASE_DIR / "static"]
+STATICFILE_DIRS = [BASE_DIR / "static_files"]
 
 LOGGING = {
     "version": 1,

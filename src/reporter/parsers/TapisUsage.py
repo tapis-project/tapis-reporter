@@ -15,7 +15,7 @@ import splunklib.results as results
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from ..apps.services.tapis.models import TenantServiceUsage
+from ..apps.tapis.models import TenantServiceUsage
 
 logger = logging.getLogger(__name__)
 

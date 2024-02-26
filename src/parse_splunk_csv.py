@@ -6,7 +6,7 @@ import pandas as pd
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.apps.services.tapis.models import TenantServiceUsage
+from reporter.apps.tapis.models import TenantServiceUsage
 
 logger = logging.getLogger(__name__)
 
