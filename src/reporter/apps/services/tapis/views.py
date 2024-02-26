@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import logging
+import random
 import requests
 from .models import Paper, TenantServiceUsage
 
@@ -249,10 +250,41 @@ def splunk(request):
         service = request.POST.get("service")
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
+        start_time = request.POST.get("start_time")
+        end_time = request.POST.get("end_time")
 
-        tapis_data = load_tapis_data(tenant, service, start_date, end_date)
+        logger.debug(start_time, end_time)
+
+        tapis_data = load_tapis_data(tenant, service, start_date, end_date, start_time, end_time)
         context["tapis_data"] = tapis_data
+        
+        service_counts = {}
+        labels = []
+        data = []
+
+        for td in tapis_data:
+            service_counts[td['service']] = service_counts.get(td['service'], 0) + td['count']
+        
+        for key, value in service_counts.items():
+            labels.append(key)
+            data.append(value)
+            
+        labels.append(td['service'])
+        data.append(td['count'])
+        
+        background_colors = get_background_colors(data)
+
+        context["tenant"] = tenant.upper()
+        context["labels"] = labels
+        context["data"] = data
+        context["backgroundColors"] = background_colors
+
         return HttpResponse(template.render(context, request))
+
+
+def get_background_colors(data):
+    color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(data))]
+    return color
 
 
 def build_tenant_model(tenant_info, owner_info):
@@ -270,7 +302,6 @@ def build_tenant_model(tenant_info, owner_info):
 
 
 def get_streams_data():
-
     # Might have to update to use different tapis tokens dependent on tenant
     tenant = {"key_name": "TAPIS_SERVICE_TOKEN"}
     headers = {
@@ -306,7 +337,7 @@ def get_streams_data():
     return streams_data
 
 
-def load_tapis_data(tenant, service, start_date, end_date):
+def load_tapis_data(tenant, service, start_date, end_date, start_time, end_time):
     logger.info("in load tapis data for html")
     query = Q()
 
@@ -318,16 +349,20 @@ def load_tapis_data(tenant, service, start_date, end_date):
     if service and service != "null" and service != "":
         query &= Q(service=service)
 
+    if start_time and start_time != "null" and start_time != "":
+        query &= Q(start_time__gte=start_time)
+
+    if end_time and end_time != "null" and end_time != "":
+        query &= Q(end_time__lte=end_time)
+
     query &= Q(log_date__gte=start_date)
     query &= Q(log_date__lte=end_date)
 
     tenant_service_qs = TenantServiceUsage.objects.filter(query)
 
-    logger.info(f"tenant_service_qs: {tenant_service_qs}")
     tapis_data = []
 
     for tenant_service_data in tenant_service_qs:
-        logger.error(f"tapis_data: {tenant_service_data}")
         tapis_data.append(
             {
                 "date": tenant_service_data.log_date,
@@ -338,8 +373,6 @@ def load_tapis_data(tenant, service, start_date, end_date):
                 "count": tenant_service_data.log_count,
             }
         )
-
-    logger.error(f"all data from db: {tapis_data}")
 
     return tapis_data
 

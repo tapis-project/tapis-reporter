@@ -57,6 +57,28 @@
             />
         </div>
 
+        <div class="nice-form-group">
+            <label>Start Time</label>
+            <input
+                type="time"
+                id="start_time"
+                name="start_time"
+                min="00:00"
+                max="23:59"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>End Time</label>
+            <input
+                type="time"
+                id="end_time"
+                name="end_time"
+                min="00:00"
+                max="23:59"
+            />
+        </div>
+
         <button type="submit" class="btn btn-primary" name="submit_form">Get Log Data</button>
     </form>
 {% endblock %}

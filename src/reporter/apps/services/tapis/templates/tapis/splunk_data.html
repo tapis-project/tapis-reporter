@@ -4,13 +4,57 @@
 {% block head_extra %}
   <base href="{% url 'main:index' %}">
 {% endblock %}
-
+<head>
+    <link rel="stylesheet" type="text/css" href=" {% static 'tapis/main.css' %} ">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
 <body>
 {% block content %}
 
-    <h3>Splunk Data</h3>
+    <h3>{{ tenant }} Analytics</h3>
+    <div class="main">
+        <div class="menu">
+            <div class="service-title">Services (dropdown)</div>
+            <div class="menu-item">Graphs</div>
+            <div class="menu-item">Raw Data</div>
+        </div>
+        <div class="raw-data-contents">
+            <div class="filters">
+                <div class="filter">date selector</div>
+                <div class="filter">search somethin</div>
+                <div class="filter">filter thing</div>
+                <div class="filter">order by blah</div>
+            </div>
+                <div class="raw-data-display">
+                <div class="graph-example">
+                    <div id="container" style="width: 75%">
+                        <canvas id="pie-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script>
+        var config = {
+            type: 'pie',
+            data: {
+                labels: {{ labels|safe }},
+                datasets: [{
+                    label: 'API Count',
+                    data: {{ data|safe }},
+                    backgroundColor: {{ backgroundColors|safe }},
+                    hoverOffset: 4
+                }]
+            }
+        };
 
+        window.onload = function() {
+            var ctx = document.getElementById('pie-chart').getContext('2d');
+            window.myPie = new Chart(ctx, config);
+        };
+    </script>
     <!-- <form method="POST" id="gateways-form">{% csrf_token %}
         <select name="tenant" id="tenant">
             {% for gateway in gateways_data %}
@@ -20,41 +64,5 @@
 
         <button type="submit" class="btn btn-primary" name="tenants_gateways">View Tenant Gateway</button>
     </form> -->
-    <table border=1 class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Tenant</th>
-                <th>Service</th>
-                <th># of Calls</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for data in tapis_data %}
-                <tr>
-                    <td>
-                        {{ data.date }}
-                    </td>
-                    <td>
-                        {{ data.start_time }}
-                    </td>
-                    <td>
-                        {{ data.end_time }}
-                    </td>
-                    <td>
-                        {{ data.tenant }}
-                    </td>
-                    <td>
-                        {{ data.service }}
-                    </td>
-                    <td>
-                        {{ data.count }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 {% endblock %}
 </body>

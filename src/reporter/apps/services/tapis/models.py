@@ -62,4 +62,5 @@ class TenantServiceUsage(models.Model):
         self.save()
 
     def __str__(self):
-        return f"{self.log_date} {self.start_time}-{self.end_time} {self.tenant} {self.service} {self.log_count}"
+        return f"{self.log_date} {self.start_time}-{self.end_time} \
+            {self.tenant} {self.service} {self.log_count}"

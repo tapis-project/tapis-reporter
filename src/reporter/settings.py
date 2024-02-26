@@ -125,7 +125,7 @@ INSTALLED_APPS = [
     "reporter.apps.tapisauth",
     "reporter.apps.services.jupyterhub",
     "reporter.apps.services.tapis",
-    "reporter.apps.services.hazmapper",
+    # "reporter.apps.services.hazmapper",
 ]
 
 MIDDLEWARE = [

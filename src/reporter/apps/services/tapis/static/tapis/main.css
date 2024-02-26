@@ -1,0 +1,76 @@
+.main {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    text-align: left;
+    height: 100%;
+}
+
+.service-title {
+    display: flex;
+    text-align: left;
+    padding: 24px;
+    border-bottom: 1px solid #e9e8e9;
+    font-weight: bold;
+}
+
+.service-title:hover {
+    cursor: pointer;
+}
+
+.menu-item {
+    display: flex;
+    text-align: left;
+    padding: 24px;
+}
+
+.menu-item:hover {
+    background-color: #e9e8e9;
+    cursor: pointer;
+}
+
+/* if raw data selected, use this for raw data html and css */
+.raw-data-contents {
+    display: flex;
+    flex-direction: column;
+    flex: 7;
+    background-color: #e9e8e9;
+}
+
+/* if graphs selected, use this for graphs html and css */
+.graphs-contents {
+    display: flex;
+    flex-direction: column;
+    flex: 6;
+}
+
+.raw-data-display {
+    padding: 24px;
+}
+
+.graph-example {
+    background-color: white;
+    padding: 24px;
+    width: 800px;
+    height: 400px;
+    border-radius: 5%;
+}
+
+.filters {
+    display: flex;
+    flex-direction: row;
+    padding: 24px;
+    color: black;
+    border-bottom: 1px solid #8a909b;
+}
+
+.filter {
+    flex: 1;
+}
