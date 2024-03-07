@@ -9,7 +9,9 @@
 {% block content %}
 
     <h3>Training Data</h3>
-
+    <form method="POST" id="new-training">{% csrf_token %}
+        <button type="submit" class="btn info" name="add-training" style="color:blue; text-decoration:underline">+ Add Training</button>
+    </form>
     <table border=1 class="table">
         <thead>
             <tr>
