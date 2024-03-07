@@ -41,39 +41,37 @@ def get_tapis_papers():
     for paper_source in papers_data:
         if paper_source["source"] == "googlescholar":
             papers = []
-            author_id = paper_source["available_with_id"]
 
             for paper in paper_source["papers"]:
                 papers.append(paper["title"])
 
-            for i in range(paper_source["pages_needed"]):
-                offset = i * 20
-
+            for i in range(len(papers)):
                 params = {
-                    "engine": "google_scholar_author",
+                    "engine": "google_scholar",
+                    "q": papers[i],
                     "hl": "en",
-                    "author_id": author_id,
-                    "start": offset,
                     "api_key": settings.SERP_API_KEY,
                 }
 
                 search = GoogleSearch(params)
-                results = search.get_dict()
-                articles = results["articles"]
+                response = search.get_dict()
+                results = response["organic_results"]
 
-                for article in articles:
-                    if article["title"] in papers:
-                        authors = article["authors"].split(",")
-                        co_authors = ",".join(authors[1:])
+                for article in results:
+                    if article["title"] == papers[i]:
+                        authors = article["publication_info"]["authors"]
+                        primary_author = authors[0]["name"]
+                        del authors[0]
+                        co_authors = [author["name"] for author in authors]
 
                         paper = Paper(
                             title=article["title"],
-                            primary_author=authors[0],
-                            publication_source=article["publication"],
+                            primary_author=primary_author,
+                            publication_source=article["resources"][0]["title"],
                             publication_date=article["year"],
                             co_authors=co_authors,
-                            citation_url=article["link"],
-                            citations=article["cited_by"]["value"],
+                            citation_url=article["inline_links"]["serpapi_cite_link"],
+                            citations=article["inline_links"]["cited_by"]["total"],
                         )
 
                         tapis_papers.append(paper)
