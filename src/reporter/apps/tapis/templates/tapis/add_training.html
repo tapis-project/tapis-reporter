@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Tapis {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+<body>
+{% block content %}
+    <h3>
+    Add New Training
+    </h3>
+
+    <form method="POST" id="new-training">{% csrf_token %}
+        <div class="nice-form-group">
+            <label>Training Name</label>
+            <input 
+                type="text"
+                id="name"
+                name="name"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>Forum</label>
+            <input 
+                type="text"
+                id="forum"
+                name="forum"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>Training Date</label>
+            <input
+                type="date"
+                id="date"
+                name="date"
+                value="2024-01-01"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label># Attendees</label>
+            <input
+                type="text"
+                id="attendees"
+                name="attendees"
+            />
+        </div>
+
+        <button type="submit" class="btn btn-primary" name="submit_training">Submit</button>
+    </form>
+{% endblock %}
+</body>
