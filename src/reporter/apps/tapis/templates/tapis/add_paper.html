@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Tapis {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+<body>
+{% block content %}
+    <h3>
+    Add New Paper
+    </h3>
+
+    <form method="POST" id="new-paper">{% csrf_token %}
+        <div class="nice-form-group">
+            <label>Paper Name</label>
+            <input 
+                type="text"
+                id="title"
+                name="title"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>Primary Author</label>
+            <input 
+                type="text"
+                id="author"
+                name="author"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>Publication Source</label>
+            <input
+                type="text"
+                id="source"
+                name="source"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>Date</label>
+            <input
+                type="date"
+                id="date"
+                name="date"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>Co-Authors</label>
+            <input
+                type="text"
+                id="coauthors"
+                name="coauthors"
+                value="Author1 Lastname, Author2 Lastname"
+            />
+        </div>
+
+        <div class="nice-form-group">
+            <label>Citation Url</label>
+            <input
+                type="text"
+                id="citation"
+                name="citation"
+            />
+        </div>
+
+        <button type="submit" class="btn btn-primary" name="submit_paper">Submit</button>
+    </form>
+{% endblock %}
+</body>
