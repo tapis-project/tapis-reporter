@@ -105,7 +105,7 @@ class TapisUsage:
                                 log = result["_raw"]
 
                                 nginx_log_format = re.compile(
-                                    r'(?P<tap_datetimestamp>[\d\-:T\.+]+) \S+ \S+ (?P<tap_client_ip>\d+\.\d+\.\d+\.\d+) - - \[(?P<tap_date>\d{2}/\w+/\d{4}):(?P<tap_time>\d{2}:\d{2}:\d{2}) (\+|\-)\d{4}\] "(?P<tap_host>(?P<tap_tenant>.*?)\.\S+)" "(?P<tap_request_method>\S+) (?P<tap_path>\S+) \S+" (?P<tap_status_code>\d+) (?P<tap_bytes_sent>\d+) "(?P<tap_referer>[^"]*)" "(?P<tap_user_agent>[^"]*)" "-"'
+                                    r'(?P<datetimestamp>[\d\-:T\.+]+) \S+ \S+ (?P<client_ip>\d+\.\d+\.\d+\.\d+) - - \[(?P<date>\d{2}/\w+/\d{4}):(?P<time>\d{2}:\d{2}:\d{2}) (\+|\-)\d{4}\] "(?P<host>(?P<tenant>.*?)\.\S+)" "(?P<request_method>\S+) (?P<path>\S+) \S+" (?P<status_code>\d+) (?P<bytes_sent>\d+) "(?P<referer>[^"]*)" "(?P<user_agent>[^"]*)" "-"'
                                 )
 
                                 log_data = re.match(nginx_log_format, log)
@@ -113,7 +113,7 @@ class TapisUsage:
                                 if log_data:
                                     data_dict = log_data.groupdict()
 
-                                    datetimestamp = data_dict["tap_datetimestamp"]
+                                    datetimestamp = data_dict["datetimestamp"]
                                     dt_string = datetimestamp[:-6]
                                     dt_microseconds = dt_string.split(".")[1]
                                     dt_string = (
@@ -124,33 +124,27 @@ class TapisUsage:
                                     datetime_object = datetime.fromisoformat(dt_string)
                                     timestamp = datetime_object.timestamp()
 
-                                    tap_service = data_dict["tap_path"].split("/")[2]
-                                    parsed_service = urlparse(tap_service)
-                                    tap_service = urlunparse(
+                                    service = data_dict["path"].split("/")[2]
+                                    parsed_service = urlparse(service)
+                                    service = urlunparse(
                                         parsed_service._replace(query="")
                                     )
 
-                                    tenant = data_dict["tap_tenant"]
+                                    tenant = data_dict["tenant"]
 
                                     if tenant == "www":
-                                        tenant = data_dict["tap_host"].split(".")[1]
+                                        tenant = data_dict["host"].split(".")[1]
 
                                     tenants_and_services[
                                         tenant
                                     ] = tenants_and_services.get(tenant, {})
-                                    tenants_and_services[tenant][tap_service] = (
-                                        tenants_and_services[tenant].get(tap_service, 0)
+                                    tenants_and_services[tenant][service] = (
+                                        tenants_and_services[tenant].get(service, 0)
                                         + 1
                                     )
                         except Exception as e:
                             logger.error(f"Error parsing log: {e}")
                             logger.error(result["_raw"])
-                            nginx_log_format = re.compile(
-                                r'(?P<tap_datetimestamp>[\d\-:T\.+]+) \S+ \S+ (?P<tap_client_ip>\d+\.\d+\.\d+\.\d+) - - \[(?P<tap_date>\d{2}/\w+/\d{4}):(?P<tap_time>\d{2}:\d{2}:\d{2}) (\+|\-)\d{4}\] "(?P<tap_host>(?P<tap_tenant>.*?)\.\S+)" "(?P<tap_request_method>\S+) (?P<tap_path>\S+) \S+" (?P<tap_status_code>\d+) (?P<tap_bytes_sent>\d+) "(?P<tap_referer>[^"]*)" "(?P<tap_user_agent>[^"]*)" "-"'
-                            )
-
-                            log_data = re.match(nginx_log_format, log)
-                            logger.error(log_data)
 
                     offset += count
 

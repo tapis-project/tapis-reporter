@@ -296,7 +296,7 @@ class JupyterHubUsage:
         :return: formatted date
         """
         regex = re.compile(
-            r'(?P<jup_client_ip>\S+) - - \[(?P<jup_date>\d{2}\/\w+\/\d{4}):(?P<jup_time>\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] "(?P<jup_method>\S+) (?P<jup_path>\S+) \S+" (?P<jup_status_code>\d+) (?P<jup_bytes_sent>\d+) "(?P<jup_referer>[^"]+)" "(?P<jup_user_agent>[^"]+)" "-"'
+            r'(?P<client_ip>\S+) - - \[(?P<date>\d{2}\/\w+\/\d{4}):(?P<time>\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] "(?P<method>\S+) (?P<path>\S+) \S+" (?P<status_code>\d+) (?P<bytes_sent>\d+) "(?P<referer>[^"]+)" "(?P<user_agent>[^"]+)" "-"'
         )
         match = regex.match(log)
 
@@ -305,21 +305,21 @@ class JupyterHubUsage:
 
         log_info = {name: match.group(name) for name in match.groupdict()}
         try:
-            user = self.get_user(log_info["jup_path"])
-            raw_path = log_info["jup_path"]
+            user = self.get_user(log_info["path"])
+            raw_path = log_info["path"]
             network_path = (
-                self.get_path(log_info["jup_path"])
-                if log_info["jup_path"] is not None
+                self.get_path(log_info["path"])
+                if log_info["path"] is not None
                 else ""
             )
             path = self.get_true_path(user, network_path)
-            file = self.get_file(log_info["jup_path"])
-            date = self.get_date(log_info["jup_date"])
-            request_type = log_info["jup_method"]
+            file = self.get_file(log_info["path"])
+            date = self.get_date(log_info["date"])
+            request_type = log_info["method"]
 
-            time = log_info["jup_time"].split(" ")[0]
-            ip_address = log_info["jup_client_ip"]
-            system_info = log_info["jup_user_agent"]
+            time = log_info["time"].split(" ")[0]
+            ip_address = log_info["client_ip"]
+            system_info = log_info["user_agent"]
             return {
                 "user": user,
                 "raw_path": raw_path,
