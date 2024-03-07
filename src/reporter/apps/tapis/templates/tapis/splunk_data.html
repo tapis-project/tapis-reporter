@@ -5,12 +5,11 @@
   <base href="{% url 'main:index' %}">
 {% endblock %}
 <head>
-    <link rel="stylesheet" type="text/css" href="/app/reporter/apps/tapis/static/tapis/main.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'tapis/main.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
 {% block content %}
-    {{ static }}
     <h3>{{ tenant }} Analytics</h3>
     <div class="main">
         <div class="menu">
