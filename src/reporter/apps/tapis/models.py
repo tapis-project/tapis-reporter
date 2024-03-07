@@ -22,21 +22,19 @@ class Paper(models.Model):
         return self.title + " " + self.primary_author
 
 
-class TrainingData(models.Model):
-    seminar = models.CharField(max_length=255)
-    num_systems = models.IntegerField()
+class Training(models.Model):
+    name = models.TextField()
+    forum = models.TextField()
+    date = models.DateField()
+    num_attendees = models.IntegerField()
 
 
 # Holds data pertaining to db data for all of tapis
 class TapisInfo(models.Model):
+    tenant = models.CharField(max_length=255, primary_key=True)
     num_tokens = models.IntegerField()
     num_unique_users = models.IntegerField()
     num_ctr_apps = models.IntegerField()
-
-
-# Holds data pertaining to db data for specific tenant
-class TenantTapisInfo(TapisInfo):
-    tenant = models.CharField(max_length=255, primary_key=True)
 
 
 # Holds data pertaining to jobs db query

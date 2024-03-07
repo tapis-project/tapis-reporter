@@ -15,5 +15,5 @@ def add_service_configs():
 
 
 if __name__ == "__main__":
-    add_service_configs()
-    # get_tapis_papers()
+    # add_service_configs()
+    get_tapis_papers()
