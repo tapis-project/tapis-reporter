@@ -99,6 +99,12 @@ def gateways(request):
         try:
             # load gateways file data
             gateways_data = get_gateways_data()
+            tenants = []
+            for gateway in gateways_data:
+                tenants.append(gateway["tenant"])
+
+            tenants = set(tenants)
+            context["tenants"] = tenants
 
             # get number of gateways
             num_gateways = len(gateways_data)
@@ -208,6 +214,16 @@ def add_paper(request):
 
         return HttpResponse(template.render(context, request))
 
+    elif request.method == "POST":
+        logger.debug(f"In {request.method} method of add_paper")
+
+        context = {"error": False}
+
+        paper_data = build_paper_data(request.POST)
+        create_paper(paper_data)
+
+        return redirect("tapis:paper")
+
 
 @login_required
 def streams(request):
@@ -240,7 +256,10 @@ def splunk(request):
 
     elif request.method == "POST":
         logger.debug(f"In {request.method} method of Splunk")
+
         template = loader.get_template("tapis/splunk_data.html")
+        if "raw_tapis" in request.POST:
+            template = loader.get_template("tapis/raw_splunk_data.html")
 
         context = {"error": False}
 
@@ -257,21 +276,21 @@ def splunk(request):
 
         tapis_data = load_tapis_data(tenant, service, start_date, end_date, start_time, end_time)
         context["tapis_data"] = tapis_data
-        
+
         service_counts = {}
         labels = []
         data = []
 
         for td in tapis_data:
             service_counts[td['service']] = service_counts.get(td['service'], 0) + td['count']
-        
+
         for key, value in service_counts.items():
             labels.append(key)
             data.append(value)
-            
+
         labels.append(td['service'])
         data.append(td['count'])
-        
+
         background_colors = get_background_colors(data)
 
         context["tenant"] = tenant.upper()
@@ -285,6 +304,30 @@ def splunk(request):
 def get_background_colors(data):
     color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(data))]
     return color
+
+
+def build_paper_data(data):
+    return {
+        "title": data.get("title"),
+        "primary_author": data.get("author"),
+        "publication_source": data.get("source"),
+        "publication_date": data.get("date"),
+        "co_authors": data.get("coauthors"),
+        "citation_url": data.get("citation"),
+    }
+
+
+def create_paper(paper_data):
+    paper = Paper(
+        title=paper_data["title"],
+        primary_author=paper_data["primary_author"],
+        publication_source=paper_data["publication_source"],
+        publication_date=paper_data["publication_date"],
+        co_authors=paper_data["co_authors"],
+        citation_url=paper_data["citation_url"],
+        citations=0
+    )
+    Paper.objects.create(paper)
 
 
 def build_tenant_model(tenant_info, owner_info):

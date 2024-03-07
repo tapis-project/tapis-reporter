@@ -16,4 +16,4 @@ urlpatterns = [
     path("papers/", views.papers, name="papers"),
     path("streams/", views.streams, name="streams"),
     path("splunk/", views.splunk, name="splunk"),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
