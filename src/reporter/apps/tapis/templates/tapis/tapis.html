@@ -8,29 +8,32 @@
 <body>
 {% block content %}
 
-    <h3>Tapis Data</h3>
+    {% if tenant_queried == True %}
+        <h3>Tapis Data for {{ tenant }}</h3>
+    {% else %}
+        <h3>Tapis Data</h3>
+    {% endif %}
+    
 
-    <table border=1 class="table" id="tapis">
-        <thead>
-            <tr>
-                <th>Tokens</th>
-                <th>Users</th>
-                <th>Containerized Apps</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    {{ tokens }}
-                </td>
-                <td>
-                    {{ users }}
-                </td>
-                <td>
-                    {{ num_ctr_apps }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <form method="POST" id="tapis-form">{% csrf_token %}
+        <select name="tenant" id="tenant">
+            {% for tenant in tenants %}
+                <option value={{ tenant }}>{{ tenant }}</option> 
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary" name="tapis_tenant">View Tenant Tapis Data</button>
+    </form>
+
+    <h4>
+        Number of Tokens: {{ num_tokens }}
+    </h4>
+    <h4>
+        Number of Unique Users: {{ num_unique_users }}
+    </h4>
+    <h4>
+        Number of Containerized Apps: {{ num_ctr_apps }}
+    </h4>
+
 {% endblock %}
 </body>

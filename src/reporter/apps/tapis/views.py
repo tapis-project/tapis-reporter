@@ -3,10 +3,11 @@ from django.template import loader
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+import ast
 import logging
 import random
 import requests
-from .models import Paper, TenantServiceUsage
+from .models import Paper, TenantServiceUsage, JobsData, TapisInfo
 
 logger = logging.getLogger(__name__)
 
@@ -245,6 +246,68 @@ def streams(request):
 
 
 @login_required
+def jobs(request):
+    if request.method == "GET":
+        logger.debug(f"In {request.method} method of jobs")
+        template = loader.get_template("tapis/jobs.html")
+
+        context = {
+            "error": False,
+        }
+
+        try:
+            # load gateways file data
+            jobs_data = get_jobs_data()
+            context["jobs_data"] = jobs_data
+        except Exception as e:
+            logger.error(f"Error fetching jobs data: {e}")
+        
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
+def tapis(request):
+    if request.method == "GET":
+        logger.debug(f"In {request.method} method of tapis")
+        template = loader.get_template("tapis/tapis.html")
+
+        context = {"error": False}
+
+        try:
+            # load gateways file data
+            tapis_data = get_tapis_data()
+
+            context["tenants"] = tapis_data["tenants"]
+            context["num_tokens"] = tapis_data["num_tokens"]
+            context["num_unique_users"] = tapis_data["num_unique_users"]
+            context["num_ctr_apps"] = tapis_data["num_ctr_apps"]
+        except Exception as e:
+            logger.error(f"Error fetching tapis data: {e}")
+
+        return HttpResponse(template.render(context, request))
+
+    elif request.method == "POST":
+        logger.debug(f"In {request.method} method of tapis")
+        template = loader.get_template("tapis/tapis.html")
+
+        context = {"error": False}
+
+        tenant = request.POST.get("tenant")
+        try:
+            tenant_data = get_tenant_data(tenant)
+
+            context["tenant_queried"] = True
+            context["tenant"] = tenant
+            context["num_tokens"] = tenant_data.num_tokens
+            context["num_unique_users"] = tenant_data.num_unique_users
+            context["num_ctr_apps"] = tenant_data.num_ctr_apps
+        except Exception as e:
+            logger.error(f"Error fetching tenant data: {e}")
+
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
 def splunk(request):
     if request.method == "GET":
         logger.debug(f"In {request.method} method of Splunk")
@@ -380,6 +443,41 @@ def get_streams_data():
     return streams_data
 
 
+def get_tapis_data():
+    logger.debug("Attempting to fetch tapis data")
+    tapis_data = TapisInfo.objects.all()
+
+    tapis_stats = {}
+    for tenant in tapis_data:
+        if "tenants" in tapis_stats:
+            tapis_stats["tenants"].append(tenant.tenant)
+        else:
+            tapis_stats["tenants"] = [tenant.tenant]
+        tapis_stats["num_tokens"] = tapis_stats.get("num_tokens", 0) + tenant.num_tokens
+        tapis_stats["num_unique_users"] = tapis_stats.get("num_unique_users", 0) + tenant.num_unique_users
+        tapis_stats["num_ctr_apps"] = tapis_stats.get("num_ctr_apps", 0) + tenant.num_ctr_apps
+
+    return tapis_stats
+
+
+def get_tenant_data(tenant):
+    logger.debug("Attempting to fetch tapis data")
+    tenant_data = TapisInfo.objects.get(tenant=tenant)
+    logger.debug(f"Tenant data retrieved: {tenant_data}")
+
+    return tenant_data
+
+
+def get_jobs_data():
+    logger.debug("Attempting to fetch jobs data")
+    jobs_data = JobsData.objects.get(id=1)
+    dev_daily_tup = ast.literal_eval(jobs_data.dev_daily_jobs)
+    jobs_data.dev_daily_jobs = float(dev_daily_tup[0])
+    logger.debug(f"Job data retrieved: {jobs_data}")
+
+    return jobs_data
+
+
 def load_tapis_data(tenant, service, start_date, end_date, start_time, end_time):
     logger.info("in load tapis data for html")
     query = Q()
@@ -423,7 +521,7 @@ def load_tapis_data(tenant, service, start_date, end_date, start_time, end_time)
 def load_tapis_papers():
     logger.error("in get tapis papers for html")
     tapis_papers_qs = Paper.objects.all()
-    logger.error(f"tapis_papers_qs: {tapis_papers_qs}")
+    logger.error("Tapis papers queryset retrieved")
     tapis_papers = []
 
     for paper in tapis_papers_qs:

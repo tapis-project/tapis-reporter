@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Gateways {% endblock %}
+{% block head_extra %}
+  <base href="{% url 'main:index' %}">
+{% endblock %}
+
+<body>
+{% block content %}
+
+    <h3>Jobs Data for TACC</h3>
+
+    <h4>
+        Total Number of Jobs Ran: {{ jobs_data.total_jobs }}
+    </h4>
+    <h4>
+        Average Daily Jobs: {{ jobs_data.avg_daily_jobs }}
+    </h4>
+    <h4>
+        Standard Deviation of Jobs: {{ jobs_data.dev_daily_jobs }}
+    </h4>
+    <h4>
+        Number of Jobs using Smart Scheduling: {{ jobs_data.num_using_smart_scheduling }}
+    </h4>
+
+{% endblock %}
+</body>

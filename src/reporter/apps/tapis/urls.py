@@ -16,4 +16,6 @@ urlpatterns = [
     path("papers/", views.papers, name="papers"),
     path("streams/", views.streams, name="streams"),
     path("splunk/", views.splunk, name="splunk"),
+    path("jobs/", views.jobs, name="jobs"),
+    path("tapis/", views.tapis, name="tapis"),
 ]
