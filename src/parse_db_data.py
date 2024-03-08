@@ -125,7 +125,7 @@ class Populate:
     def save_tapis_data(self, total_by_tenant, users_by_tenant):
         if total_by_tenant and users_by_tenant:
 
-            bulk_tapis_info = []
+            # bulk_tapis_info = []
             for tenant in total_by_tenant:
                 num_tokens = total_by_tenant[tenant]
                 num_unique_users = users_by_tenant[tenant]
@@ -141,9 +141,15 @@ class Populate:
                     num_ctr_apps=int(num_ctr_apps),
                 )
 
-                bulk_tapis_info.append(tenant_info)
+                tenant_info.save()
 
-            TapisInfo.objects.bulk_create(bulk_tapis_info, update_conflicts=True)
+            # Will only work in updated Django
+            # TapisInfo.objects.bulk_create(
+            #     bulk_tapis_info,
+            #     update_conflicts=True,
+            #     unique_fields=["tenant"],
+            #     update_fields=["num_tokens", "num_unique_users", "num_ctr_apps"]
+            # )
 
 
 if __name__ == "__main__":
