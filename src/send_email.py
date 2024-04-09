@@ -10,9 +10,8 @@ logger = logging.getLogger(__name__)
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.helpers import generate_email_data
+from reporter.helpers.EmailHandler import EmailHandler
 from reporter.apps.main.models import Service, Tenant
-from reporter.apps.jupyterhub.utils import send_jupyterhub_email
 
 parser = argparse.ArgumentParser(description='Process arguments for email')
 parser.add_argument('service')
@@ -39,15 +38,5 @@ if args.tenant not in service_tenants:
 tenant = Tenant.objects.get(pk=args.tenant)
 
 if __name__ == '__main__':
-    week_end = date.date.today() - date.timedelta(days=1)
-    week_begin = week_end - date.timedelta(days=6)
-
-    match args.service:
-        case 'jupyterhub':
-            data = generate_email_data(service, tenant, week_begin, week_end)
-            send_jupyterhub_email(data, week_begin, week_end)
-        case 'tapis':
-            pass
-        case _:
-            logger.error(f"Email sender not configured for {args.service}")
-            pass
+    email_handler = EmailHandler(service, tenant)
+    email_handler.email_service()
