@@ -1,1 +1,1 @@
-from .tenants import tenants
+from .services import services

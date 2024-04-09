@@ -1,0 +1,92 @@
+.form-container {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.styled-form {
+    background: #F9F9F9;
+    padding: 25px;
+    margin: 50px 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.form-title {
+    font-family: "Montserrat", sans-serif;
+    color: #222;
+    text-align: left;
+    display: block;
+    font-size: 30px;
+    font-weight: 400;
+    margin-top: 0px;
+}
+
+fieldset {
+    border: medium none !important;
+    margin: 0 0 10px;
+    min-width: 100%;
+    padding: 0;
+    width: 100%;
+}
+
+.form-field input[type="text"],
+input[type="number"],
+select,
+textarea {
+    font-family: "Montserrat", sans-serif;
+    color: #222;
+    font-weight: 400;
+    font-size: 14px;
+    width: 100%;
+    border: 1px solid #CCC;
+    background: white;
+    margin: 0 0 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.form-field input[type="number"] {
+    width: 25%;
+    float: left;
+}
+
+.form-field textarea {
+    min-height: 100px;
+}
+
+.form-field input:focus {
+    outline: 0;
+    border: 1px solid #999;
+}
+
+.form-field input[type="date"] {
+    background-color: white;
+    padding: 10px;
+    font-family: "Montserrat", sans-serif;
+    color: #222;
+    font-size: 14px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    display: block;
+}
+
+::-webkit-calendar-picker-indicator {
+    background-color: #ffffff;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.form-label {
+    font-family: "Montserrat", sans-serif;
+    color: #222;
+    font-size: 14px;
+    display: block;
+    text-align: left;
+    padding-bottom: 5px;
+}

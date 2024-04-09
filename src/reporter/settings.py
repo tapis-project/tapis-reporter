@@ -19,58 +19,120 @@ logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# DATA_DIR = os.path.dirname(os.path.dirname(__file__))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', None)
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", None)
 if not SECRET_KEY:
-    logger.warning("Missing DJANGO_SECRET_KEY environment variable. Generating random secret key.")
+    logger.warning(
+        "Missing DJANGO_SECRET_KEY environment variable. Generating random secret key."
+    )
 SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.environ.get("DEBUG", False)
 
-TENANT = os.environ.get('TENANT', None)
+TENANT = os.environ.get("TENANT", None)
 if not TENANT:
     logger.warning("Missing TENANT environment variable")
 
-INSTANCE = os.environ.get('INSTANCE', None)
+INSTANCE = os.environ.get("INSTANCE", None)
 if not TENANT:
     logger.warning("Missing INSTANCE environment variable")
-    
+
+METADATA_NAME = os.environ.get("METADATA_NAME", None)
+if not METADATA_NAME:
+    logger.warning("Missing METADATA_NAME environment variable")
+
+# Token used for JupyterHub access
+JUPYTERHUB_TOKEN = os.environ.get("JUPYTERHUB_TOKEN", None)
+if not JUPYTERHUB_TOKEN:
+    logger.warning("Missing JUPYTERHUB_TOKEN environment variable")
+
+# Token used for GitHub API access
+GITHUB_API_TOKEN = os.environ.get("GITHUB_API_TOKEN", None)
+if not GITHUB_API_TOKEN:
+    logger.warning("Missing GITHUB_API_TOKEN environment variable")
+
+# Token used for TAPIS GitHub Repo API access
+TAPIS_GITHUB_TOKEN = os.environ.get("TAPIS_GITHUB_TOKEN", None)
+if not TAPIS_GITHUB_TOKEN:
+    logger.warning("Missing TAPIS_GITHUB_TOKEN environment variable")
+
+# Token used for Google Serp API
+SERP_API_KEY = os.environ.get("SERP_API_KEY", None)
+if not SERP_API_KEY:
+    logger.warning("Missing SERP_API_KEY environment variable")
+
+# API URL for JupyterHub
+JUPYTERHUB_SERVER = os.environ.get("JUPYTERHUB_SERVER", None)
+if not JUPYTERHUB_SERVER:
+    logger.warning("Missing JUPYTERHUB_API environment variable")
+
 # TAPIS API for Metadata
-TAPIS_API_URL = os.environ.get('TAPIS_API_URL', None)
-TAPIS_API = os.environ.get('TAPIS_API', None)
+TAPIS_API_URL = os.environ.get("TAPIS_API_URL", None)
+TAPIS_API = os.environ.get("TAPIS_API", None)
 if not TAPIS_API or not TAPIS_API_URL:
     logger.warning("Missing TAPIS_API or TAPIS_API_URL environment variable")
 
-TAPIS_SERVICE_TOKEN = os.environ.get('TAPIS_SERVICE_TOKEN', None)
+TAPIS_SERVICE_TOKEN = os.environ.get("TAPIS_SERVICE_TOKEN", None)
 if not TAPIS_SERVICE_TOKEN:
     logger.warning("Missing TAPIS_SERVICE_TOKEN environment variable")
 
 # Tapis login client key and secret
-TAPIS_CLIENT_ID = os.environ.get('TAPIS_CLIENT_ID', None)
-TAPIS_CLIENT_KEY = os.environ.get('TAPIS_CLIENT_KEY', None)
+TAPIS_CLIENT_ID = os.environ.get("TAPIS_CLIENT_ID", None)
+TAPIS_CLIENT_KEY = os.environ.get("TAPIS_CLIENT_KEY", None)
 if not TAPIS_CLIENT_ID or not TAPIS_CLIENT_KEY:
-    logger.warning("Missing TAPIS_CLIENT_ID or TAPIS_CLIENT_KEY environment variable")
+    logger.warning(
+        "Missing TAPIS_CLIENT_ID or TAPIS_CLIENT_KEY environment variable")
 
+# Splunk credentials
+SPLUNK_HOST = os.environ.get("SPLUNK_HOST", None)
+SPLUNK_PORT = os.environ.get("SPLUNK_PORT", None)
+SPLUNK_USER = os.environ.get("SPLUNK_USER", None)
+SPLUNK_PASS = os.environ.get("SPLUNK_PASS", None)
+if not SPLUNK_HOST or not SPLUNK_PORT or not SPLUNK_USER or not SPLUNK_PASS:
+    logger.warning(
+        "Missing SPLUNK_HOST or SPLUNK_PORT or SPLUNK_USER or SPLUNK_PASS")
 
-ALLOWED_HOSTS = ['*']
+# MySQL credentials
+MYSQL_HOST = os.environ.get("MYSQL_HOST", None)
+MYSQL_USER = os.environ.get("MYSQL_USER", None)
+MYSQL_PASS = os.environ.get("MYSQL_PASS", None)
+MYSQL_DB = os.environ.get("MYSQL_DB", None)
+if not MYSQL_HOST or not MYSQL_USER or not MYSQL_PASS or not MYSQL_DB:
+    logger.warning(
+        "Missing MYSQL_HOST or MYSQL_USER or MYSQL_PASS or MYSQL_DB")
+
+SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", None)
+SLACK_USER = os.environ.get("SLACK_USER", None)
+SLACK_URL = os.environ.get("SLACK_URL", None)
+if not SLACK_CHANNEL or not SLACK_USER or not SLACK_URL:
+    logger.warning("Miss SLACK_CHANNEL or SLACK_USER or SLACK_URL")
+
+ALLOWED_HOSTS = ["*"]
 
 # Setup support for proxy headers
 USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-LOGIN_URL = '/auth/tapisauth'
-LOGIN_REDIRECT_URL = ''
+LOGIN_URL = "/auth/tapisauth"
+LOGIN_REDIRECT_URL = ""
 
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / 'static'
+# STATICFILES_DIRS = [
+#     (os.path.join(BASE_DIR, 'static')),
+# ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 # Application definition
@@ -86,10 +148,12 @@ INSTALLED_APPS = [
     "reporter.apps.tapisauth",
     "reporter.apps.jupyterhub",
     "reporter.apps.tapis",
+    # "reporter.apps.services.hazmapper",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -103,7 +167,7 @@ ROOT_URLCONF = "reporter.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'reporter/templates')],
+        "DIRS": [os.path.join(BASE_DIR, "reporter/templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -125,10 +189,9 @@ WSGI_APPLICATION = "reporter.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": "/app/data/db.sqlite3",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -148,8 +211,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = ['reporter.apps.tapisauth.backends.TapisOAuthBackend',
-                           'django.contrib.auth.backends.ModelBackend']
+AUTHENTICATION_BACKENDS = [
+    "reporter.apps.tapisauth.backends.TapisOAuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 
 # Internationalization
@@ -167,9 +232,26 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
+# STATIC_URL = "/static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# STATICFILE_DIRS = [
+#     os.path.join(BASE_DIR, "web/static")
+# ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}

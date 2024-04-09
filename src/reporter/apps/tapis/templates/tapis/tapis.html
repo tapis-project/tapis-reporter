@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/filter.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}"/>
+<div class="main">
+    <div class="header">
+        <h1>
+            {% if tenant_queried == True %}
+                Tapis Data for {{ tenant }}
+            {% else %}
+                Tapis Data
+            {% endif %}
+        </h1>
+        <form class="filter-row" method="POST" id="tapis-form">{% csrf_token %}
+            <div class="filter">
+                <label class="filter-label" for="tenant">
+                    Tenant:
+                </label>
+                <select name="tenant" id="tenant">
+                    <option value="" disabled selected>Filter tenant</option>
+                    {% for tenant in tenants %}
+                        <option value={{ tenant }}>{{ tenant }}</option> 
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="tenants" id="tenants" value="{{ tenants }}"/>
+            <button type="submit" class="btn filter-button" name="tapis_tenant">View Tenant Data</button>
+        </form>
+    </div>
+    <div class="content">
+        <div class="grid-container">
+            <div class="data">
+                <p>
+                    Number of Tokens
+                </p>
+                <h3>
+                    {{ num_tokens }}
+                </h3>
+            </div>
+            <div class="data">
+                <p>
+                    Number of Unique Users
+                </p>
+                <h3>
+                    {{ num_unique_users }}
+                </h3>
+            </div>
+            <div class="data">
+                <p>
+                    Number of Containerized Apps
+                </p>
+                <h3>
+                    {{ num_ctr_apps }}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

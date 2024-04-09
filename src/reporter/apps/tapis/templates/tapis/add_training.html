@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}" />
+<div class="main">
+    <div class="header">
+        <h1>
+            Add Training
+        </h1>
+    </div>
+    <div class="content">
+        <div class="form-container">
+            <form class="styled-form" method="POST" id="new-training">{% csrf_token %}
+                <h3 class="form-title">
+                    Fill out data for training
+                </h3>
+                <fieldset class="form-field">
+                    <label class="form-label" for="name">Training Name</label>
+                    <input type="text" id="name" name="name"
+                        placeholder="Learn Tapis">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="forum">Forum</label>
+                    <input type="text" id="forum" name="forum"
+                        placeholder="Fishbowl">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="attendees"># of Attendees</label>
+                    <input type="text" id="attendees" name="attendees"
+                        placeholder="10">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="date">Training Date</label>
+                    <input type="date" id="date" name="date">
+                </fieldset>
+                <div class="flex-row form-group">
+                    <button type="submit" class="btn" name="submit_training">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

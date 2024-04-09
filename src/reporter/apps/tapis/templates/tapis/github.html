@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}" />
+<div class="main">
+    <div class="header">
+        <h1>
+            GitHub Repository Data
+        </h1>
+    </div>
+    <div class="content">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Repo Owner</th>
+                    <th>Repo Name</th>
+                    <th>Year Created</th>
+                    <th>Total Issues</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repo in repos %}
+                <tr>
+                    <td>
+                        {{ repo.owner }}
+                    </td>
+                    <td>
+                        {{ repo.name }}
+                    </td>
+                    <td>
+                        {{ repo.year }}
+                    </td>
+                    <td>
+                        {{ repo.total_issues }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

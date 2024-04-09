@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Oswald:wght@200..700&display=swap');
+    
+    .navbar {
+        display: flex;
+        background-color: black;
+        color: white;
+        height: 100%;
+        width: 17%;
+        flex-direction: column;
+        min-width: 240px;
+    }
+
+    .title {
+        padding-left: 8px;
+    }
+
+    .app-logo {
+        font-family: "Montserrat", sans-serif;
+        font-size: 16px;
+        padding-top: 16px;
+        padding-left: 16px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .nav-item, a {
+        font-family: "Montserrat", sans-serif;
+        font-size: 16px;
+        padding-top: 16px;
+        letter-spacing: 0.55px;
+        display: flex;
+        box-sizing: border-box;
+        cursor: pointer;
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .auth-user {
+        font-family: "Montserrat", sans-serif;
+        font-size: 16px;
+        display: flex;
+        flex-direction: row;
+        margin-top: auto;
+        padding-bottom: 24px;
+        align-items: center;
+        padding-left: 16px;
+        cursor: pointer;
+        letter-spacing: 0.55px;
+        box-sizing: border-box;
+        transition: border 0.125s ease-in-out 10ms;
+    }
+
+    .section-title {
+        transition: border 0.125s ease-in-out 10ms;
+        padding: 16px;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .section-title:hover, .section-title:active, .auth-user:hover {
+        border-bottom: 2px solid #d5b57c;
+    }
+
+    .dropdown-item {
+        transition: border 0.125s ease-in-out 10ms;
+        padding: 16px;
+    }
+
+    .dropdown-item:hover, .dropdown-item:focus, .dropdown-item:active {
+        border-bottom: 2px solid #d5b57c;
+    }
+
+    .dropdown-menu {
+        margin-left: 32px;
+    }
+
+    .logo {
+        width: 48px;
+        height: 48px;
+    }
+
+    .logout {
+        width: 24px;
+        height: 24px;
+        padding-left: 8px;
+    }
+
+    .user {
+        font-size: 16px;
+    }
+
+    a, u {
+        color: inherit;
+        text-decoration: none;
+    }
+</style>
+<html>
+    <nav class="navbar">
+        <div class="app-logo">
+            <img src="{% static 'main/images/logo.svg' %}" class="logo">
+            <h1 class="title">
+                CIC Reporter
+            </h1>
+        </div>
+        <a class="nav-item" tabindex="1" id="services" href="{% url 'main:index' %}">
+            <div class="section-title" id="home">
+                Home
+            </div>
+        </a>
+        <div class="nav-item" tabindex="1" id="services">
+            <div class="section-title" id="services">
+                Services 
+                <span
+                    id="services-dropdown-arrow"
+                >
+                    <img src="{% static 'main/images/chevron.svg' %}" width="16px" height="16px">
+                </span>
+            </div>
+            <div class="dropdown-menu" id="services-dropdown"
+                style="display:none;">
+                <a class="dropdown-item" href="{% url 'tapis:index' %}">
+                    Tapis
+                </a>
+                <a class="dropdown-item" href="{% url 'jupyterhub:index' %}">
+                    JupyterHub
+                </a>
+            </div>
+        </div>
+        {% if request.path != '/'%}
+        <div class="nav-item" tabindex="1" id="dashboards">
+            <div class="section-title" id="dashboards">
+                Dashboards
+                <span
+                    id="dashboards-dropdown-arrow"
+                >
+                    <img src="{% static 'main/images/chevron.svg' %}" width="16px" height="16px">
+                </span>
+            </div>
+            {% if "tapis" in request.path %}
+            <div class="dropdown-menu" id="dashboards-dropdown">
+                <a class="dropdown-item" href="{% url 'tapis:jobs' %}">
+                    Jobs
+                </a>
+            </div>
+            {% elif "jupyterhub" in request.path %}
+            {% endif %}
+        {% endif %}
+        </div>
+        {% if request.path != '/' %}
+        <div class="nav-item" tabindex="1" id="raw-data">
+            <div class="section-title" id="raw-data">
+                Data Tables
+                <span
+                    id="raw-data-dropdown-arrow"
+                    style="transform: rotate(90deg);"
+                >
+                    <img src="{% static 'main/images/chevron.svg' %}" width="16px" height="16px">
+                </span>
+            </div>
+            {% if "jupyterhub" in request.path %}
+            <div class="dropdown-menu" id="raw-data-dropdown">
+                <a class="dropdown-item" href="{% url 'jupyterhub:users' %}">
+                    Users
+                </a>
+                <a class="dropdown-item" href="{% url 'jupyterhub:files' %}">
+                    Files
+                </a>
+                <a class="dropdown-item" href="{% url 'jupyterhub:dirs' %}">
+                    Directories
+                </a>
+            </div>
+            {% elif "tapis" in request.path %}
+            <div class="dropdown-menu" id="raw-data-dropdown">
+                <a class="dropdown-item" href="{% url 'tapis:splunk' %}">
+                    Splunk
+                </a>
+                <a class="dropdown-item" href="{% url 'tapis:tenants' %}">
+                    Tenants
+                </a>
+                <a class="dropdown-item" href="{% url 'tapis:github' %}">
+                    GitHub
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        <div class="nav-item" tabindex="1" id="index">
+            <div class="section-title" id="index">
+                TACC Index
+                <span
+                    id="index-dropdown-arrow"
+                >
+                    <img src="{% static 'main/images/chevron.svg' %}" width="16px" height="16px">
+                </span>
+            </div>
+            <div class="dropdown-menu" id="index-dropdown"
+                style="display:none;">
+                <a class="dropdown-item" href="{% url 'tapis:papers' %}">
+                    Papers
+                </a>
+                <a class="dropdown-item" href="{% url 'tapis:gateways' %}">
+                    Gateways
+                </a>
+                <a class="dropdown-item" href="{% url 'tapis:trainings' %}">
+                    Trainings
+                </a>
+            </div>
+        </div>
+        <div class="auth-user" tabindex="3">
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'auth:logout' %}" style="display: flex; flex-direction: row; align-items: center;">
+                <h1 class="user">
+                    {{ request.user.username }}
+                </h1><span>
+                <img src="{% static 'main/images/logout.svg' %}" class="logout">
+                </span>
+            </a>
+            {% else %}
+            <a class="user" href="{% url 'auth:tapis_oauth' %}">
+                Log In
+            </a>
+            {% endif %}
+        </div>
+        <script>
+            var navItems = document.getElementsByClassName("section-title");
+            for(let i=0; i < navItems.length; i++) {
+                if(navItems[i]){
+                    navItems[i].onclick = function(){
+                        var id = this.id;
+                        var dropdown = document.getElementById(`${id}-dropdown`);
+                        var arrow = document.getElementById(`${id}-dropdown-arrow`);
+                        if (dropdown) {
+                            if (dropdown.style.display === "none") {
+                                dropdown.style.display = "flex";
+                                dropdown.style.flexDirection = "column";
+                                arrow.style.transform = "rotate(90deg)";
+                            } else {
+                                dropdown.style.display = "none";
+                                arrow.style.transform = "rotate(0deg)";
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+    </nav>
+</html>
