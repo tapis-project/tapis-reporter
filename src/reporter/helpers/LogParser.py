@@ -44,7 +44,7 @@ class LogParser:
                 self.parse_splunk()
             case _:
                 return
-    
+
     def get_files_to_parse(self) -> List[str]:
         """
         First function called.
@@ -57,7 +57,7 @@ class LogParser:
 
         # Reformat the file path to match 'ex.'
         files_to_parse = os.listdir(self.file_dir) if self.file_dir != "" else []
-        if self.file_dir != "": 
+        if self.file_dir != "":
             if self.file_dir[-1] == '/':
                 self.file_dir = self.file_dir[:-1]
             for i in range(len(files_to_parse)):
@@ -89,14 +89,14 @@ class LogParser:
             case 'jupyterhub':
                 parser = JupyterHubUsage()
                 has_been_parsed = parser.is_file_parsed(filename)
-                
+
                 if not has_been_parsed:
                     # add file entry to ParsedNginxFile db
                     parser.add_file_to_db(filename)
 
                     # parse the file
                     file_parsed = parser.parse_jhub_file(file, filename)
-                    
+
                     if file_parsed: files_successfully_parsed.append(filename)
                     else: files_failed_to_parse.append(filename)
             case _:
