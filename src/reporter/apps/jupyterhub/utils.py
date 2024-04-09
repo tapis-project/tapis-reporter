@@ -1,7 +1,6 @@
 import os
 
 import django
-import smtplib
 import logging
 
 from email.mime.image import MIMEImage
@@ -14,14 +13,12 @@ logger = logging.getLogger(__name__)
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-host = "relay.tacc.utexas.edu"
-port = 25
 
-
-def send_jupyterhub_email(data, week_begin, week_end):
+def build_jupyterhub_email(data) -> MIMEMultipart:
     sender_email = "no-reply@tacc.cloud"
-    receiver_emails = data["tenant_recipients"]
     primary_receiver = data["primary_receiver"]
+    week_begin = data["week_begin"]
+    week_end = data["week_end"]
 
     message = MIMEMultipart()
     message[
@@ -82,7 +79,7 @@ def send_jupyterhub_email(data, week_begin, week_end):
             <p><img src="cid:0"></p>
             <h5>
                 Servers with no activity for 7+ Days: """
-        + str(data["old_servers"])
+        # + str(data["old_servers"])
         + """
             </h5>
         </body>
@@ -91,11 +88,7 @@ def send_jupyterhub_email(data, week_begin, week_end):
     )
     message.attach(MIMEText(html, "html"))
 
-    try:
-        server = smtplib.SMTP(host, port)
-        server.sendmail(sender_email, receiver_emails, message.as_string())
-        logger.info("Email sent successfully")
-        if os.path.isfile(data["plot_path"]):
-            os.remove(data["plot_path"])
-    except Exception as e:
-        logger.debug(f"Error Sending Email: {e}")
+    if os.path.isfile(data["plot_path"]):
+        os.remove(data["plot_path"])
+
+    return message

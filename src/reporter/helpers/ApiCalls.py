@@ -34,62 +34,7 @@ def get_tapis_papers():
     )
     papers_data = papers_url.json()
 
-    logger.error(f"papers_data: {papers_data}")
+    logger.debug(f"papers_data: {papers_data}")
 
-    tapis_papers = []
-
-    for paper_source in papers_data:
-        if paper_source["source"] == "googlescholar":
-            papers = []
-
-            for paper in paper_source["papers"]:
-                papers.append(paper["title"])
-
-            for i in range(len(papers)):
-                params = {
-                    "engine": "google_scholar",
-                    "q": papers[i],
-                    "hl": "en",
-                    "api_key": settings.SERP_API_KEY,
-                }
-
-                search = GoogleSearch(params)
-                response = search.get_dict()
-                results = response["organic_results"]
-
-                for article in results:
-                    if article["title"] == papers[i]:
-                        authors = article["publication_info"]["authors"]
-                        primary_author = authors[0]["name"]
-                        del authors[0]
-                        co_authors = [author["name"] for author in authors]
-
-                        paper = Paper(
-                            title=article["title"],
-                            primary_author=primary_author,
-                            publication_source=article["resources"][0]["title"],
-                            publication_date=article["year"],
-                            co_authors=co_authors,
-                            citation_url=article["inline_links"]["serpapi_cite_link"],
-                            citations=article["inline_links"]["cited_by"]["total"],
-                        )
-
-                        tapis_papers.append(paper)
-
-        if paper_source["source"] == "researchgate":
-            for article in paper_source["papers"]:
-                paper = Paper(
-                    title=article["title"],
-                    primary_author=article["primary_author"],
-                    publication_source=article["publication_source"],
-                    publication_date=article["publication_date"],
-                    co_authors=",".join(article["co_authors"]),
-                    citation_url=article["citation_url"],
-                    citations=article["citations"],
-                )
-                tapis_papers.append(paper)
-
-    logger.error(f"tapis_papers in get_tapis_papers function: {tapis_papers}")
-
-    status = save_tapis_papers(tapis_papers)
+    status = save_tapis_papers(papers_data)
     return status
