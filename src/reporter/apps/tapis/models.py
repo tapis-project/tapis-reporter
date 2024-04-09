@@ -7,9 +7,9 @@ class Paper(models.Model):
     title = models.TextField()
     primary_author = models.CharField(max_length=255)
     publication_source = models.TextField()
-    publication_date = models.IntegerField()
+    publication_year = models.IntegerField()
     co_authors = models.TextField()
-    citation_url = models.TextField()
+    citation_url = models.URLField()
     citations = models.IntegerField()
 
     class Meta:
@@ -28,6 +28,9 @@ class Training(models.Model):
     date = models.DateField()
     num_attendees = models.IntegerField()
 
+    class Meta:
+        unique_together = ['name', 'forum', 'date', 'num_attendees']
+
 
 # Holds data pertaining to db data for all of tapis
 class TapisInfo(models.Model):
@@ -39,10 +42,21 @@ class TapisInfo(models.Model):
 
 # Holds data pertaining to jobs db query
 class JobsData(models.Model):
+    tenant = models.CharField(max_length=255, primary_key=True)
     avg_daily_jobs = models.IntegerField()
     dev_daily_jobs = models.CharField(max_length=50)
     total_jobs = models.IntegerField()
-    num_using_smart_scheduling = models.IntegerField()
+    num_using_smart_scheduling = models.IntegerField(default=0)
+
+
+class TenantJobsData(models.Model):
+    tenant = models.CharField(max_length=255)
+    date = models.DateField()
+    count = models.IntegerField()
+    version = models.CharField(max_length=10)  # v2 or v3
+
+    class Meta:
+        unique_together = ['tenant', 'date', 'count', 'version']
 
 
 class TenantServiceUsage(models.Model):
@@ -54,7 +68,8 @@ class TenantServiceUsage(models.Model):
     log_count = models.IntegerField()
 
     class Meta:
-        unique_together = ["log_date", "start_time", "end_time", "tenant", "service"]
+        unique_together = ["log_date", "start_time",
+                           "end_time", "tenant", "service"]
 
     def savetenantserviceusage(self):
         self.save()
