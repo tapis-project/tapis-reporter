@@ -48,8 +48,15 @@ class ParseSplunkCsv:
                         "log_count",
                     ],
                 )
-                df = df.drop_duplicates()
+                df.drop_duplicates(inplace=True)
                 df_records = df.to_dict(orient="records")
+
+                duplicates = df[df.duplicated(keep=False)]
+
+                if len(duplicates) > 0:
+                    print("Duplicates found")
+                    print(duplicates)
+                    return
 
                 splunk_data = [
                     TenantServiceUsage(
@@ -64,6 +71,7 @@ class ParseSplunkCsv:
                 ]
 
                 TenantServiceUsage.objects.bulk_create(splunk_data)
+
             except Exception as e:
                 logger.error(e)
 

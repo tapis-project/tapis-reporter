@@ -1,16 +1,17 @@
 import os
 import django
 import logging
+import pandas as pd
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.apps.tapis.models import TapisInfo, JobsData
+from reporter.apps.tapis.models import TapisInfo, JobsData, TenantJobsData
 
 logger = logging.getLogger(__name__)
 
 
-class Populate:
+class DBParser:
     """
     Handles data from tapis servers to save info from database calls
 
@@ -26,8 +27,9 @@ class Populate:
         data_path = "/app/reporter/dbdata/tapis"
         return data_path
 
-    def populate(self):
-        files_to_parse = os.listdir(self.file_dir) if self.file_dir != "" else []
+    def parse_db_files(self):
+        files_to_parse = os.listdir(
+            self.file_dir) if self.file_dir != "" else []
         if self.file_dir != "":
             if self.file_dir[-1] == "/":
                 self.file_dir = self.file_dir[:-1]
@@ -49,7 +51,10 @@ class Populate:
 
             # JobsData
             elif "jobs" in filename:
-                self.jobs_data = self.parse_jobs_out(file)
+                if "jobs-backlog" in filename:
+                    self.save_jobs_backlog(file)
+                elif "jobs-query" in filename:
+                    self.jobs_data = self.parse_jobs_out(file)
 
             else:
                 logger.debug(f"Skipping file: {file}")
@@ -90,37 +95,77 @@ class Populate:
         return total_by_tenant, users_by_tenant
 
     def parse_jobs_out(self, file):
-        vars_with_vals = {
-            "avg_daily_jobs": 0,
-            "dev_daily_jobs": 0,
-            "total_jobs": 0,
-            "num_using_smart_scheduling": 0
-        }
-        with open(file, "rt") as outfile:
-            for line in outfile:
-                values = line.strip()
-                try:
-                    if len(values) > 1:
-                        values_list = values.split(" ")
-                        vars_with_vals["avg_daily_jobs"] = values_list[0]
-                        vars_with_vals["dev_daily_jobs"] = values_list[2],
-                        vars_with_vals["total_jobs"] = values_list[4]
-                    elif len(values) == 1:
-                        vars_with_vals["num_using_smart_scheduling"] = values
-                except Exception as e:
-                        logger.error(f"Unable to get jobs data: {e}")
+        # JobsData example object
+        # {
+        #     "tenant": 'tacc',
+        #     "avg_daily_jobs": 10,
+        #     "dev_daily_jobs": 3.7,
+        #     "total_jobs": 1200,
+        #     "num_using_smart_scheduling": 0
+        # }
+        with open(file, "r") as db_file:
+            head = [next(db_file).strip() for _ in range(3)]
 
-        return vars_with_vals
+        # Generate list of JobsData objects (tenant, avg, dev, total, smart)
+        # If there is no tenant set tenant to "tapis"
+        # If tenant is "tapis", set smart scheduling, else don't set
+        # head will have 3 elements
+            # 0 = tapis data
+            # 1 = num smart scheduling
+            # 2 = tenant data
+        jobs_data = []
+        tapis_values = head[0].split(' ')
+        jobs_data.append({
+            "tenant": 'tapis',
+            "avg_daily_jobs": tapis_values[0],
+            "dev_daily_jobs": tapis_values[2],
+            "total_jobs": tapis_values[4],
+            "num_using_smart_scheduling": head[1]
+        })
+
+        raw_tenant_jobs = head[2].split(' ')
+        raw_tenant_jobs = [x for x in raw_tenant_jobs if x != '|']
+
+        tenants_with_jobs = [raw_tenant_jobs[n:n+4]
+                             for n in range(0, len(raw_tenant_jobs), 4)]
+
+        tenant_job_objs = [{
+            "tenant": rec[0],
+            "avg_daily_jobs": rec[1],
+            "dev_daily_jobs": rec[2],
+            "total_jobs": rec[3]
+        } for rec in tenants_with_jobs]
+
+        jobs_data.extend(tenant_job_objs)
+
+        return jobs_data
 
     def save_jobs_data(self):
-        if self.jobs_data:
-            new_jobs_data = {
-                "avg_daily_jobs": self.jobs_data["avg_daily_jobs"],
-                "dev_daily_jobs": self.jobs_data["dev_daily_jobs"],
-                "total_jobs": self.jobs_data["total_jobs"],
-                "num_using_smart_scheduling": self.jobs_data["num_using_smart_scheduling"]
-            }
-            JobsData.objects.filter(id=1).update(**new_jobs_data)
+        try:
+            for tenant_job_data in self.jobs_data:
+                JobsData.objects.update_or_create(**tenant_job_data)
+        except Exception as e:
+            logger.error(f"Error saving JobsData: {e}")
+
+    def save_jobs_backlog(self, file):
+        df = pd.read_csv(
+            file,
+            usecols=[
+                "tenant",
+                "count",
+                "date",
+                "version"
+            ],
+        )
+
+        df_records = df.to_dict(orient="records")
+
+        try:
+            jobs_objects = [TenantJobsData(**record) for record in df_records]
+
+            TenantJobsData.objects.bulk_create(jobs_objects)
+        except Exception as e:
+            logger.error(f"Error saving jobs: {e}")
 
     def save_tapis_data(self, total_by_tenant, users_by_tenant):
         if total_by_tenant and users_by_tenant:
@@ -134,14 +179,12 @@ class Populate:
                 else:
                     num_ctr_apps = 0
 
-                tenant_info = TapisInfo(
+                tenant_info, created = TapisInfo.objects.update_or_create(
                     tenant=tenant,
                     num_tokens=int(num_tokens),
                     num_unique_users=int(num_unique_users),
                     num_ctr_apps=int(num_ctr_apps),
                 )
-
-                tenant_info.save()
 
             # Will only work in updated Django
             # TapisInfo.objects.bulk_create(
@@ -153,5 +196,5 @@ class Populate:
 
 
 if __name__ == "__main__":
-    populate = Populate()
-    populate.populate()
+    dbparser = DBParser()
+    dbparser.parse_db_files()
