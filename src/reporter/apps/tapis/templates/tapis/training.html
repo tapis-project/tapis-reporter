@@ -1,44 +1,106 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %} Gateways {% endblock %}
-{% block head_extra %}
-  <base href="{% url 'main:index' %}">
-{% endblock %}
-
-<body>
 {% block content %}
-
-    <h3>Training Data</h3>
-    <form method="POST" id="new-training">{% csrf_token %}
-        <button type="submit" class="btn info" name="add-training" style="color:blue; text-decoration:underline">+ Add Training</button>
-    </form>
-    <table border=1 class="table">
-        <thead>
-            <tr>
-                <th>Training</th>
-                <th>Forum</th>
-                <th>Date</th>
-                <th>Number of Attendees</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for training in trainings_data %}
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/modal.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}"/>
+<div class="main">
+    <div class="header">
+        <h1>
+            Training Data
+        </h1>
+    </div>
+    <div class="content">
+        <table class="data-table">
+            <thead>
                 <tr>
-                    <td>
-                        {{ training.name }}
-                    </td>
-                    <td>
-                        {{ training.forum }}
-                    </td>
-                    <td>
-                        {{ training.date }}
-                    </td>
-                    <td>
-                        {{ training.num_attendees }}
-                    </td>
+                    <th>Training</th>
+                    <th>Forum</th>
+                    <th>Date</th>
+                    <th>Number of Attendees</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for training in trainings_data %}
+                    <tr>
+                        <td>
+                            {{ training.name }}
+                        </td>
+                        <td>
+                            {{ training.forum }}
+                        </td>
+                        <td>
+                            {{ training.date }}
+                        </td>
+                        <td>
+                            {{ training.num_attendees }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if not trainings_data %}
+            <div class="app-message">
+                <h3>
+                    No trainings
+                </h3>
+            </div>
+        {% endif %}
+        <button type="submit" class="btn add-button" name="add-training" id="add-training">+ Add Training</button>
+    </div>
+</div>
+<div class="modal" id="modal">
+    <div class="form-container">
+        <form class="styled-form" method="POST" id="new-training">{% csrf_token %}
+            <h3 class="form-title">
+                Fill out data for training
+                <span class="close" id="close-modal">&times;</span>
+            </h3>
+            <fieldset class="form-field">
+                <label class="form-label" for="name">Training Name</label>
+                <input type="text" id="name" name="name"
+                    placeholder="Learn Tapis">
+            </fieldset>
+            <fieldset class="form-field">
+                <label class="form-label" for="forum">Forum</label>
+                <input type="text" id="forum" name="forum"
+                    placeholder="Fishbowl">
+            </fieldset>
+            <fieldset class="form-field">
+                <label class="form-label" for="num_attendees"># of Attendees</label>
+                <input type="number" id="num_attendees" name="num_attendees">
+            </fieldset>
+            <fieldset class="form-field">
+                <label class="form-label" for="date">Training Date</label>
+                <input type="date" id="date" name="date">
+            </fieldset>
+            <div class="flex-row form-group">
+                <button type="submit" class="btn add-button" name="submit_training">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    var showModal = document.getElementById("add-training");
+    var modal = document.getElementById("modal");
+    var closeModal = document.getElementById("close-modal");
+    var addPaper = document.getElementById("submit_training");
+    showModal.onclick = function() {
+        modal.style.display = "block";
+        document.getElementById("new-training").reset();
+    }
+
+    closeModal.onclick = function() {
+        modal.style.display = "none";
+    }
+    
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
 {% endblock %}
-</body>

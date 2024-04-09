@@ -1,72 +1,56 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %} Tapis {% endblock %}
-{% block head_extra %}
-  <base href="{% url 'main:index' %}">
-{% endblock %}
-<body>
 {% block content %}
-    <h3>
-    Add New Paper
-    </h3>
-
-    <form method="POST" id="new-paper">{% csrf_token %}
-        <div class="nice-form-group">
-            <label>Paper Name</label>
-            <input 
-                type="text"
-                id="title"
-                name="title"
-            />
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/modal.css' %}" />
+<div class="main">
+    <div class="header">
+        <h1>
+            Add Tapis Paper
+        </h1>
+    </div>
+    <div class="content">
+        <div class="form-container">
+            <form class="styled-form" method="POST" id="post-form">{% csrf_token %}
+                <h3 class="form-title">
+                    Fill out data for paper
+                </h3>
+                <fieldset class="form-field">
+                    <label class="form-label" for="title">Papper Title</label>
+                    <input type="text" id="title" name="title"
+                        placeholder="This Paper Rocks">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="author">Primary Author</label>
+                    <input type="text" id="author" name="author"
+                        placeholder="Super Writer">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="source">Publication Source</label>
+                    <input type="text" id="source" name="source"
+                        placeholder="PEARC">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="coauthors">Co-Authors</label>
+                    <textarea type="text" id="coauthors" name="coauthors"
+                        placeholder="First Coauthor&#10;Second Coauthor"></textarea>
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="citation">Citation URL</label>
+                    <input type="text" id="citation" name="citation">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="date">Publication Date</label>
+                    <input type="date" id="date" name="date">
+                </fieldset>
+                <div class="flex-row form-group">
+                    <button type="submit" class="btn add-button" name="submit_paper">Submit</button>
+                </div>
+            </form>
         </div>
-
-        <div class="nice-form-group">
-            <label>Primary Author</label>
-            <input 
-                type="text"
-                id="author"
-                name="author"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>Publication Source</label>
-            <input
-                type="text"
-                id="source"
-                name="source"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>Date</label>
-            <input
-                type="date"
-                id="date"
-                name="date"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>Co-Authors</label>
-            <input
-                type="text"
-                id="coauthors"
-                name="coauthors"
-                value="Author1 Lastname, Author2 Lastname"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>Citation Url</label>
-            <input
-                type="text"
-                id="citation"
-                name="citation"
-            />
-        </div>
-
-        <button type="submit" class="btn btn-primary" name="submit_paper">Submit</button>
-    </form>
+    </div>
+</div>
 {% endblock %}
-</body>

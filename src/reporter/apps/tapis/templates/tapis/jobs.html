@@ -1,27 +1,174 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %} Gateways {% endblock %}
-{% block head_extra %}
-  <base href="{% url 'main:index' %}">
-{% endblock %}
-
-<body>
 {% block content %}
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/filter.css' %}" />
+<div class="main">
+    <div class="header">
+        <h1>
+            Jobs Data
+        </h1>
+        <form class="filter-row" method="POST">{% csrf_token %}
+            <div class="filter">
+                <label class="filter-label" for="start_date">
+                    Start Date:
+                </label>
+                <input type="date" class="filter-input"
+                    name="start_date">
+            </div>
+            <div class="filter">
+                <label class="filter-label" for="filter-input">
+                    End Date:
+                </label>
+                <input type="date" class="filter-input"
+                    name="end_date">
+            </div>
+            <button type="submit" class="btn filter-button">Submit</button>
+        </form>
+    </div>
+    <div class="content">
+        {% if v3_series %}
+        <div class="chart-container">
+            <div id="v3chart" style="width: 100%; height: 800px"></div>
+        </div>
+        {% endif %}
+        {% if v2_series %}
+        <div class="chart-container">
+            <div id="v2chart" style="width: 100%; height: 800px"></div>
+        </div>
+        {% endif %}
+        {% if not charts %}
+        <div class="app-message">
+            <h3>
+                Please select a date range to generate charts
+            </h3>
+        </div>
+        {% endif %}
+    </div>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.7.2/echarts.min.js"></script>
+    <script>
+        var v3chart = echarts.init(document.getElementById('v3chart'));
+        var option = {
+            dataZoom: [
+                {
+                    id: 'dataZoomX',
+                    type: 'slider',
+                    xAxisIndex: [0],
+                    filterMode: 'filter',
+                },                
+            ],
+            title: {
+                text: 'v3 Jobs'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: {{ v3_tenants|safe }}
+            },
+            grid: {
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: {{ chart_dates|safe }}
+            },
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: {{ v3_series|safe }},
+            tooltip : {
+                trigger: 'axis',
+                axisPointer: {
+                    animation: true
+                },
+                formatter: function (params) {
+                    var colorSpan = color => '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + color + '"></span>';
+                    let rez = "<p class='tooltip-text'>" + params[0].axisValue + '</p>';
+                    var ordered_params = params.sort((a, b) => b.data - a.data)
+                    var total = ordered_params.reduce((total, item) => item.data + total, 0)
 
-    <h3>Jobs Data for TACC</h3>
+                    var total_entry = "<p class='tooltip-text'> Total: " + total + '</p>'
+                    rez += total_entry;
 
-    <h4>
-        Total Number of Jobs Ran: {{ jobs_data.total_jobs }}
-    </h4>
-    <h4>
-        Average Daily Jobs: {{ jobs_data.avg_daily_jobs }}
-    </h4>
-    <h4>
-        Standard Deviation of Jobs: {{ jobs_data.dev_daily_jobs }}
-    </h4>
-    <h4>
-        Number of Jobs using Smart Scheduling: {{ jobs_data.num_using_smart_scheduling }}
-    </h4>
+                    //console.log(params); //quite useful for debug
+                    ordered_params.forEach(item => {
+                        //console.log(item); //quite useful for debug
+                        var xx = "<p class='tooltip-text'>" + colorSpan(item.color) + ' ' + item.seriesName + ': ' + item.data + '</p>'
+                        rez += xx;
+                    });
 
+                    return rez;
+                }
+            }
+        };
+
+        v3chart.setOption(option);
+
+        var v2chart = echarts.init(document.getElementById('v2chart'));
+        var option = {
+            dataZoom: [
+                {
+                    id: 'dataZoomX',
+                    type: 'slider',
+                    xAxisIndex: [0],
+                    filterMode: 'filter',
+                },
+                
+            ],
+            title: {
+                text: 'v2 Jobs'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: {{ v2_tenants|safe }}
+            },
+            grid: {
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: {{ chart_dates|safe }}
+            },
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: {{ v2_series|safe }},
+            tooltip : {
+                trigger: 'axis',
+                axisPointer: {
+                    animation: true
+                },
+                formatter: function (params) {
+                    var colorSpan = color => '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + color + '"></span>';
+                    let rez = "<p class='tooltip-text'>" + params[0].axisValue + '</p>';
+                    var ordered_params = params.sort((a, b) => b.data - a.data)
+                    var total = ordered_params.reduce((total, item) => item.data + total, 0)
+
+                    var total_entry = "<p class='tooltip-text'> Total: " + total + '</p>'
+                    rez += total_entry;
+
+                    //console.log(params); //quite useful for debug
+                    ordered_params.forEach(item => {
+                        //console.log(item); //quite useful for debug
+                        var xx = "<p class='tooltip-text'>" + colorSpan(item.color) + ' ' + item.seriesName + ': ' + item.data + '</p>'
+                        rez += xx;
+                    });
+                    
+                    return rez;
+                }
+            }
+        };
+
+        v2chart.setOption(option);
+    </script>
+</div>
 {% endblock %}
-</body>

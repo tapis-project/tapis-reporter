@@ -11,6 +11,8 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN pip uninstall pycrypto
 RUN pip install pycryptodome
+RUN python3 -m pip install tabulate
+RUN python3 -m pip install PyGithub
 RUN apt-get update
 RUN apt-get install -y build-essential
 RUN pip install splunklib
@@ -24,7 +26,7 @@ RUN chmod +x /entrypoint.sh
 COPY ./src/ /app
 
 # ENTRYPOINT ["./entrypoint.sh"]
-#RUN python manage.py makemigrations
-#RUN python manage.py migrate
-#RUN python manage.py collectstatic --no-input
-#RUN python init_db.py
+RUN python manage.py makemigrations
+RUN python manage.py migrate
+RUN python manage.py collectstatic --no-input
+# RUN python init_db.py

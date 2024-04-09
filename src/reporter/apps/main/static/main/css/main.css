@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Oswald:wght@200..700&display=swap');
+
+.main {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.page-title {
+    padding-top: 32px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+p {
+    font-family: "Montserrat", sans-serif;
+    letter-spacing: 0.55px;
+    font-size: 16px;
+}
+
+.tooltip-text {
+    font-size: 12px;
+    letter-spacing: 0;
+    font-family: "Source Sans Pro", "Arial", sans-serif;
+    margin: 0;
+}
+
+.data {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    background-color: #f7f7f7;
+    border: 0px solid black;
+    padding: 20px;
+    margin: 20px;
+    text-align: center;
+    place-self: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    border-bottom: 2px solid black;
+    height: 140px;
+    position: relative;
+    align-items: center;
+}
+
+.value {
+    position: absolute;
+    bottom: 0;
+    font-size: 28px;
+}
+
+.grid-container {
+    display: flex;
+    flex-direction: row;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+.header {
+    top: 0;
+    height: 60px;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #CCC;
+    position: sticky;
+    display: flex;
+    flex-direction: row;
+    padding: 0 24px;
+    justify-content: space-between;
+    overflow-x: hidden;
+}
+
+.btn {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    border: 2px solid #422800;
+    border-radius: 30px;
+    background-color: #222;
+    padding: 14px 28px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    width: fit-content;
+    font-family: "Montserrat", sans-serif;
+    border-style: none;
+    outline-style: none;
+}
+
+.btn.add-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 24px;
+    font-size: 16px;
+}
+
+.app-message {
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container {
+    width: 100%;
+    display: block;
+}
+
+.dashboard-section-title {
+    align-self: baseline;
+    padding-left: 32px;
+    padding-top: 16px;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}

@@ -1,86 +1,44 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %} Tapis {% endblock %}
-{% block head_extra %}
-  <base href="{% url 'main:index' %}">
-{% endblock %}
-<head>
-    <link rel="stylesheet" href="static/css/nice-forms.css">
-</head>
-<body>
 {% block content %}
-    <h3>
-    Tapis Log Data
-    </h3>
-    <p>
-    View the activity different Tapis tenants and services
-    </p>
-
-    <form method="POST" id="post-form">{% csrf_token %}
-        <div class="nice-form-group">
-            <label>Tenant</label>
-            <input 
-                type="text"
-                id="tenant"
-                name="tenant"
-            />
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}">
+<div class="main">
+    <div class="header">
+        <h1>
+            Query Splunk
+        </h1>
+    </div>
+    <div class="content">
+        <div class="form-container">
+            <form class="styled-form" method="POST" id="post-form">{% csrf_token %}
+                <h3 class="form-title">
+                    Enter Splunk Filter Parameters
+                </h3>
+                <fieldset class="form-field">
+                    <label class="form-label" for="tenant">Tenant</label>
+                    <input type="text" id="tenant" name="tenant" placeholder="Tenant">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="service">Service</label>
+                    <input type="text" id="service" name="service" placeholder="Service">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date">
+                </fieldset>
+                <fieldset class="form-field">
+                    <label class="form-label" for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date">
+                </fieldset>
+                
+                <div class="flex-row form-group">
+                    {% comment %} <button type="submit" class="btn" name="submit_form">Get Log Data</button> {% endcomment %}
+                    <button type="submit" class="btn" name="raw_tapis">View Raw Data</button>
+                </div>
+            </form>
         </div>
-
-        <div class="nice-form-group">
-            <label>Service (optional)</label>
-            <input 
-                type="text"
-                id="service"
-                name="service"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>Start Date</label>
-            <input
-                type="date"
-                id="start_date"
-                name="start_date"
-                value="2023-07-01"
-                min="2023-07-01"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>End Date</label>
-            <input
-                type="date"
-                id="end_date"
-                name="end_date"
-                value="2023-07-01"
-                min="2023-07-01"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>Start Time</label>
-            <input
-                type="time"
-                id="start_time"
-                name="start_time"
-                min="00:00"
-                max="23:59"
-            />
-        </div>
-
-        <div class="nice-form-group">
-            <label>End Time</label>
-            <input
-                type="time"
-                id="end_time"
-                name="end_time"
-                min="00:00"
-                max="23:59"
-            />
-        </div>
-
-        <button type="submit" class="btn btn-primary" name="submit_form">Get Log Data</button>
-        <button type="submit" class="btn btn-primary" name="raw_tapis">View Raw Data</button>
-    </form>
+    </div>
+</div>
 {% endblock %}
-</body>
