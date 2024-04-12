@@ -1,6 +1,7 @@
-import os
-import django
 import logging
+import os
+
+import django
 
 logger = logging.getLogger(__name__)
 

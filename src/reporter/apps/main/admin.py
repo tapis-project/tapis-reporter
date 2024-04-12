@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Service, Admin, Tenant, TenantDirectory, TenantRecipient
 
+from .models import Admin, Service, Tenant, TenantDirectory, TenantRecipient
 
 # Register your models here.
 admin.site.register(Service)

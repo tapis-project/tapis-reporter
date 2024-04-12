@@ -1,8 +1,9 @@
+import logging
 import os
 from io import TextIOWrapper
-import django
-import logging
 from typing import List
+
+import django
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()

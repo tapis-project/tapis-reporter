@@ -2,16 +2,16 @@
 Auth views.
 """
 import logging
-import requests
 import secrets
+
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.urls import reverse
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 from requests.auth import HTTPBasicAuth
-
 
 logger = logging.getLogger(__name__)
 METRICS = logging.getLogger("metrics.{}".format(__name__))

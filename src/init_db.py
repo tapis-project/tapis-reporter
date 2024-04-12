@@ -1,11 +1,12 @@
 import os
+
 import django
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.configs import services
 from reporter.backend.views import save_service
+from reporter.configs import services
 from reporter.helpers import get_tapis_papers
 
 

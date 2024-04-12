@@ -1,6 +1,7 @@
-import os
-import django
 import logging
+import os
+
+import django
 import pandas as pd
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"

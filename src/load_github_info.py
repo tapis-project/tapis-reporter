@@ -1,6 +1,7 @@
-import os
-import django
 import logging
+import os
+
+import django
 import requests
 
 logger = logging.getLogger(__name__)
@@ -8,7 +9,7 @@ logger = logging.getLogger(__name__)
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.apps.tapis.models import Training, Paper
+from reporter.apps.tapis.models import Paper, Training
 
 
 class Populate:

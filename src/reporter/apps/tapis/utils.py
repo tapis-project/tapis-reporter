@@ -1,14 +1,14 @@
-import os
 import ast
-import django
-import logging
-import github
 import json
-from django.conf import settings
-from tabulate import tabulate
+import logging
+import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import django
+import github
+from django.conf import settings
+from tabulate import tabulate
 
 logger = logging.getLogger(__name__)
 

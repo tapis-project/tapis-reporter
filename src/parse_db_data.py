@@ -1,12 +1,13 @@
-import os
-import django
 import logging
+import os
+
+import django
 import pandas as pd
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.apps.tapis.models import TapisInfo, JobsData, TenantJobsData
+from reporter.apps.tapis.models import JobsData, TapisInfo, TenantJobsData
 
 logger = logging.getLogger(__name__)
 

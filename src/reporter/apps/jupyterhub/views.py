@@ -1,14 +1,14 @@
 """Logging required for logging purposes"""
 import logging
-from itertools import chain
 import random
+from itertools import chain
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template import loader
-from django.contrib.auth.decorators import login_required
-from .models import FileLog, LoginLog
-from ..main.models import Tenant
 
+from ..main.models import Tenant
+from .models import FileLog, LoginLog
 
 logger = logging.getLogger(__name__)
 

@@ -1,19 +1,18 @@
-import os
 import datetime as date
+import logging
+import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
 
 import django
-import logging
-import smtplib
-
-from email.mime.multipart import MIMEMultipart
 
 logger = logging.getLogger(__name__)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from . import generate_email_data
 from ..apps.helpers.utils import call_service_email_builder
+from . import generate_email_data
 
 
 class EmailHandler:

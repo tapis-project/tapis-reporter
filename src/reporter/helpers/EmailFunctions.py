@@ -1,16 +1,15 @@
-import os
-
 import datetime as date
-import matplotlib.pyplot as plt
-import pathlib
-import django
 import logging
-from django.conf import settings
-import requests
+import os
+import pathlib
 from datetime import datetime
-import mysql.connector
-
 from itertools import chain
+
+import django
+import matplotlib.pyplot as plt
+import mysql.connector
+import requests
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 

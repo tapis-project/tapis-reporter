@@ -1,4 +1,4 @@
-from ...apps.main.models import Service, Admin, Tenant, TenantDirectory, TenantRecipient
+from ...apps.main.models import Admin, Service, Tenant, TenantDirectory, TenantRecipient
 
 
 def save_service(service):

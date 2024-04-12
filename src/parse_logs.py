@@ -1,7 +1,8 @@
-import os
 import argparse
-import django
 import logging
+import os
+
+import django
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()

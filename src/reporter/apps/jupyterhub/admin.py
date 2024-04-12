@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import FileLog, LoginLog, ParsedNginxFile
 
 # Register your models here.

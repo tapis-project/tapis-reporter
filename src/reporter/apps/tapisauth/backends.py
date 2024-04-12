@@ -1,8 +1,10 @@
 """Auth backends"""
 import logging
+
 import requests
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
+
 from reporter.metadata import get_tapis_config_metadata
 
 logger = logging.getLogger(__name__)

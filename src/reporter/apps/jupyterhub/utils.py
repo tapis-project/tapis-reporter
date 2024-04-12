@@ -1,12 +1,10 @@
-import os
-
-import django
 import logging
-
+import os
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import django
 
 logger = logging.getLogger(__name__)
 

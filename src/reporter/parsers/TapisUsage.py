@@ -1,16 +1,16 @@
-import os
-from datetime import datetime, time, timedelta
-import django
-import logging
-from django.conf import settings
 import json
+import logging
+import os
 import re
-import requests
+from datetime import datetime, time, timedelta
 from time import sleep
 from urllib.parse import urlparse, urlunparse
 
+import django
+import requests
 import splunklib.client as client
 import splunklib.results as results
+from django.conf import settings
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()

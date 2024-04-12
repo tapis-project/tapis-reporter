@@ -1,6 +1,7 @@
-from tapipy.tapis import Tapis
-from django.conf import settings
 import json
+
+from django.conf import settings
+from tapipy.tapis import Tapis
 
 
 def get_config_metadata_name():

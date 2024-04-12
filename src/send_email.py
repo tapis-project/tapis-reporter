@@ -1,17 +1,18 @@
-import os
-import sys
 import argparse
-import django
 import datetime as date
 import logging
+import os
+import sys
+
+import django
 
 logger = logging.getLogger(__name__)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from reporter.helpers.EmailHandler import EmailHandler
 from reporter.apps.main.models import Service, Tenant
+from reporter.helpers.EmailHandler import EmailHandler
 
 parser = argparse.ArgumentParser(description="Process arguments for email")
 parser.add_argument("service")

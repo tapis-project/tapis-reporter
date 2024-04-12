@@ -1,7 +1,7 @@
-import re
 import gzip
-from datetime import datetime
 import logging
+import re
+from datetime import datetime
 
 from ..apps.jupyterhub.models import FileLog, LoginLog, ParsedNginxFile
 from ..helpers.jupyterhub_usage_funcions import get_home_path, get_symbolic_links

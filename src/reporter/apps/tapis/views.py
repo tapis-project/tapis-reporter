@@ -1,21 +1,23 @@
-from django.http import HttpResponse
-from django.shortcuts import redirect
-from django.template import loader
-from django.db.models import Q
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
 import ast
 import logging
 import random
+
 import requests
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.template import loader
 from pandas import date_range
+
 from .models import (
-    Paper,
-    TenantServiceUsage,
     JobsData,
+    Paper,
     TapisInfo,
-    Training,
     TenantJobsData,
+    TenantServiceUsage,
+    Training,
 )
 from .utils import upload_to_github
 

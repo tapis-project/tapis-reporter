@@ -1,9 +1,10 @@
 """Management command."""
 
-from django.core.management.base import BaseCommand
 import logging
-from reporter.apps.tapisauth.utils import add_admin_user
 
+from django.core.management.base import BaseCommand
+
+from reporter.apps.tapisauth.utils import add_admin_user
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 """Logging required for logging purposes"""
 import logging
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template import loader
-from django.contrib.auth.decorators import login_required
 
 logger = logging.getLogger(__name__)
 
