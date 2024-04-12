@@ -139,8 +139,7 @@ class TapisUsage:
                                         tenant
                                     ] = tenants_and_services.get(tenant, {})
                                     tenants_and_services[tenant][service] = (
-                                        tenants_and_services[tenant].get(service, 0)
-                                        + 1
+                                        tenants_and_services[tenant].get(service, 0) + 1
                                     )
                         except Exception as e:
                             logger.error(f"Error parsing log: {e}")

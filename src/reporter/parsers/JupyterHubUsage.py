@@ -308,9 +308,7 @@ class JupyterHubUsage:
             user = self.get_user(log_info["path"])
             raw_path = log_info["path"]
             network_path = (
-                self.get_path(log_info["path"])
-                if log_info["path"] is not None
-                else ""
+                self.get_path(log_info["path"]) if log_info["path"] is not None else ""
             )
             path = self.get_true_path(user, network_path)
             file = self.get_file(log_info["path"])

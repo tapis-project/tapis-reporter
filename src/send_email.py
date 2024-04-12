@@ -13,17 +13,17 @@ django.setup()
 from reporter.helpers.EmailHandler import EmailHandler
 from reporter.apps.main.models import Service, Tenant
 
-parser = argparse.ArgumentParser(description='Process arguments for email')
-parser.add_argument('service')
-parser.add_argument('tenant')
+parser = argparse.ArgumentParser(description="Process arguments for email")
+parser.add_argument("service")
+parser.add_argument("tenant")
 args = parser.parse_args()
 
-services = Service.objects.all().values('name')
-valid_services = [service['name'] for service in list(services)]
+services = Service.objects.all().values("name")
+valid_services = [service["name"] for service in list(services)]
 
 if args.service not in valid_services:
     logger.error(
-        f'{args.service} not valid service, expecting one of: {valid_services}'
+        f"{args.service} not valid service, expecting one of: {valid_services}"
     )
     sys.exit()
 
@@ -37,6 +37,6 @@ if args.tenant not in service_tenants:
 
 tenant = Tenant.objects.get(pk=args.tenant)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     email_handler = EmailHandler(service, tenant)
     email_handler.email_service()

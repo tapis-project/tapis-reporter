@@ -34,23 +34,29 @@ def generate_email_data(service, tenant, week_begin, week_end) -> dict:
     tenant_recipients = get_tenant_recipients(tenant)
 
     match service.name:
-        case 'jupyterhub':
-            accessed_files = FileLog.objects.filter(tenant=tenant.name, date__range=(week_begin, week_end))
-            directories, counts = get_directories_and_counts(service, tenant, accessed_files.values('filepath'))
+        case "jupyterhub":
+            accessed_files = FileLog.objects.filter(
+                tenant=tenant.name, date__range=(week_begin, week_end)
+            )
+            directories, counts = get_directories_and_counts(
+                service, tenant, accessed_files.values("filepath")
+            )
             plot_path = create_graph(directories, counts)
-            jupyterhub_stats = generate_stats(service, tenant, accessed_files, week_begin, week_end)
+            jupyterhub_stats = generate_stats(
+                service, tenant, accessed_files, week_begin, week_end
+            )
             # old_servers = get_old_servers()
             data = {
-                'tenant_recipients': tenant_recipients,
-                'primary_receiver': tenant.primary_receiver,
-                'proper_name': proper_name,
-                'plot_path': plot_path,
-                'jupyterhub_stats': jupyterhub_stats,
+                "tenant_recipients": tenant_recipients,
+                "primary_receiver": tenant.primary_receiver,
+                "proper_name": proper_name,
+                "plot_path": plot_path,
+                "jupyterhub_stats": jupyterhub_stats,
                 # 'old_servers': old_servers,
-                'service': service.name
+                "service": service.name,
             }
             return data
-        case 'tapis':
+        case "tapis":
             jobs_data = get_jobs_data(week_begin, week_end)
             jobs_data["tenant_recipients"] = tenant_recipients
             jobs_data["primary_receiver"] = tenant.primary_receiver
@@ -61,13 +67,13 @@ def generate_email_data(service, tenant, week_begin, week_end) -> dict:
 
 def get_directories_and_counts(service, tenant, accessed_files):
     match service.name:
-        case 'jupyterhub':
+        case "jupyterhub":
             filepaths = list(accessed_files)
             dir_counts = {}
             directories = get_tenant_directories(tenant)
 
             for path in filepaths:
-                dir = path['filepath']
+                dir = path["filepath"]
                 for d in directories:
                     if d in dir:
                         dir_counts[d] = dir_counts.get(d, 0) + 1
@@ -86,37 +92,37 @@ def get_directories_and_counts(service, tenant, accessed_files):
             counts.reverse()
 
             return directories, counts
-        case 'tapis':
+        case "tapis":
             pass
         case _:
             pass
 
 
 def get_tenant_directories(tenant) -> list:
-    temp_directories = tenant.tenantdirectory_set.all().values('directory')
+    temp_directories = tenant.tenantdirectory_set.all().values("directory")
     tenant_directories = []
 
     for dir in list(temp_directories):
-        tenant_directories.append(dir['directory'])
+        tenant_directories.append(dir["directory"])
 
     return tenant_directories
 
 
 def get_tenant_recipients(tenant) -> list:
-    temp_recipients = tenant.tenantrecipient_set.all().values('recipient')
+    temp_recipients = tenant.tenantrecipient_set.all().values("recipient")
     tenant_recipients = []
 
     for rec in list(temp_recipients):
-        tenant_recipients.append(rec['recipient'])
+        tenant_recipients.append(rec["recipient"])
 
     return tenant_recipients
 
 
 def create_graph(directories, counts) -> str:
-    plt.bar(directories, counts, color='green')
-    plt.title('File Access - Notebook Data Depot Locations', fontsize=14)
-    plt.xlabel('Directory', fontsize=14)
-    plt.ylabel('Count', fontsize=14)
+    plt.bar(directories, counts, color="green")
+    plt.title("File Access - Notebook Data Depot Locations", fontsize=14)
+    plt.xlabel("Directory", fontsize=14)
+    plt.ylabel("Count", fontsize=14)
     plt.grid(True)
 
     filename = str(date.date.today()) + ".png"
@@ -133,15 +139,17 @@ def create_graph(directories, counts) -> str:
 
 def generate_stats(service, tenant, accessed_files, week_begin, week_end):
     match service.name:
-        case 'jupyterhub':
-            created_files = accessed_files.filter(action='created')
-            opened_files = accessed_files.filter(action='opened')
+        case "jupyterhub":
+            created_files = accessed_files.filter(action="created")
+            opened_files = accessed_files.filter(action="opened")
 
             num_created_files = created_files.count()
             num_opened_files = opened_files.count()
 
-            login_users = LoginLog.objects.filter(tenant=tenant.name, date__range=(week_begin, week_end))
-            unique_login_count = login_users.values('user').distinct().count()
+            login_users = LoginLog.objects.filter(
+                tenant=tenant.name, date__range=(week_begin, week_end)
+            )
+            unique_login_count = login_users.values("user").distinct().count()
             total_login_count = login_users.count()
 
             try:
@@ -152,35 +160,38 @@ def generate_stats(service, tenant, accessed_files, week_begin, week_end):
                 unique_users = set(users)
                 unique_user_count = len(unique_users)
             except Exception:
-                unique_user_count = 'Error getting unique user count'
+                unique_user_count = "Error getting unique user count"
 
             jupyterhub_stats = {
-                'num_created_files': num_created_files,
-                'num_opened_files': num_opened_files,
-                'unique_login_count': unique_login_count,
-                'total_login_count': total_login_count,
-                'unique_user_count': unique_user_count
+                "num_created_files": num_created_files,
+                "num_opened_files": num_opened_files,
+                "unique_login_count": unique_login_count,
+                "total_login_count": total_login_count,
+                "unique_user_count": unique_user_count,
             }
             return jupyterhub_stats
-        case 'tapis':
+        case "tapis":
             pass
         case _:
             pass
 
 
 def get_old_servers():
-    api_url = settings.JUPYTERHUB_API_URL + '/hub/api/users'
-    headers = {
-        'Authorization': 'token %s' % settings.JUPYTERHUB_TOKEN
-    }
+    api_url = settings.JUPYTERHUB_API_URL + "/hub/api/users"
+    headers = {"Authorization": "token %s" % settings.JUPYTERHUB_TOKEN}
 
     response = requests.get(api_url, params=None, headers=headers).json()
-    last_activity = [{'user': user['name'], 'last_activity': user['last_activity']} for user in response]
+    last_activity = [
+        {"user": user["name"], "last_activity": user["last_activity"]}
+        for user in response
+    ]
     old_servers = []
 
     for entry in last_activity:
-        if entry['last_activity'] is not None:
-            last_datestamp = datetime.strptime(entry['last_activity'], "%Y-%m-%dT%H:%M:%S.%f%z")
+        if entry["last_activity"] is not None:
+            last_datestamp = datetime.strptime(
+                entry["last_activity"], "%Y-%m-%dT%H:%M:%S.%f%z"
+            )
             last_dt = last_datestamp.replace(tzinfo=None)
             now = datetime.now()
 
@@ -188,7 +199,7 @@ def get_old_servers():
             days = diff.days
 
             if days > 7:
-                old_servers.append({'user': entry['user'], 'days': days})
+                old_servers.append({"user": entry["user"], "days": days})
 
     return old_servers
 
@@ -204,12 +215,14 @@ def get_jobs_data(week_begin, week_end):
             host=settings.MYSQL_HOST,
             user=settings.MYSQL_USER,
             password=settings.MYSQL_PASS,
-            database=settings.MYSQL_DB
+            database=settings.MYSQL_DB,
         )
 
         mycursor = mydb.cursor()
 
-        mycursor.execute(f"SELECT tenant_id, count(*) FROM aloe_jobs WHERE accepted between '{week_begin}' AND '{week_end}' group by tenant_id;")
+        mycursor.execute(
+            f"SELECT tenant_id, count(*) FROM aloe_jobs WHERE accepted between '{week_begin}' AND '{week_end}' group by tenant_id;"
+        )
 
         myresult = mycursor.fetchall()
 
@@ -232,7 +245,7 @@ def get_jobs_data(week_begin, week_end):
 
                 with open(filepath, "rt") as datafile:
                     data = datafile.read().strip()
-                    data = data.split(' ')
+                    data = data.split(" ")
                     for i in range(len(data)):
                         if i % 3 == 0:
                             group = data[i]

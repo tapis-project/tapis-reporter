@@ -1,4 +1,5 @@
 import os
+from io import TextIOWrapper
 import django
 import logging
 from typing import List
@@ -17,14 +18,15 @@ class LogParser:
     Handles parsing the NGINX log files from the service's network activity
 
     """
+
     def __init__(self, service, args):
         self.service = service
         self.file_dir = self.get_file_dir(service)
         self.args = args
 
     @classmethod
-    def get_file_dir(self, service):
-        return f'/app/reporter/filelogs/{service}'
+    def get_file_dir(self, service) -> str:
+        return f"/app/reporter/filelogs/{service}"
 
     def parse_logs(self) -> None:
         """
@@ -37,10 +39,10 @@ class LogParser:
         """
 
         match self.service:
-            case 'jupyterhub':
+            case "jupyterhub":
                 files_to_parse = self.get_files_to_parse()
                 self.parse_files(files_to_parse)
-            case 'tapis':
+            case "tapis":
                 self.parse_splunk()
             case _:
                 return
@@ -58,35 +60,44 @@ class LogParser:
         # Reformat the file path to match 'ex.'
         files_to_parse = os.listdir(self.file_dir) if self.file_dir != "" else []
         if self.file_dir != "":
-            if self.file_dir[-1] == '/':
+            if self.file_dir[-1] == "/":
                 self.file_dir = self.file_dir[:-1]
             for i in range(len(files_to_parse)):
                 files_to_parse[i] = self.file_dir + "/" + files_to_parse[i]
 
         return files_to_parse
 
-    def parse_files(self, files: List[str]):
+    def parse_files(self, files: List[str]) -> None:
         """
         Go through list of files and call function to parse each file
 
         :return: nothing
         """
-        logger.debug(f'Files to parse: {files}')
+        logger.debug(f"Files to parse: {files}")
         files_successfully_parsed = []
         files_failed_to_parse = []
         for file in files:
-            self.parse_file(file,
-                            files_successfully_parsed,
-                            files_failed_to_parse)
+            parsed = self.parse_file(file)
+
+            if parsed:
+                files_successfully_parsed.append(os.path.basename(file))
+            else:
+                files_failed_to_parse.append(os.path.basename(file))
 
         logger.debug(f"Files successfully parsed: {files_successfully_parsed}")
         logger.debug(f"Files failed to parse: {files_failed_to_parse}")
 
-    def parse_file(self, file, files_successfully_parsed, files_failed_to_parse):
+    def parse_file(self, file: TextIOWrapper) -> bool:
+        """
+        Calls the relevant parser for the service to parse the file
+
+        :param file: file to be parsed
+        :return: bool indicating if file was successfully parsed
+        """
         filename = os.path.basename(file)
 
         match self.service:
-            case 'jupyterhub':
+            case "jupyterhub":
                 parser = JupyterHubUsage()
                 has_been_parsed = parser.is_file_parsed(filename)
 
@@ -97,14 +108,18 @@ class LogParser:
                     # parse the file
                     file_parsed = parser.parse_jhub_file(file, filename)
 
-                    if file_parsed: files_successfully_parsed.append(filename)
-                    else: files_failed_to_parse.append(filename)
+                    return file_parsed
             case _:
-                return
+                return False
 
-    def parse_splunk(self):
+    def parse_splunk(self) -> None:
+        """
+        Calls the relevent parser for the service to query splunk
+
+        :return: nothing
+        """
         match self.service:
-            case 'tapis':
+            case "tapis":
                 parser = TapisUsage()
                 parser.query_splunk(self.args)
             case _:

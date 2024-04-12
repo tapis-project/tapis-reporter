@@ -56,7 +56,8 @@ def index(request):
             tenant_obj = Tenant.objects.get(pk=tenant)
 
             directories, counts = get_directory_counts(
-                tenant_obj, accessed_files.values('filepath'))
+                tenant_obj, accessed_files.values("filepath")
+            )
 
             labels = []
             dir_counts = []
@@ -73,8 +74,7 @@ def index(request):
             num_created_files = created_files.count()
             num_opened_files = opened_files.count()
 
-            unique_login_count = login_users.values(
-                "user").distinct().count()
+            unique_login_count = login_users.values("user").distinct().count()
             total_login_count = login_users.count()
 
             try:
@@ -88,16 +88,16 @@ def index(request):
                 total_user_count = len(unique_users)
 
                 data = {
-                    'num_created_files': num_created_files,
-                    'num_opened_files': num_opened_files,
-                    'unique_login_count': unique_login_count,
-                    'total_login_count': total_login_count,
-                    'total_user_count': total_user_count
+                    "num_created_files": num_created_files,
+                    "num_opened_files": num_opened_files,
+                    "unique_login_count": unique_login_count,
+                    "total_login_count": total_login_count,
+                    "total_user_count": total_user_count,
                 }
-                context['data'] = data
-                context['labels'] = labels
-                context['directories'] = dir_counts
-                context['backgroundColors'] = background_colors
+                context["data"] = data
+                context["labels"] = labels
+                context["directories"] = dir_counts
+                context["backgroundColors"] = background_colors
                 logger.debug(context)
             except Exception as e:
                 logger.debug(e)
@@ -139,7 +139,7 @@ def users(request):
 
         query = LoginLog.objects.filter(
             tenant=tenant, date__range=(start_date, end_date)
-        ).order_by("date")
+        ).order_by("date", "time")
 
         context["user_access"] = query
 
@@ -208,9 +208,7 @@ def dirs(request):
         accessed_files = FileLog.objects.filter(
             tenant=tenant, date__range=(start_date, end_date)
         )
-        directories_accessed = get_directories(
-            accessed_files.values("filepath")
-        )
+        directories_accessed = get_directories(accessed_files.values("filepath"))
 
         context["dir_access"] = directories_accessed
 
@@ -244,7 +242,7 @@ def get_directory_counts(tenant, accessed_files):
     directories = get_tenant_directories(tenant)
 
     for path in filepaths:
-        dir = path['filepath']
+        dir = path["filepath"]
         for d in directories:
             if d in dir:
                 dir_counts[d] = dir_counts.get(d, 0) + 1
@@ -266,16 +264,18 @@ def get_directory_counts(tenant, accessed_files):
 
 
 def get_tenant_directories(tenant):
-    temp_directories = tenant.tenantdirectory_set.all().values('directory')
+    temp_directories = tenant.tenantdirectory_set.all().values("directory")
     tenant_directories = []
 
     for dir in list(temp_directories):
-        tenant_directories.append(dir['directory'])
+        tenant_directories.append(dir["directory"])
 
     return tenant_directories
 
 
 def get_background_colors(data):
-    color = ["#"+''.join([random.choice('0123456789ABCDEF')
-                          for j in range(6)]) for i in range(len(data))]
+    color = [
+        "#" + "".join([random.choice("0123456789ABCDEF") for j in range(6)])
+        for i in range(len(data))
+    ]
     return color

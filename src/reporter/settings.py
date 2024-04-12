@@ -87,8 +87,7 @@ if not TAPIS_SERVICE_TOKEN:
 TAPIS_CLIENT_ID = os.environ.get("TAPIS_CLIENT_ID", None)
 TAPIS_CLIENT_KEY = os.environ.get("TAPIS_CLIENT_KEY", None)
 if not TAPIS_CLIENT_ID or not TAPIS_CLIENT_KEY:
-    logger.warning(
-        "Missing TAPIS_CLIENT_ID or TAPIS_CLIENT_KEY environment variable")
+    logger.warning("Missing TAPIS_CLIENT_ID or TAPIS_CLIENT_KEY environment variable")
 
 # Splunk credentials
 SPLUNK_HOST = os.environ.get("SPLUNK_HOST", None)
@@ -96,8 +95,7 @@ SPLUNK_PORT = os.environ.get("SPLUNK_PORT", None)
 SPLUNK_USER = os.environ.get("SPLUNK_USER", None)
 SPLUNK_PASS = os.environ.get("SPLUNK_PASS", None)
 if not SPLUNK_HOST or not SPLUNK_PORT or not SPLUNK_USER or not SPLUNK_PASS:
-    logger.warning(
-        "Missing SPLUNK_HOST or SPLUNK_PORT or SPLUNK_USER or SPLUNK_PASS")
+    logger.warning("Missing SPLUNK_HOST or SPLUNK_PORT or SPLUNK_USER or SPLUNK_PASS")
 
 # MySQL credentials
 MYSQL_HOST = os.environ.get("MYSQL_HOST", None)
@@ -105,8 +103,7 @@ MYSQL_USER = os.environ.get("MYSQL_USER", None)
 MYSQL_PASS = os.environ.get("MYSQL_PASS", None)
 MYSQL_DB = os.environ.get("MYSQL_DB", None)
 if not MYSQL_HOST or not MYSQL_USER or not MYSQL_PASS or not MYSQL_DB:
-    logger.warning(
-        "Missing MYSQL_HOST or MYSQL_USER or MYSQL_PASS or MYSQL_DB")
+    logger.warning("Missing MYSQL_HOST or MYSQL_USER or MYSQL_PASS or MYSQL_DB")
 
 SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", None)
 SLACK_USER = os.environ.get("SLACK_USER", None)
@@ -124,7 +121,7 @@ LOGIN_URL = "/auth/tapisauth"
 LOGIN_REDIRECT_URL = ""
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = BASE_DIR / "static"
 # STATICFILES_DIRS = [
 #     (os.path.join(BASE_DIR, 'static')),
 # ]

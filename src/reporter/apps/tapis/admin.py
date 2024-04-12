@@ -5,7 +5,7 @@ from .models import (
     TapisInfo,
     JobsData,
     TenantServiceUsage,
-    TenantJobsData
+    TenantJobsData,
 )
 
 # Register your models here.

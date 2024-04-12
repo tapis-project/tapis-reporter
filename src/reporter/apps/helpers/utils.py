@@ -12,10 +12,10 @@ from ..tapis.utils import build_tapis_email
 
 def call_service_email_builder(service, data):
     match service.name:
-        case 'jupyterhub':
+        case "jupyterhub":
             message = build_jupyterhub_email(data)
             return message
-        case 'tapis':
+        case "tapis":
             message = build_tapis_email(data)
             return message
         case _:

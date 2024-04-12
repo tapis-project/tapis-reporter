@@ -29,7 +29,7 @@ class Training(models.Model):
     num_attendees = models.IntegerField()
 
     class Meta:
-        unique_together = ['name', 'forum', 'date', 'num_attendees']
+        unique_together = ["name", "forum", "date", "num_attendees"]
 
 
 # Holds data pertaining to db data for all of tapis
@@ -56,7 +56,7 @@ class TenantJobsData(models.Model):
     version = models.CharField(max_length=10)  # v2 or v3
 
     class Meta:
-        unique_together = ['tenant', 'date', 'count', 'version']
+        unique_together = ["tenant", "date", "count", "version"]
 
 
 class TenantServiceUsage(models.Model):
@@ -68,8 +68,7 @@ class TenantServiceUsage(models.Model):
     log_count = models.IntegerField()
 
     class Meta:
-        unique_together = ["log_date", "start_time",
-                           "end_time", "tenant", "service"]
+        unique_together = ["log_date", "start_time", "end_time", "tenant", "service"]
 
     def savetenantserviceusage(self):
         self.save()

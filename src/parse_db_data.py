@@ -28,8 +28,7 @@ class DBParser:
         return data_path
 
     def parse_db_files(self):
-        files_to_parse = os.listdir(
-            self.file_dir) if self.file_dir != "" else []
+        files_to_parse = os.listdir(self.file_dir) if self.file_dir != "" else []
         if self.file_dir != "":
             if self.file_dir[-1] == "/":
                 self.file_dir = self.file_dir[:-1]
@@ -110,31 +109,37 @@ class DBParser:
         # If there is no tenant set tenant to "tapis"
         # If tenant is "tapis", set smart scheduling, else don't set
         # head will have 3 elements
-            # 0 = tapis data
-            # 1 = num smart scheduling
-            # 2 = tenant data
+        # 0 = tapis data
+        # 1 = num smart scheduling
+        # 2 = tenant data
         jobs_data = []
-        tapis_values = head[0].split(' ')
-        jobs_data.append({
-            "tenant": 'tapis',
-            "avg_daily_jobs": tapis_values[0],
-            "dev_daily_jobs": tapis_values[2],
-            "total_jobs": tapis_values[4],
-            "num_using_smart_scheduling": head[1]
-        })
+        tapis_values = head[0].split(" ")
+        jobs_data.append(
+            {
+                "tenant": "tapis",
+                "avg_daily_jobs": tapis_values[0],
+                "dev_daily_jobs": tapis_values[2],
+                "total_jobs": tapis_values[4],
+                "num_using_smart_scheduling": head[1],
+            }
+        )
 
-        raw_tenant_jobs = head[2].split(' ')
-        raw_tenant_jobs = [x for x in raw_tenant_jobs if x != '|']
+        raw_tenant_jobs = head[2].split(" ")
+        raw_tenant_jobs = [x for x in raw_tenant_jobs if x != "|"]
 
-        tenants_with_jobs = [raw_tenant_jobs[n:n+4]
-                             for n in range(0, len(raw_tenant_jobs), 4)]
+        tenants_with_jobs = [
+            raw_tenant_jobs[n : n + 4] for n in range(0, len(raw_tenant_jobs), 4)
+        ]
 
-        tenant_job_objs = [{
-            "tenant": rec[0],
-            "avg_daily_jobs": rec[1],
-            "dev_daily_jobs": rec[2],
-            "total_jobs": rec[3]
-        } for rec in tenants_with_jobs]
+        tenant_job_objs = [
+            {
+                "tenant": rec[0],
+                "avg_daily_jobs": rec[1],
+                "dev_daily_jobs": rec[2],
+                "total_jobs": rec[3],
+            }
+            for rec in tenants_with_jobs
+        ]
 
         jobs_data.extend(tenant_job_objs)
 
@@ -150,12 +155,7 @@ class DBParser:
     def save_jobs_backlog(self, file):
         df = pd.read_csv(
             file,
-            usecols=[
-                "tenant",
-                "count",
-                "date",
-                "version"
-            ],
+            usecols=["tenant", "count", "date", "version"],
         )
 
         df_records = df.to_dict(orient="records")
@@ -169,7 +169,6 @@ class DBParser:
 
     def save_tapis_data(self, total_by_tenant, users_by_tenant):
         if total_by_tenant and users_by_tenant:
-
             # bulk_tapis_info = []
             for tenant in total_by_tenant:
                 num_tokens = total_by_tenant[tenant]

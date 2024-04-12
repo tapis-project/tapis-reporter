@@ -20,6 +20,7 @@ class EmailHandler:
     """
     Handles emails being sent out
     """
+
     def __init__(self, service, tenant):
         self.sender = "no-reply@tacc.cloud"
         self.host = "relay.tacc.utexas.edu"
@@ -46,9 +47,7 @@ class EmailHandler:
         return data
 
     def send_email(self, data: dict, message: MIMEMultipart):
-        """
-
-        """
+        """ """
         receiver_emails = data["tenant_recipients"]
 
         try:

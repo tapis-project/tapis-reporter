@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.template import loader
 from django.db.models import Q
 from django.conf import settings
@@ -9,8 +9,14 @@ import logging
 import random
 import requests
 from pandas import date_range
-import datetime
-from .models import Paper, TenantServiceUsage, JobsData, TapisInfo, Training, TenantJobsData
+from .models import (
+    Paper,
+    TenantServiceUsage,
+    JobsData,
+    TapisInfo,
+    Training,
+    TenantJobsData,
+)
 from .utils import upload_to_github
 
 logger = logging.getLogger(__name__)
@@ -29,13 +35,13 @@ def index(request):
         }
 
         try:
-            overview_data = generate_overview_data(tenant='tapis')
-            context['auth_data'] = overview_data['auth_data']
-            context['jobs_data'] = overview_data['jobs_data']
-            context['streams_data'] = overview_data['streams_data']
-            context['misc_data'] = overview_data['misc_data']
+            overview_data = generate_overview_data(tenant="tapis")
+            context["auth_data"] = overview_data["auth_data"]
+            context["jobs_data"] = overview_data["jobs_data"]
+            context["streams_data"] = overview_data["streams_data"]
+            context["misc_data"] = overview_data["misc_data"]
 
-            context['tenants'] = JobsData.objects.values_list('tenant', flat=True)
+            context["tenants"] = JobsData.objects.values_list("tenant", flat=True)
         except Exception as e:
             logger.error(f"Error generating overview data: {e}")
 
@@ -51,12 +57,12 @@ def index(request):
 
         if "get_issues" in request.POST:
             logger.debug("Getting issues call")
-            overview_data = generate_overview_data(tenant='tapis', get_issues=True)
-            context['auth_data'] = overview_data['auth_data']
-            context["jobs_data"] = overview_data['jobs_data']
-            context['streams_data'] = overview_data['streams_data']
-            context['misc_data'] = overview_data['misc_data']
-            context['tenants'] = JobsData.objects.values_list('tenant', flat=True)
+            overview_data = generate_overview_data(tenant="tapis", get_issues=True)
+            context["auth_data"] = overview_data["auth_data"]
+            context["jobs_data"] = overview_data["jobs_data"]
+            context["streams_data"] = overview_data["streams_data"]
+            context["misc_data"] = overview_data["misc_data"]
+            context["tenants"] = JobsData.objects.values_list("tenant", flat=True)
         else:
             try:
                 tenant = request.POST.get("tenant")
@@ -64,9 +70,9 @@ def index(request):
                 end_date = request.POST.get("end_date")
 
                 overview_data = generate_overview_data(tenant=tenant)
-                context['auth_data'] = overview_data['auth_data']
-                context['jobs_data'] = overview_data['jobs_data']
-                context['tenants'] = JobsData.objects.values_list('tenant', flat=True)
+                context["auth_data"] = overview_data["auth_data"]
+                context["jobs_data"] = overview_data["jobs_data"]
+                context["tenants"] = JobsData.objects.values_list("tenant", flat=True)
             except Exception as e:
                 logger.error(e)
 
@@ -120,8 +126,12 @@ def trainings(request):
         training_data = build_training_data(request.POST)
         Training.objects.create(**training_data)
 
-        upload_to_github(training_data, "tapis_trainings.json",
-                         f"Updating trainings from Tapis Reporter with: {request.POST.get('name')}", "main")
+        upload_to_github(
+            training_data,
+            "tapis_trainings.json",
+            f"Updating trainings from Tapis Reporter with: {request.POST.get('name')}",
+            "main",
+        )
 
         return redirect("tapis:trainings")
 
@@ -248,30 +258,13 @@ def papers(request):
         paper_data = build_paper_data(request.POST)
         Paper.objects.create(**paper_data)
 
-        upload_to_github(paper_data, "tapis_papers.json",
-                         f"Updating papers from Tapis Reporter with: {request.POST.get('title')}", "main")
+        upload_to_github(
+            paper_data,
+            "tapis_papers.json",
+            f"Updating papers from Tapis Reporter with: {request.POST.get('title')}",
+            "main",
+        )
         return redirect("tapis:papers")
-
-
-# @login_required
-# def add_paper(request):
-#     if request.method == "GET":
-#         logger.debug(f"In {request.method} method of add_paper")
-#         template = loader.get_template("tapis/add_paper.html")
-
-#         context = {"error": False}
-
-#         return HttpResponse(template.render(context, request))
-
-#     elif request.method == "POST":
-#         logger.debug(f"In {request.method} method of add_paper")
-
-#         context = {"error": False}
-
-#         paper_data = build_paper_data(request.POST)
-#         create_paper(paper_data)
-
-#         return redirect("tapis:paper")
 
 
 @login_required
@@ -283,7 +276,7 @@ def streams(request):
         context = {"error": False}
 
         try:
-            streams_data = get_streams_data('tacc')
+            streams_data = get_streams_data("tacc")
             context["streams_data"] = streams_data
 
         except Exception as e:
@@ -306,7 +299,7 @@ def jobs(request):
         return HttpResponse(template.render(context, request))
 
     elif request.method == "POST":
-        '''
+        """
         need list of tenant names for v2 and v3
         generate data array for echart
         need array for v2, and one for v3
@@ -320,17 +313,14 @@ def jobs(request):
             data: [101, 205, 91, 175, 50, 178, 240],
             type: 'line'
         }
-        '''
+        """
         logger.debug(f"In {request.method} method of jobs")
         template = loader.get_template("tapis/jobs.html")
 
-        context = {
-            "error": False,
-            "charts": False
-        }
+        context = {"error": False, "charts": False}
 
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
 
         query = Q()
 
@@ -340,8 +330,8 @@ def jobs(request):
         # tenant, date, count, version
         tenant_jobs_data = TenantJobsData.objects.filter(query)
 
-        v3_jobs_data = tenant_jobs_data.filter(version='v3')
-        v2_jobs_data = tenant_jobs_data.filter(version='v2')
+        v3_jobs_data = tenant_jobs_data.filter(version="v3")
+        v2_jobs_data = tenant_jobs_data.filter(version="v2")
 
         """
         Given objects (tenant, count, date, version)
@@ -351,77 +341,101 @@ def jobs(request):
         """
         Grab unique tenants for each version
         """
-        v3_tenants = list(v3_jobs_data.values_list('tenant', flat=True).distinct())
-        v2_tenants = list(v2_jobs_data.values_list('tenant', flat=True).distinct())
+        v3_tenants = list(v3_jobs_data.values_list("tenant", flat=True).distinct())
+        v2_tenants = list(v2_jobs_data.values_list("tenant", flat=True).distinct())
 
-        context['v3_tenants'] = v3_tenants
-        context['v2_tenants'] = v2_tenants
+        context["v3_tenants"] = v3_tenants
+        context["v2_tenants"] = v2_tenants
 
         """
         Grab dates with jobs for each version
         """
-        v3_dates = list(v3_jobs_data.values_list('date', flat=True))
-        v2_dates = list(v2_jobs_data.values_list('date', flat=True))
+        v3_dates = list(v3_jobs_data.values_list("date", flat=True))
+        v2_dates = list(v2_jobs_data.values_list("date", flat=True))
 
         """
         Convert the datetime objects to strings
         """
-        v3_dates = [date.strftime('%Y-%m-%d') for date in v3_dates]
-        v2_dates = [date.strftime('%Y-%m-%d') for date in v2_dates]
+        v3_dates = [date.strftime("%Y-%m-%d") for date in v3_dates]
+        v2_dates = [date.strftime("%Y-%m-%d") for date in v2_dates]
 
-        chart_dates = sorted({str(d)[:10] for d in date_range(start_date, end_date, freq='d')})
+        chart_dates = sorted(
+            {str(d)[:10] for d in date_range(start_date, end_date, freq="d")}
+        )
 
         try:
             v3_start_date = min(v3_dates)
             v3_end_date = max(v3_dates)
 
-            context['v3_start_date'] = v3_start_date
-            context['v3_end_date'] = v3_end_date
+            context["v3_start_date"] = v3_start_date
+            context["v3_end_date"] = v3_end_date
 
             try:
                 v3_tenants_date_counts = {}
                 for v3_tenant in v3_tenants:
-                    v3_tenant_date_counts = list(v3_jobs_data.filter(tenant=v3_tenant).values_list('date', 'count'))
-                    v3_tenant_date_counts = [(date_count[0].strftime('%Y-%m-%d'), date_count[1]) for date_count in v3_tenant_date_counts]
+                    v3_tenant_date_counts = list(
+                        v3_jobs_data.filter(tenant=v3_tenant).values_list(
+                            "date", "count"
+                        )
+                    )
+                    v3_tenant_date_counts = [
+                        (date_count[0].strftime("%Y-%m-%d"), date_count[1])
+                        for date_count in v3_tenant_date_counts
+                    ]
                     v3_tenants_date_counts[v3_tenant] = v3_tenant_date_counts
 
                 for v3_tenant in v3_tenants:
                     tenant_date_counts = v3_tenants_date_counts[v3_tenant]
-                    dates_with_jobs = {d for d,_ in tenant_date_counts}
-                    dates_in_range = {str(d)[:10] for d in date_range(start_date, end_date, freq='d')}
+                    dates_with_jobs = {d for d, _ in tenant_date_counts}
+                    dates_in_range = {
+                        str(d)[:10] for d in date_range(start_date, end_date, freq="d")
+                    }
                     dates_without_jobs = dates_in_range.difference(dates_with_jobs)
 
-                    v3_tenants_date_counts[v3_tenant] = sorted(tenant_date_counts + [(d, 0) for d in dates_without_jobs])
+                    v3_tenants_date_counts[v3_tenant] = sorted(
+                        tenant_date_counts + [(d, 0) for d in dates_without_jobs]
+                    )
             except Exception as e:
                 logger.debug(f"Error getting v3 tenants_date_counts: {e}")
 
             v2_start_date = min(v2_dates)
             v2_end_date = max(v2_dates)
 
-            context['v2_start_date'] = v2_start_date
-            context['v2_end_date'] = v2_end_date
+            context["v2_start_date"] = v2_start_date
+            context["v2_end_date"] = v2_end_date
 
             try:
                 v2_tenants_date_counts = {}
                 for v2_tenant in v2_tenants:
-                    v2_tenant_date_counts = list(v2_jobs_data.filter(tenant=v2_tenant).values_list('date', 'count'))
-                    v2_tenant_date_counts = [(date_count[0].strftime('%Y-%m-%d'), date_count[1]) for date_count in v2_tenant_date_counts]
+                    v2_tenant_date_counts = list(
+                        v2_jobs_data.filter(tenant=v2_tenant).values_list(
+                            "date", "count"
+                        )
+                    )
+                    v2_tenant_date_counts = [
+                        (date_count[0].strftime("%Y-%m-%d"), date_count[1])
+                        for date_count in v2_tenant_date_counts
+                    ]
                     v2_tenants_date_counts[v2_tenant] = v2_tenant_date_counts
 
                 for v2_tenant in v2_tenants:
                     tenant_date_counts = v2_tenants_date_counts[v2_tenant]
-                    dates_with_jobs = {d for d,_ in tenant_date_counts}
-                    dates_in_range = {str(d)[:10] for d in date_range(start_date, end_date, freq='d')}
+                    dates_with_jobs = {d for d, _ in tenant_date_counts}
+                    dates_in_range = {
+                        str(d)[:10] for d in date_range(start_date, end_date, freq="d")
+                    }
                     dates_without_jobs = dates_in_range.difference(dates_with_jobs)
 
-                    v2_tenants_date_counts[v2_tenant] = sorted(tenant_date_counts + [(d, 0) for d in dates_without_jobs])
+                    v2_tenants_date_counts[v2_tenant] = sorted(
+                        tenant_date_counts + [(d, 0) for d in dates_without_jobs]
+                    )
             except Exception as e:
                 logger.debug(f"Error getting v2 tenants_date_counts: {e}")
 
         except Exception as e:
             logger.debug(e)
 
-        context['chart_dates'] = chart_dates
+        context["chart_dates"] = chart_dates
 
         """
         Build series objects for each tenant per day
@@ -434,12 +448,10 @@ def jobs(request):
             v3_series.append(
                 {
                     "name": v3_tenant,
-                    "emphasis": {
-                        "focus": 'series'
-                    },
+                    "emphasis": {"focus": "series"},
                     "smooth": "true",
                     "data": v3_tenant_counts,
-                    "type": 'line',
+                    "type": "line",
                 }
             )
 
@@ -448,17 +460,15 @@ def jobs(request):
             v2_series.append(
                 {
                     "name": v2_tenant,
-                    "emphasis": {
-                        "focus": 'series'
-                    },
+                    "emphasis": {"focus": "series"},
                     "smooth": "true",
                     "data": v2_tenant_counts,
-                    "type": 'line',
+                    "type": "line",
                 }
             )
 
-        context['v3_series'] = v3_series
-        context['v2_series'] = v2_series
+        context["v3_series"] = v3_series
+        context["v2_series"] = v2_series
 
         if v3_series or v2_series:
             context["charts"] = True
@@ -476,7 +486,7 @@ def tapis(request):
 
         try:
             # load gateways file data
-            tapis_data = get_tapis_data(tenant)
+            tapis_data = get_tapis_data(tenant="tapis")
 
             context["tenants"] = tapis_data["tenants"]
             context["num_tokens"] = tapis_data["num_tokens"]
@@ -501,7 +511,7 @@ def tapis(request):
             tenants = tenants.replace("[", "")
             tenants = tenants.replace("]", "")
             tenants = tenants.replace("'", "")
-            tenants = tenants.split(',')
+            tenants = tenants.split(",")
 
             context["tenant_queried"] = True
             context["tenant"] = tenant
@@ -545,15 +555,14 @@ def splunk(request):
         logger.debug(end_date)
 
         # try:
-        tapis_data = load_tapis_splunk_data(
-            tenant, service, start_date, end_date)
+        tapis_data = load_tapis_splunk_data(tenant, service, start_date, end_date)
 
         logger.debug(tapis_data)
         context["tapis_data"] = tapis_data
         context["tenant"] = tenant.upper()
-            # if "raw_tapis" in request.POST:
-            #     template = loader.get_template("tapis/raw_splunk_data.html")
-            #     return HttpResponse(template.render(context, request))
+        # if "raw_tapis" in request.POST:
+        #     template = loader.get_template("tapis/raw_splunk_data.html")
+        #     return HttpResponse(template.render(context, request))
         # except Exception as e:
         #     logger.debug(f"Error getting tapis data: {e}")
         #     return redirect("tapis:splunk")
@@ -563,15 +572,16 @@ def splunk(request):
         data = []
 
         for td in tapis_data:
-            service_counts[td['service']] = service_counts.get(
-                td['service'], 0) + td['count']
+            service_counts[td["service"]] = (
+                service_counts.get(td["service"], 0) + td["count"]
+            )
 
         for key, value in service_counts.items():
             labels.append(key)
             data.append(value)
 
-        labels.append(td['service'])
-        data.append(td['count'])
+        labels.append(td["service"])
+        data.append(td["count"])
 
         background_colors = get_background_colors(data)
 
@@ -584,8 +594,10 @@ def splunk(request):
 
 
 def get_background_colors(data):
-    color = ["#"+''.join([random.choice('0123456789ABCDEF')
-                         for j in range(6)]) for i in range(len(data))]
+    color = [
+        "#" + "".join([random.choice("0123456789ABCDEF") for j in range(6)])
+        for i in range(len(data))
+    ]
     return color
 
 
@@ -595,9 +607,9 @@ def build_paper_data(data):
         "primary_author": data.get("author"),
         "publication_source": data.get("source"),
         "publication_year": data.get("date"),
-        "co_authors": data.get("co_authors").split('\r\n'),
+        "co_authors": data.get("co_authors").split("\r\n"),
         "citation_url": data.get("citation"),
-        "citations": data.get("citations")
+        "citations": data.get("citations"),
     }
 
 
@@ -606,7 +618,7 @@ def build_training_data(data):
         "name": data.get("name"),
         "forum": data.get("forum"),
         "date": data.get("date"),
-        "num_attendees": data.get("num_attendees")
+        "num_attendees": data.get("num_attendees"),
     }
 
 
@@ -628,17 +640,13 @@ def build_tenant_model(tenant_info, owner_info):
     return tenant
 
 
-def get_streams_data(tenant: str = ''):
+def get_streams_data(tenant: str = ""):
     # Might have to update to use different tapis tokens dependent on tenant
     logger.debug("get streams data")
     tenant = {"key_name": "TAPIS_SERVICE_TOKEN"}
-    headers = {
-        "x-tapis-token": settings.TAPIS_SERVICE_TOKEN
-    }
+    headers = {"x-tapis-token": settings.TAPIS_SERVICE_TOKEN}
 
-    streams = requests.get(
-        "https://tacc.tapis.io/v3/streams/metrics", headers=headers
-    )
+    streams = requests.get("https://tacc.tapis.io/v3/streams/metrics", headers=headers)
 
     amount_data_streamed = 0
     number_data_streams = len(streams.json())
@@ -674,12 +682,13 @@ def get_tapis_data():
             tapis_data["tenants"].append(tenant.tenant)
         else:
             tapis_data["tenants"] = [tenant.tenant]
-        tapis_data["num_tokens"] = tapis_data.get(
-            "num_tokens", 0) + tenant.num_tokens
-        tapis_data["num_unique_users"] = tapis_data.get(
-            "num_unique_users", 0) + tenant.num_unique_users
-        tapis_data["num_ctr_apps"] = tapis_data.get(
-            "num_ctr_apps", 0) + tenant.num_ctr_apps
+        tapis_data["num_tokens"] = tapis_data.get("num_tokens", 0) + tenant.num_tokens
+        tapis_data["num_unique_users"] = (
+            tapis_data.get("num_unique_users", 0) + tenant.num_unique_users
+        )
+        tapis_data["num_ctr_apps"] = (
+            tapis_data.get("num_ctr_apps", 0) + tenant.num_ctr_apps
+        )
 
     logger.debug(tapis_data)
     return tapis_data
@@ -693,19 +702,19 @@ def get_tenant_data(tenant):
     return {
         "num_tokens": tenant_data.num_tokens,
         "num_unique_users": tenant_data.num_unique_users,
-        "num_ctr_apps": tenant_data.num_ctr_apps
+        "num_ctr_apps": tenant_data.num_ctr_apps,
     }
 
 
 def get_auth_data(tenant):
     logger.debug(f"Get auth data for {tenant}")
-    if tenant != 'tapis':
+    if tenant != "tapis":
         return get_tenant_data(tenant)
     else:
         return get_tapis_data()
 
 
-def get_jobs_data(tenant: str = ''):
+def get_jobs_data(tenant: str = ""):
     logger.debug(f"Attempting to fetch jobs data for {tenant}")
     jobs_data = JobsData.objects.get(tenant=tenant)
     dev_daily_jobs = ast.literal_eval(jobs_data.dev_daily_jobs)
@@ -715,7 +724,9 @@ def get_jobs_data(tenant: str = ''):
     return jobs_data
 
 
-def load_tapis_splunk_data(tenant, service, start_date, end_date, start_time = '', end_time = ''):
+def load_tapis_splunk_data(
+    tenant, service, start_date, end_date, start_time="", end_time=""
+):
     logger.info("in load tapis splunk data for html")
     query = Q()
 
@@ -870,15 +881,14 @@ def get_repos(org):
         for repo in repos.json():
             if repo["has_issues"]:
                 url = "https://api.github.com/graphql"
-                headers = {
-                    "Authorization": f"bearer {settings.GITHUB_API_TOKEN}"}
+                headers = {"Authorization": f"bearer {settings.GITHUB_API_TOKEN}"}
 
                 repo_owner = repo["owner"]["login"]
                 repo_name = repo["name"]
 
                 query = """
-                    query GetRepos($owner: String!, $name: String!) { 
-                        repository(owner: $owner, name: $name) { 
+                    query GetRepos($owner: String!, $name: String!) {
+                        repository(owner: $owner, name: $name) {
                             issues {
                             totalCount
                             }
@@ -904,7 +914,9 @@ def get_repos(org):
                 }
 
                 repos_with_counts.append(repo)
-        repos_with_counts = sorted(repos_with_counts, key=lambda d: d['total_issues'], reverse=True)
+        repos_with_counts = sorted(
+            repos_with_counts, key=lambda d: d["total_issues"], reverse=True
+        )
     except Exception as e:
         logger.error(f"Unable to get repos for: {org}; error: {e}")
 
@@ -933,43 +945,51 @@ def get_tenants():
     return tenants
 
 
-def generate_overview_data(tenant: str = '', start_date=None, end_date=None, get_issues: bool = False):
+def generate_overview_data(
+    tenant: str = "", start_date=None, end_date=None, get_issues: bool = False
+):
     overview = {}
     try:
         auth_data = get_auth_data(tenant)
         logger.debug(auth_data)
 
-        if tenant == 'tapis':
+        if tenant == "tapis":
             tenants = get_tenants()
-            auth_data['total_num_tenants'] = len(tenants)
+            auth_data["total_num_tenants"] = len(tenants)
 
-        overview['auth_data'] = auth_data
+        overview["auth_data"] = auth_data
     except Exception as e:
         logger.error(f"Error getting auth data: {e}")
 
     try:
         jobs_data = get_jobs_data(tenant)
-        overview['jobs_data'] = jobs_data
+        overview["jobs_data"] = jobs_data
     except Exception as e:
         logger.error(f"Error getting jobs data: {e}")
 
-    if tenant == 'tacc' or tenant == 'tapis':
+    if tenant == "tacc" or tenant == "tapis":
         try:
             streams_data = {}
             all_streams_data = get_streams_data(tenant)
             for stream_data in all_streams_data:
-                streams_data['amount_data_streamed'] = streams_data.get(
-                    'amount_data_streamed', 0) + stream_data['amount_data_streamed']
-                streams_data['number_data_streams'] = streams_data.get(
-                    'number_data_streams', 0) + stream_data['number_data_streams']
-                streams_data['number_archives_registered'] = streams_data.get(
-                    'number_archives_registered', 0) + stream_data['number_archives_registered']
+                streams_data["amount_data_streamed"] = (
+                    streams_data.get("amount_data_streamed", 0)
+                    + stream_data["amount_data_streamed"]
+                )
+                streams_data["number_data_streams"] = (
+                    streams_data.get("number_data_streams", 0)
+                    + stream_data["number_data_streams"]
+                )
+                streams_data["number_archives_registered"] = (
+                    streams_data.get("number_archives_registered", 0)
+                    + stream_data["number_archives_registered"]
+                )
 
-            overview['streams_data'] = streams_data
+            overview["streams_data"] = streams_data
         except Exception as e:
             logger.error(f"Error getting streams data: {e}")
 
-    if tenant == 'tapis':
+    if tenant == "tapis":
         try:
             misc_data = {}
             # trainings_url = requests.get(
@@ -977,18 +997,18 @@ def generate_overview_data(tenant: str = '', start_date=None, end_date=None, get
             # )
 
             # trainings_data = trainings_url.json()
-            misc_data['total_trainings'] = Training.objects.count()
-            misc_data['total_github_issues'] = None
-            misc_data['num_research_papers'] = Paper.objects.count()
+            misc_data["total_trainings"] = Training.objects.count()
+            misc_data["total_github_issues"] = None
+            misc_data["num_research_papers"] = Paper.objects.count()
 
             if get_issues:
                 total_github_issues = 0
                 repos = get_repos("tapis-project")
                 for repo in repos:
-                    total_github_issues += repo['total_issues']
-                misc_data['total_github_issues'] = total_github_issues
+                    total_github_issues += repo["total_issues"]
+                misc_data["total_github_issues"] = total_github_issues
 
-            overview['misc_data'] = misc_data
+            overview["misc_data"] = misc_data
         except Exception as e:
             logger.error(f"Error getting misc data: {e}")
 
