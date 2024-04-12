@@ -1,92 +1,75 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/filter.css' %}"/>
-<div class="main">
-    <div class="header">
-        <h1>
-            File Access
-        </h1>
-        <form class="filter-row" method="POST" >{% csrf_token %}
-            <div class="filter">
-                <label class="filter-label" for="tenant">
-                    Tenant:
-                </label>
-                <select name="tenant" id="tenant">
-                    <option value="" disabled selected>Filter tenant</option>
-                    <option value="tacc">TACC</option>
-                    <option value="designsafe">DesignSafe</option>
-                </select>
-            </div>
-            <div class="filter">
-                <label class="filter-label" for="start_date">
-                    Start Date:
-                </label>
-                <input type="date" class="filter-input"
-                    name="start_date">
-            </div>
-            <div class="filter">
-                <label class="filter-label" for="filter-input">
-                    End Date:
-                </label>
-                <input type="date" class="filter-input"
-                    name="end_date">
-            </div>
-            <button type="submit" class="btn filter-button">Submit</button>
-        </form>
-    </div>
-    <div class="content">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Tenant</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Filepath</th>
-                    <th>Filename</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for access in file_access %}
-                <tr>
-                    <td>
-                        {{ access.tenant }}
-                    </td>
-                    <td>
-                        {{ access.user }}
-                    </td>
-                    <td>
-                        {{ access.action }}
-                    </td>
-                    <td>
-                        {{ access.filepath }}
-                    </td>
-                    <td>
-                        {{ access.filename }}
-                    </td>
-                    <td>
-                        {{ access.date }}
-                    </td>
-                    <td>
-                        {{ access.time }}
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% if not file_access %}
-        <div class="app-message">
-            <h3>
-                Please select a tenant and date range to view data
-            </h3>
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/form.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/table.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/filter.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>File Access</h1>
+            <form class="filter-row" method="post">
+                {% csrf_token %}
+                <div class="filter">
+                    <label class="filter-label" for="tenant">Tenant:</label>
+                    <select name="tenant" id="tenant">
+                        <option value="" disabled selected>Filter tenant</option>
+                        <option value="tacc">TACC</option>
+                        <option value="designsafe">DesignSafe</option>
+                    </select>
+                </div>
+                <div class="filter">
+                    <label class="filter-label" for="start_date">Start Date:</label>
+                    <input type="date" class="filter-input" name="start_date">
+                </div>
+                <div class="filter">
+                    <label class="filter-label" for="filter-input">End Date:</label>
+                    <input type="date" class="filter-input" name="end_date">
+                </div>
+                <button type="submit" class="btn filter-button">Submit</button>
+            </form>
         </div>
-        {% endif %}
+        <div class="content">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tenant</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Filepath</th>
+                        <th>Filename</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for access in file_access %}
+                        <tr>
+                            <td>{{ access.tenant }}</td>
+                            <td>{{ access.user }}</td>
+                            <td>{{ access.action }}</td>
+                            <td>{{ access.filepath }}</td>
+                            <td>{{ access.filename }}</td>
+                            <td>{{ access.date }}</td>
+                            <td>{{ access.time }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not file_access %}
+                <div class="app-message">
+                    <h3>Please select a tenant and date range to view data</h3>
+                </div>
+            {% endif %}
+        </div>
     </div>
-</div>
-{% endblock %}
+{% endblock content %}

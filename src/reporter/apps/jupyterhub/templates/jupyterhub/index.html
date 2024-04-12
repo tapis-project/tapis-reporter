@@ -1,104 +1,81 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/filter.css' %}"/>
-<div class="main">
-    <div class="header">
-        <h1>
-            JupyterHub Overview
-        </h1>
-        <form class="filter-row" method="POST" >{% csrf_token %}
-            <div class="filter">
-                <label class="filter-label" for="tenant">
-                    Tenant:
-                </label>
-                <select name="tenant" id="tenant">
-                    <option value="" disabled selected>Filter tenant</option>
-                    <option value="tacc">TACC</option>
-                    <option value="designsafe">DesignSafe</option>
-                </select>
-            </div>
-            <div class="filter">
-                <label class="filter-label" for="start_date">
-                    Start Date:
-                </label>
-                <input type="date" class="filter-input"
-                    name="start_date">
-            </div>
-            <div class="filter">
-                <label class="filter-label" for="filter-input">
-                    End Date:
-                </label>
-                <input type="date" class="filter-input"
-                    name="end_date">
-            </div>
-            <button type="submit" class="btn filter-button">Submit</button>
-        </form>
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/form.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/table.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/filter.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>JupyterHub Overview</h1>
+            <form class="filter-row" method="post">
+                {% csrf_token %}
+                <div class="filter">
+                    <label class="filter-label" for="tenant">Tenant:</label>
+                    <select name="tenant" id="tenant">
+                        <option value="" disabled selected>Filter tenant</option>
+                        <option value="tacc">TACC</option>
+                        <option value="designsafe">DesignSafe</option>
+                    </select>
+                </div>
+                <div class="filter">
+                    <label class="filter-label" for="start_date">Start Date:</label>
+                    <input type="date" class="filter-input" name="start_date">
+                </div>
+                <div class="filter">
+                    <label class="filter-label" for="filter-input">End Date:</label>
+                    <input type="date" class="filter-input" name="end_date">
+                </div>
+                <button type="submit" class="btn filter-button">Submit</button>
+            </form>
+        </div>
+        <div class="content">
+            {% if data %}
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Total Users</p>
+                        <h3>{{ data.total_user_count }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Total Logins</p>
+                        <h3>{{ data.total_login_count }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Unique Logins</p>
+                        <h3>{{ data.unique_login_count }}</h3>
+                    </div>
+                </div>
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Number of Opened Files</p>
+                        <h3>{{ data.num_opened_files }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Number of Created Files</p>
+                        <h3>{{ data.num_created_files }}</h3>
+                    </div>
+                </div>
+                <div class="chart">
+                    <canvas id="dir-chart"></canvas>
+                </div>
+            {% else %}
+                <div class="app-message">
+                    <h3>Please select a tenant and date range to view data</h3>
+                </div>
+            {% endif %}
+        </div>
     </div>
-    <div class="content">
-        {% if data %}
-            <div class="grid-container">
-                <div class="data">
-                    <p>
-                        Total Users
-                    </p>
-                    <h3>
-                        {{ data.total_user_count }}
-                    </h3>
-                </div>
-                <div class="data">
-                    <p>
-                        Total Logins
-                    </p>
-                    <h3>
-                        {{ data.total_login_count }}
-                    </h3>
-                </div>
-                <div class="data">
-                    <p>
-                        Unique Logins
-                    </p>
-                    <h3>
-                        {{ data.unique_login_count }}
-                    </h3>
-                </div>
-            </div>
-            <div class="grid-container">
-                <div class="data">
-                    <p>
-                        Number of Opened Files
-                    </p>
-                    <h3>
-                        {{ data.num_opened_files }}
-                    </h3>
-                </div>
-                <div class="data">
-                    <p>
-                        Number of Created Files
-                    </p>
-                    <h3>
-                        {{ data.num_created_files }}
-                    </h3>
-                </div>
-            </div>
-            <div class="chart" style="width: 75%;">
-                <canvas id="dir-chart"></canvas>
-            </div>
-        {% else %}
-            <div class="app-message">
-                <h3>
-                    Please select a tenant and date range to view data
-                </h3>
-            </div>
-        {% endif %}
-    </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script>
     var config = {
         type: 'bar',
         data: {
@@ -123,5 +100,5 @@
         var ctx = document.getElementById('dir-chart').getContext('2d');
         window.myPie = new Chart(ctx, config);
     };
-</script>
-{% endblock %}
+    </script>
+{% endblock content %}

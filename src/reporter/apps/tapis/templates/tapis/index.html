@@ -1,173 +1,120 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/filter.css' %}"/>
-<div class="main">
-    <div class="header">
-        <h1>
-            Tapis Overview
-        </h1>
-        <form class="filter-row" method="POST" >{% csrf_token %}
-            <div class="filter">
-                <label class="filter-label" for="tenant">
-                    Tenant:
-                </label>
-                <select name="tenant" id="tenant">
-                    <option value="" disabled selected>Filter tenant</option>
-                    {% for tenant in tenants %}
-                        <option value={{ tenant }}>{{ tenant }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn filter-button" name="submit">Submit</button>
-        </form>
-    </div>
-    <div class="content">
-        {% if auth_data %}
-        <h3 class="dashboard-section-title">Authenticator</h3>
-        <div class="grid-container">
-            {% if tennant == "tapis"%}
-            <div class="data">
-                <p>
-                    Number of Tenants
-                </p>
-                <h3 class="value">
-                    {{ auth_data.total_num_tenants }}
-                </h3>
-            </div>
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/form.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/filter.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>Tapis Overview</h1>
+            <form class="filter-row" method="post">
+                {% csrf_token %}
+                <div class="filter">
+                    <label class="filter-label" for="tenant">Tenant:</label>
+                    <select name="tenant" id="tenant">
+                        <option value="" disabled selected>Filter tenant</option>
+                        {% for tenant in tenants %}
+                            <option value={{ tenant }}>{{ tenant }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn filter-button" name="submit">Submit</button>
+            </form>
+        </div>
+        <div class="content">
+            {% if auth_data %}
+                <h3 class="dashboard-section-title">Authenticator</h3>
+                <div class="grid-container">
+                    {% if tennant == "tapis" %}
+                        <div class="data">
+                            <p>Number of Tenants</p>
+                            <h3 class="value">{{ auth_data.total_num_tenants }}</h3>
+                        </div>
+                    {% endif %}
+                    <div class="data">
+                        <p>Number of Tokens</p>
+                        <h3>{{ auth_data.num_tokens }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Number of Users</p>
+                        <h3>{{ auth_data.num_unique_users }}</h3>
+                    </div>
+                    <div class="data">
+                        <p># of Containerized Apps</p>
+                        <h3>{{ auth_data.num_ctr_apps }}</h3>
+                    </div>
+                </div>
             {% endif %}
-            <div class="data">
-                <p>
-                    Number of Tokens
-                </p>
-                <h3>
-                    {{ auth_data.num_tokens }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    Number of Users
-                </p>
-                <h3>
-                    {{ auth_data.num_unique_users }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    # of Containerized Apps
-                </p>
-                <h3>
-                    {{ auth_data.num_ctr_apps }}
-                </h3>
-            </div>
+            {% if jobs_data %}
+                <h3 class="dashboard-section-title">Jobs</h3>
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Total Number of Jobs Ran</p>
+                        <h3>{{ jobs_data.total_jobs }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Average Daily Jobs</p>
+                        <h3>{{ jobs_data.avg_daily_jobs }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Standard Deviation of Jobs</p>
+                        <h3>{{ jobs_data.dev_daily_jobs }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Jobs Using Smart Scheduling</p>
+                        <h3>{{ jobs_data.num_using_smart_scheduling }}</h3>
+                    </div>
+                </div>
+            {% endif %}
+            {% if streams_data %}
+                <h3 class="dashboard-section-title">Streams</h3>
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Total Streaming Data Collected</p>
+                        <h3>{{ streams_data.amount_data_streamed }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Number of Data Streams</p>
+                        <h3>{{ streams_data.number_data_streams }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Number of Archives</p>
+                        <h3>{{ streams_data.number_archives_registered }}</h3>
+                    </div>
+                </div>
+            {% endif %}
+            {% if misc_data %}
+                <h3 class="dashboard-section-title">Miscellaneous</h3>
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Total Trainings</p>
+                        <h3>{{ misc_data.total_trainings }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>GitHub Issues</p>
+                        {% if misc_data.total_github_issues %}
+                            <h3>{{ misc_data.total_github_issues }}</h3>
+                        {% else %}
+                            <form method="post" class="data-button">
+                                {% csrf_token %}
+                                <button type="submit" class="btn" name="get_issues" id="get_issues">Fetch Issue Count</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="data">
+                        <p>Number of Research Papers</p>
+                        <h3>{{ misc_data.num_research_papers }}</h3>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-        {% endif %}
-        {% if jobs_data %}
-        <h3 class="dashboard-section-title">Jobs</h3>
-        <div class="grid-container">
-            <div class="data">
-                <p>
-                    Total Number of Jobs Ran
-                </p>
-                <h3>
-                    {{ jobs_data.total_jobs }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    Average Daily Jobs
-                </p>
-                <h3>
-                    {{ jobs_data.avg_daily_jobs }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    Standard Deviation of Jobs
-                </p>
-                <h3>
-                    {{ jobs_data.dev_daily_jobs }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    Jobs Using Smart Scheduling
-                </p>
-                <h3>
-                    {{ jobs_data.num_using_smart_scheduling }}
-                </h3>
-            </div>
-        </div>
-        {% endif %}
-        {% if streams_data %}
-        <h3 class="dashboard-section-title">Streams</h3>
-        <div class="grid-container">
-            <div class="data">
-                <p>
-                    Total Streaming Data Collected
-                </p>
-                <h3>
-                    {{ streams_data.amount_data_streamed }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    Number of Data Streams
-                </p>
-                <h3>
-                    {{ streams_data.number_data_streams }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    Number of Archives
-                </p>
-                <h3>
-                    {{ streams_data.number_archives_registered }}
-                </h3>
-            </div>
-        </div>
-        {% endif %}
-        {% if misc_data %}
-        <h3 class="dashboard-section-title">Miscellaneous</h3>
-        <div class="grid-container">
-            <div class="data">
-                <p>
-                    Total Trainings
-                </p>
-                <h3>
-                    {{ misc_data.total_trainings }}
-                </h3>
-            </div>
-            <div class="data">
-                <p>
-                    GitHub Issues
-                </p>
-                {% if misc_data.total_github_issues %}
-                <h3>
-                    {{ misc_data.total_github_issues }}
-                </h3>
-                {% else %}
-                    <form method="POST"
-                        style="position: absolute; bottom: 0; margin-bottom: 24px;"> {% csrf_token %}
-                        <button type="submit" class="btn" name="get_issues"
-                            id="get_issues">Fetch Issue Count</button>
-                    </form>
-                {% endif %}
-            </div>
-            <div class="data">
-                <p>
-                    Number of Research Papers
-                </p>
-                <h3>
-                    {{ misc_data.num_research_papers }}
-                </h3>
-            </div>
-        </div>
-        {% endif %}
     </div>
-</div>
-{% endblock %}
+{% endblock content %}

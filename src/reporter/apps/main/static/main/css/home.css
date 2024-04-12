@@ -80,6 +80,14 @@
     border-bottom: 1px solid black;
 }
 
+.home-info {
+    padding-bottom: 180px;
+}
+
+.home-info-text {
+    margin: 0;
+}
+
 .logo {
     width: 48px;
     height: 48px;

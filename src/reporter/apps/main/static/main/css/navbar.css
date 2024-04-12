@@ -1,0 +1,115 @@
+.navbar {
+    display: flex;
+    background-color: black;
+    color: white;
+    height: 100%;
+    width: 17%;
+    flex-direction: column;
+    min-width: 240px;
+}
+
+.title {
+    padding-left: 8px;
+}
+
+.app-logo {
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    padding-top: 16px;
+    padding-left: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.nav-item,
+a {
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    padding-top: 16px;
+    letter-spacing: 0.55px;
+    display: flex;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 100%;
+    flex-direction: column;
+}
+
+.auth-user {
+    font-family: "Montserrat", sans-serif;
+    font-size: 16px;
+    display: flex;
+    flex-direction: row;
+    margin-top: auto;
+    padding-bottom: 24px;
+    align-items: center;
+    padding-left: 16px;
+    cursor: pointer;
+    letter-spacing: 0.55px;
+    box-sizing: border-box;
+    transition: border 0.125s ease-in-out 10ms;
+}
+
+.section-title {
+    transition: border 0.125s ease-in-out 10ms;
+    padding: 16px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+}
+
+.section-title:hover,
+.section-title:active,
+.auth-user:hover {
+    border-bottom: 2px solid #d5b57c;
+}
+
+.dropdown-item {
+    transition: border 0.125s ease-in-out 10ms;
+    padding: 16px;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active {
+    border-bottom: 2px solid #d5b57c;
+}
+
+.dropdown-menu {
+    margin-left: 32px;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+}
+
+.logout {
+    display: flex;
+    flex-direction: row;
+    align-items: center
+}
+
+.logout-icon {
+    width: 24px;
+    height: 24px;
+    padding-left: 8px;
+}
+
+.user {
+    font-size: 16px;
+}
+
+a,
+u {
+    color: inherit;
+    text-decoration: none;
+}
+
+.chevron-open {
+    transform: rotate(90deg);
+}
+
+.default-closed {
+    display: none;
+}

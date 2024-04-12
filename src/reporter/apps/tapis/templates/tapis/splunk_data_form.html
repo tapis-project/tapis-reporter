@@ -1,44 +1,44 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}">
-<div class="main">
-    <div class="header">
-        <h1>
-            Query Splunk
-        </h1>
-    </div>
-    <div class="content">
-        <div class="form-container">
-            <form class="styled-form" method="POST" id="post-form">{% csrf_token %}
-                <h3 class="form-title">
-                    Enter Splunk Filter Parameters
-                </h3>
-                <fieldset class="form-field">
-                    <label class="form-label" for="tenant">Tenant</label>
-                    <input type="text" id="tenant" name="tenant" placeholder="Tenant">
-                </fieldset>
-                <fieldset class="form-field">
-                    <label class="form-label" for="service">Service</label>
-                    <input type="text" id="service" name="service" placeholder="Service">
-                </fieldset>
-                <fieldset class="form-field">
-                    <label class="form-label" for="start_date">Start Date</label>
-                    <input type="date" id="start_date" name="start_date">
-                </fieldset>
-                <fieldset class="form-field">
-                    <label class="form-label" for="end_date">End Date</label>
-                    <input type="date" id="end_date" name="end_date">
-                </fieldset>
-
-                <div class="flex-row form-group">
-                    {% comment %} <button type="submit" class="btn" name="submit_form">Get Log Data</button> {% endcomment %}
-                    <button type="submit" class="btn" name="raw_tapis">View Raw Data</button>
-                </div>
-            </form>
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}">
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/form.css' %}">
+    <div class="main">
+        <div class="header">
+            <h1>Query Splunk</h1>
+        </div>
+        <div class="content">
+            <div class="form-container">
+                <form class="styled-form" method="post" id="post-form">
+                    {% csrf_token %}
+                    <h3 class="form-title">Enter Splunk Filter Parameters</h3>
+                    <fieldset class="form-field">
+                        <label class="form-label" for="tenant">Tenant</label>
+                        <input type="text" id="tenant" name="tenant" placeholder="Tenant">
+                    </fieldset>
+                    <fieldset class="form-field">
+                        <label class="form-label" for="service">Service</label>
+                        <input type="text" id="service" name="service" placeholder="Service">
+                    </fieldset>
+                    <fieldset class="form-field">
+                        <label class="form-label" for="start_date">Start Date</label>
+                        <input type="date" id="start_date" name="start_date">
+                    </fieldset>
+                    <fieldset class="form-field">
+                        <label class="form-label" for="end_date">End Date</label>
+                        <input type="date" id="end_date" name="end_date">
+                    </fieldset>
+                    <div class="flex-row form-group">
+                        {% comment %} <button type="submit" class="btn" name="submit_form">Get Log Data</button> {% endcomment %}
+                        <button type="submit" class="btn" name="raw_tapis">View Raw Data</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-{% endblock %}
+{% endblock content %}

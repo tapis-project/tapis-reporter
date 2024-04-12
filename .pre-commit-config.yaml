@@ -24,3 +24,9 @@ repos:
     hooks:
       - id: flake8
         language_version: python3.10
+
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.32.0
+    hooks:
+      - id: djlint-reformat-django
+      - id: djlint-django

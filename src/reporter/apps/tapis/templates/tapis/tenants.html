@@ -1,63 +1,53 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/filter.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}"/>
-<div class="main">
-    <div class="header">
-        <h1>Tenants Data</h1>
-    </div>
-    <div class="content">
-        {% comment %} <h4>There are currently {{ tenant_count }} tenants</h4> {% endcomment %}
-
-        <table class="data-table" id="tenants">
-            <thead>
-                <tr>
-                    <th>Tenant</th>
-                    <th>Site</th>
-                    <th>Description</th>
-                    <th>Owner Name</th>
-                    <th>Owner Email</th>
-                    <th>Institution</th>
-                    <th>Date Created</th>
-                    <th>Last Updated</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tenant in tenants %}
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/table.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/filter.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/form.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>Tenants Data</h1>
+        </div>
+        <div class="content">
+            {% comment %} <h4>There are currently {{ tenant_count }} tenants</h4> {% endcomment %}
+            <table class="data-table" id="tenants">
+                <thead>
                     <tr>
-                        <td>
-                            {{ tenant.tenant_id }}
-                        </td>
-                        <td>
-                            {{ tenant.site_id }}
-                        </td>
-                        <td>
-                            {{ tenant.description }}
-                        </td>
-                        <td>
-                            {{ tenant.name }}
-                        </td>
-                        <td>
-                            {{ tenant.email }}
-                        </td>
-                        <td>
-                            {{ tenant.institution }}
-                        </td>
-                        <td>
-                            {{ tenant.date_created }}
-                        </td>
-                        <td>
-                            {{ tenant.last_updated }}
-                        </td>
+                        <th>Tenant</th>
+                        <th>Site</th>
+                        <th>Description</th>
+                        <th>Owner Name</th>
+                        <th>Owner Email</th>
+                        <th>Institution</th>
+                        <th>Date Created</th>
+                        <th>Last Updated</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for tenant in tenants %}
+                        <tr>
+                            <td>{{ tenant.tenant_id }}</td>
+                            <td>{{ tenant.site_id }}</td>
+                            <td>{{ tenant.description }}</td>
+                            <td>{{ tenant.name }}</td>
+                            <td>{{ tenant.email }}</td>
+                            <td>{{ tenant.institution }}</td>
+                            <td>{{ tenant.date_created }}</td>
+                            <td>{{ tenant.last_updated }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-{% endblock %}
-</body>
+{% endblock content %}

@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{% endblock %}
+{% block title %}
+{% endblock title %}
 {% block head_extra %}
-{% endblock %}
+{% endblock head_extra %}
 {% block styles %}
-{% endblock %}
+{% endblock styles %}
 {% block content %}
-  <h3>
-    You must <a href="{% url 'auth:tapis_oauth' %}">
-      log in
-    </a> as an administrative user to view the CIC Reporter
-  </h3>
-{% endblock %}
+    <h3>
+        You must <a href="{% url 'auth:tapis_oauth' %}">log in</a> as an administrative user to view the CIC Reporter
+    </h3>
+{% endblock content %}

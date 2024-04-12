@@ -144,3 +144,13 @@ p {
     font-size: 20px;
     font-weight: 600;
 }
+
+.data-button {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 24px;
+}
+
+.chart {
+    width: 75%;
+}

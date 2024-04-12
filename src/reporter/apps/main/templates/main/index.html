@@ -1,72 +1,78 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/home.css' %}"/>
-<script
-    src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
-    type="module">
-</script>
-<div class="main">
-    <div class="header home-header">
-        <h1>
-            Hello, {{ request.user.username }}
-        </h1>
-    </div>
-    <div class="content">
-        <div class="flex-row home">
-            <div class="flex-column home-section"
-                style="padding-bottom: 180px;">
-                <h1 class="home-title">
-                    CIC Reporter & Analytics
-                </h1>
-                <p style="margin: 0;">
-                    View the Quick Links below or browse the nav bar to
-                    get started
-                </p>
-                <div class="flex-row quick-links">
-                    <a class="quick-link" href="{% url 'tapis:index' %}">
-                        <div class="quick-link-logo">
-                            <img src="{% static 'main/images/datatable.svg' %}"
-                                class="logo">
-                        </div>
-                        <div class="quick-link-text">
-                            <p class="quick-title">Tapis</p>
-                            <p class="quick-desc">View how Tapis is
-                                utilized on a per tenant basis</p>
-                        </div>
-                    </a>
-                    <a class="quick-link" href="{% url 'jupyterhub:index' %}">
-                        <div class="quick-link-logo">
-                            <img src="{% static 'main/images/datatable.svg' %}"
-                                class="logo">
-                        </div>
-                        <div class="quick-link-text">
-                            <p class="quick-title">JupyterHub</p>
-                            <p class="quick-desc">View how
-                                JupyterHub is
-                                utilized on a per tenant basis</p>
-                        </div>
-                    </a>
-                    <a class="quick-link" href="#">
-                        <div class="quick-link-logo">
-                            <img src="{% static 'main/images/exclam.svg' %}"
-                                class="logo">
-                        </div>
-                        <div class="quick-link-text">
-                            <p class="quick-title">Hazmapper</p>
-                            <p class="quick-desc">Coming Soon</p>
-                        </div>
-                    </a>
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/home.css' %}" />
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+            type="module"></script>
+    <div class="main">
+        <div class="header home-header">
+            <h1>Hello, {{ request.user.username }}</h1>
+        </div>
+        <div class="content">
+            <div class="flex-row home">
+                <div class="flex-column home-section home-info">
+                    <h1 class="home-title">CIC Reporter & Analytics</h1>
+                    <p class="home-info-text">
+                        View the Quick Links below or browse the nav bar to
+                        get started
+                    </p>
+                    <div class="flex-row quick-links">
+                        <a class="quick-link" href="{% url 'tapis:index' %}">
+                            <div class="quick-link-logo">
+                                <img src="{% static 'main/images/datatable.svg' %}"
+                                     width="48px"
+                                     height="48px"
+                                     alt="tapis-logo"
+                                     class="logo">
+                            </div>
+                            <div class="quick-link-text">
+                                <p class="quick-title">Tapis</p>
+                                <p class="quick-desc">
+                                    View how Tapis is
+                                    utilized on a per tenant basis
+                                </p>
+                            </div>
+                        </a>
+                        <a class="quick-link" href="{% url 'jupyterhub:index' %}">
+                            <div class="quick-link-logo">
+                                <img src="{% static 'main/images/datatable.svg' %}"
+                                     width="48px"
+                                     height="48px"
+                                     alt="jupyterhub-logo"
+                                     class="logo">
+                            </div>
+                            <div class="quick-link-text">
+                                <p class="quick-title">JupyterHub</p>
+                                <p class="quick-desc">
+                                    View how
+                                    JupyterHub is
+                                    utilized on a per tenant basis
+                                </p>
+                            </div>
+                        </a>
+                        <a class="quick-link" href="#">
+                            <div class="quick-link-logo">
+                                <img src="{% static 'main/images/exclam.svg' %}"
+                                     width="48px"
+                                     height="48px"
+                                     alt="hazmapper-logo"
+                                     class="logo">
+                            </div>
+                            <div class="quick-link-text">
+                                <p class="quick-title">Hazmapper</p>
+                                <p class="quick-desc">Coming Soon</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
+                <dotlottie-player class="home-section" src="https://lottie.host/824407a1-13fa-42a8-8949-1df4c0e5ed2f/KHtEFe4wgx.json" background="transparent" speed="1" style="width: 600px; height: 600px; " loop autoplay></dotlottie-player>
             </div>
-            <dotlottie-player
-                class="home-section"
-                src="https://lottie.host/824407a1-13fa-42a8-8949-1df4c0e5ed2f/KHtEFe4wgx.json"
-                background="transparent" speed="1"
-                style="width: 600px; height: 600px; " loop autoplay></dotlottie-player>
         </div>
     </div>
-</div>
-{% endblock %}
+{% endblock content %}

@@ -1,68 +1,64 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/filter.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/form.css' %}"/>
-<div class="main">
-    <div class="header">
-        <h1>
-            Gateways Data
-        </h1>
-        <form class="filter-row" method="POST" id="gateways-form">{% csrf_token %}
-            <div class="filter">
-                <label class="filter-label" for="tenant">
-                    Tenant:
-                </label>
-                <select name="tenant" id="tenant">
-                    <option value="" disabled selected>Filter tenant</option>
-                    {% for tenant in tenants %}
-                        <option value={{ tenant }}>{{ tenant }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn filter-button" name="submit">Submit</button>
-        </form>
-    </div>
-    <div class="content">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Tenant</th>
-                    <th>Name</th>
-                    <th>URLs</th>
-                    <th>Year</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for gateway in gateways_data %}
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/table.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/filter.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/form.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>Gateways Data</h1>
+            <form class="filter-row" method="post" id="gateways-form">
+                {% csrf_token %}
+                <div class="filter">
+                    <label class="filter-label" for="tenant">Tenant:</label>
+                    <select name="tenant" id="tenant">
+                        <option value="" disabled selected>Filter tenant</option>
+                        {% for tenant in tenants %}
+                            <option value={{ tenant }}>{{ tenant }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn filter-button" name="submit">Submit</button>
+            </form>
+        </div>
+        <div class="content">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <td>
-                            {{ gateway.tenant }}
-                        </td>
-                        <td>
-                            {{ gateway.name }}
-                        </td>
-                        <td>
-                            {{ gateway.urls }}
-                        </td>
-                        <td>
-                            {{ gateway.release_year }}
-                        </td>
+                        <th>Tenant</th>
+                        <th>Name</th>
+                        <th>URLs</th>
+                        <th>Year</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% if not tapis_papers %}
-            <div class="app-message">
-                <h3>
-                    No gateways
-                </h3>
-            </div>
-        {% endif %}
-        {% comment %} <button type="submit" class="btn add-button" name="add-gateway" id="add-gateway">+ Add Gateway</button> {% endcomment %}
+                </thead>
+                <tbody>
+                    {% for gateway in gateways_data %}
+                        <tr>
+                            <td>{{ gateway.tenant }}</td>
+                            <td>{{ gateway.name }}</td>
+                            <td>{{ gateway.urls }}</td>
+                            <td>{{ gateway.release_year }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not tapis_papers %}
+                <div class="app-message">
+                    <h3>No gateways</h3>
+                </div>
+            {% endif %}
+            {% comment %} <button type="submit" class="btn add-button" name="add-gateway" id="add-gateway">+ Add Gateway</button> {% endcomment %}
+        </div>
     </div>
-</div>
-{% endblock %}
+{% endblock content %}

@@ -1,44 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static %}
-<!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/main.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'main/css/table.css' %}" />
-<div class="main">
-    <div class="header">
-        <h1>
-            Tapis Streams Data
-        </h1>
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/table.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>Tapis Streams Data</h1>
+        </div>
+        <div class="content">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tenant</th>
+                        <th>Streaming Data Collected (TB)</th>
+                        <th>Number of Data Streams</th>
+                        <th>Number of Archives</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stream_data in streams_data %}
+                        <tr>
+                            <td>{{ stream_data.tenant }}</td>
+                            <td>{{ stream_data.amount_data_streamed }} TB</td>
+                            <td>{{ stream_data.number_data_streams }}</td>
+                            <td>{{ stream_data.number_archives_registered }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="content">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Tenant</th>
-                    <th>Streaming Data Collected (TB)</th>
-                    <th>Number of Data Streams</th>
-                    <th>Number of Archives</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stream_data in streams_data %}
-                <tr>
-                    <td>
-                        {{ stream_data.tenant }}
-                    </td>
-                    <td>
-                        {{ stream_data.amount_data_streamed }} TB
-                    </td>
-                    <td>
-                        {{ stream_data.number_data_streams }}
-                    </td>
-                    <td>
-                        {{ stream_data.number_archives_registered }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endblock %}
+{% endblock content %}
