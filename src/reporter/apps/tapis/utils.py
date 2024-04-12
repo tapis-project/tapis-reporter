@@ -8,7 +8,6 @@ from email.mime.text import MIMEText
 import django
 import github
 from django.conf import settings
-from tabulate import tabulate
 
 logger = logging.getLogger(__name__)
 

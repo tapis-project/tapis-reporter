@@ -11,8 +11,8 @@ from ..jupyterhub.utils import build_jupyterhub_email
 from ..tapis.utils import build_tapis_email
 
 
-def call_service_email_builder(service, data):
-    match service.name:
+def call_service_email_builder(service: str, data: dict) -> str:
+    match service:
         case "jupyterhub":
             message = build_jupyterhub_email(data)
             return message

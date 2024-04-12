@@ -68,8 +68,6 @@ def index(request):
         else:
             try:
                 tenant = request.POST.get("tenant")
-                start_date = request.POST.get("start_date")
-                end_date = request.POST.get("end_date")
 
                 overview_data = generate_overview_data(tenant=tenant)
                 context["auth_data"] = overview_data["auth_data"]
@@ -645,7 +643,6 @@ def build_tenant_model(tenant_info, owner_info):
 def get_streams_data(tenant: str = ""):
     # Might have to update to use different tapis tokens dependent on tenant
     logger.debug("get streams data")
-    tenant = {"key_name": "TAPIS_SERVICE_TOKEN"}
     headers = {"x-tapis-token": settings.TAPIS_SERVICE_TOKEN}
 
     streams = requests.get("https://tacc.tapis.io/v3/streams/metrics", headers=headers)

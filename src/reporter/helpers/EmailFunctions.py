@@ -32,7 +32,7 @@ def generate_email_data(service, tenant, week_begin, week_end) -> dict:
     proper_name = tenant.proper_name
     tenant_recipients = get_tenant_recipients(tenant)
 
-    match service.name:
+    match service:
         case "jupyterhub":
             accessed_files = FileLog.objects.filter(
                 tenant=tenant.name, date__range=(week_begin, week_end)
@@ -52,7 +52,7 @@ def generate_email_data(service, tenant, week_begin, week_end) -> dict:
                 "plot_path": plot_path,
                 "jupyterhub_stats": jupyterhub_stats,
                 # 'old_servers': old_servers,
-                "service": service.name,
+                "service": service,
             }
             return data
         case "tapis":
@@ -65,7 +65,7 @@ def generate_email_data(service, tenant, week_begin, week_end) -> dict:
 
 
 def get_directories_and_counts(service, tenant, accessed_files):
-    match service.name:
+    match service:
         case "jupyterhub":
             filepaths = list(accessed_files)
             dir_counts = {}
@@ -137,7 +137,7 @@ def create_graph(directories, counts) -> str:
 
 
 def generate_stats(service, tenant, accessed_files, week_begin, week_end):
-    match service.name:
+    match service:
         case "jupyterhub":
             created_files = accessed_files.filter(action="created")
             opened_files = accessed_files.filter(action="opened")

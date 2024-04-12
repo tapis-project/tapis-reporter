@@ -12,7 +12,7 @@ os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
 from ..apps.helpers.utils import call_service_email_builder
-from . import generate_email_data
+from .EmailFunctions import generate_email_data
 
 
 class EmailHandler:

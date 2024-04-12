@@ -121,8 +121,6 @@ class TapisUsage:
                                         + "."
                                         + dt_microseconds[0:3]
                                     )
-                                    datetime_object = datetime.fromisoformat(dt_string)
-                                    timestamp = datetime_object.timestamp()
 
                                     service = data_dict["path"].split("/")[2]
                                     parsed_service = urlparse(service)

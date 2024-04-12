@@ -1,5 +1,4 @@
 import argparse
-import datetime as date
 import logging
 import os
 import sys
@@ -39,5 +38,5 @@ if args.tenant not in service_tenants:
 tenant = Tenant.objects.get(pk=args.tenant)
 
 if __name__ == "__main__":
-    email_handler = EmailHandler(service, tenant)
+    email_handler = EmailHandler(service.name, tenant)
     email_handler.email_service()

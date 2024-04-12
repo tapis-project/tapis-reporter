@@ -41,7 +41,6 @@ def tapis_oauth(request):
     """First step for Tapis OAuth workflow."""
     tenant_base_url = getattr(settings, "TAPIS_API_URL")
     client_id = getattr(settings, "TAPIS_CLIENT_ID")
-    client_key = getattr(settings, "TAPIS_CLIENT_KEY")
 
     session = request.session
     session["auth_state"] = _get_auth_state()
@@ -139,7 +138,6 @@ def tapis_oauth_callback(request):
         next_uri = request.session.pop("next")
         return HttpResponseRedirect(next_uri)
     else:
-        login_url = getattr(settings, "LOGIN_REDIRECT_URL")
         return HttpResponseRedirect(reverse("main:index"))
 
 
