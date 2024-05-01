@@ -1,6 +1,7 @@
 # Reporter
-![live-docs](https://img.shields.io/badge/live--docs-in_development-blue)
-![docs](https://img.shields.io/badge/docs-in_development-blue)
+![live-docs](https://img.shields.io/badge/live--docs-in_development-blue)(https://github.com/tapis-project/tapis-reporter/)
+![docs](https://img.shields.io/badge/docs-in_development-blue)(https://github.com/tapis-project/tapis-reporter/)
+
 Application for data aggregation, visualization, and reporting of different services.
 
 ## Development
