@@ -32,6 +32,9 @@ class Training(models.Model):
         unique_together = ["name", "forum", "date", "num_attendees"]
 
 
+# class Gateway(models.Model):
+
+
 # Holds data pertaining to db data for all of tapis
 class TapisInfo(models.Model):
     tenant = models.CharField(max_length=255, primary_key=True)

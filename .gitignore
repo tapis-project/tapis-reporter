@@ -6,3 +6,4 @@
 */**/general/
 .vscode/
 admin/
+**/migrations

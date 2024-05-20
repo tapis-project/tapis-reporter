@@ -12,11 +12,19 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import logging
 import os
+import sys
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
 
 logger = logging.getLogger(__name__)
+
+if len(sys.argv) >= 2 and sys.argv[1] == "runserver":
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    DEBUG = True
+    NAME = os.environ.get("SQLITE_PATH")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -69,11 +77,6 @@ SERP_API_KEY = os.environ.get("SERP_API_KEY", None)
 if not SERP_API_KEY:
     logger.warning("Missing SERP_API_KEY environment variable")
 
-# API URL for JupyterHub
-JUPYTERHUB_SERVER = os.environ.get("JUPYTERHUB_SERVER", None)
-if not JUPYTERHUB_SERVER:
-    logger.warning("Missing JUPYTERHUB_API environment variable")
-
 # TAPIS API for Metadata
 TAPIS_API_URL = os.environ.get("TAPIS_API_URL", None)
 TAPIS_API = os.environ.get("TAPIS_API", None)
@@ -110,7 +113,7 @@ SLACK_CHANNEL = os.environ.get("SLACK_CHANNEL", None)
 SLACK_USER = os.environ.get("SLACK_USER", None)
 SLACK_URL = os.environ.get("SLACK_URL", None)
 if not SLACK_CHANNEL or not SLACK_USER or not SLACK_URL:
-    logger.warning("Miss SLACK_CHANNEL or SLACK_USER or SLACK_URL")
+    logger.warning("Missing SLACK_CHANNEL or SLACK_USER or SLACK_URL")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -187,7 +190,7 @@ WSGI_APPLICATION = "reporter.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "/app/data/db.sqlite3",
+        "NAME": "/app/data/db.sqlite3" if not DEBUG else NAME,
     }
 }
 
