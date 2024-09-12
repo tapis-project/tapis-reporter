@@ -34,6 +34,7 @@
         <div class="dropdown-menu default-closed" id="services-dropdown">
             <a class="dropdown-item" href="{% url 'tapis:index' %}">Tapis</a>
             <a class="dropdown-item" href="{% url 'jupyterhub:index' %}">JupyterHub</a>
+            <a class="dropdown-item" href="{% url 'hazmapper:index' %}">Hazmapper</a>
         </div>
     </div>
     {% if request.path != '/' %}
@@ -77,6 +78,10 @@
                     <a class="dropdown-item" href="{% url 'tapis:splunk' %}">Splunk</a>
                     <a class="dropdown-item" href="{% url 'tapis:tenants' %}">Tenants</a>
                     <a class="dropdown-item" href="{% url 'tapis:github' %}">GitHub</a>
+                </div>
+            {% elif "hazmapper" in request.path %}
+                <div class="dropdown-menu" id="raw-data-dropdown">
+                    <a class="dropdown-item" href="{% url 'hazmapper:data' %}">Splunk</a>
                 </div>
             {% endif %}
         </div>

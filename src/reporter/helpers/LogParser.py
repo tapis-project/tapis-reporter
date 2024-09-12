@@ -8,6 +8,7 @@ import django
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
+from ..parsers.HazmapperUsage import HazmapperUsage
 from ..parsers.JupyterHubUsage import JupyterHubUsage
 from ..parsers.TapisUsage import TapisUsage
 
@@ -44,6 +45,8 @@ class LogParser:
                 files_to_parse = self.get_files_to_parse()
                 self.parse_files(files_to_parse)
             case "tapis":
+                self.parse_splunk()
+            case "hazmapper":
                 self.parse_splunk()
             case _:
                 return
@@ -122,6 +125,9 @@ class LogParser:
         match self.service:
             case "tapis":
                 parser = TapisUsage()
+                parser.query_splunk(self.args)
+            case "hazmapper":
+                parser = HazmapperUsage()
                 parser.query_splunk(self.args)
             case _:
                 return

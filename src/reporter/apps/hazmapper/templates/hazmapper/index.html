@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>Hazmapper Overview</h1>
+        </div>
+        <div class="content">
+            {% if map_data %}
+                <h3 class="dashboard-section-title">Maps</h3>
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Number of Times Hazmapper was Called</p>
+                        <h3>{{ map_data.num_maps_accessed }}</h3>
+                    </div>
+                    <div class="data">
+                        <p>Number of Maps Accessed</p>
+                        <h3>{{ map_data.num_maps }}</h3>
+                    </div>
+                </div>
+            {% endif %}
+            {% if user_data %}
+                <h3 class="dashboard-section-title">Users</h3>
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Total Number of Users</p>
+                        <h3>{{ user_data }}</h3>
+                    </div>
+                </div>
+            {% endif %}
+            {% if project_data %}
+                <h3 class="dashboard-section-title">Projects</h3>
+                <div class="grid-container">
+                    <div class="data">
+                        <p>Total Number of Projects</p>
+                        <h3>{{ project_data }}</h3>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

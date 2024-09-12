@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/table.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/filter.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/form.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>Hazmapper Data</h1>
+        </div>
+        <div class="content">
+            <table class="data-table" id="data">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Application</th>
+                        <th>Map</th>
+                        <th>Project</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Public</th>
+                        <th>Published</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in hazmapper_data %}
+                        <tr>
+                            <td>{{ entry.user }}</td>
+                            <td>{{ entry.application }}</td>
+                            <td>{{ entry.map }}</td>
+                            <td>{{ entry.project }}</td>
+                            <td>{{ entry.date }}</td>
+                            <td>{{ entry.time }}</td>
+                            <td>{{ entry.is_public }}</td>
+                            <td>{{ entry.published }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
