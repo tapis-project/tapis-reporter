@@ -115,6 +115,12 @@ SLACK_URL = os.environ.get("SLACK_URL", None)
 if not SLACK_CHANNEL or not SLACK_USER or not SLACK_URL:
     logger.warning("Missing SLACK_CHANNEL or SLACK_USER or SLACK_URL")
 
+ELASTIC_HOST = os.environ.get("ELASTIC_HOST", None)
+ELASTIC_USR = os.environ.get("ELASTIC_USR", None)
+ELASTIC_PWD = os.environ.get("ELASTIC_PWD", None)
+if not ELASTIC_HOST or not ELASTIC_USR or not ELASTIC_PWD:
+    logger.warning("Missing ELASTIC_HOST or ELASTIC_USR or ELASTIC_PWD")
+
 ALLOWED_HOSTS = ["*"]
 
 # Setup support for proxy headers
@@ -149,7 +155,7 @@ INSTALLED_APPS = [
     "reporter.apps.tapisauth",
     "reporter.apps.jupyterhub",
     "reporter.apps.tapis",
-    # "reporter.apps.services.hazmapper",
+    "reporter.apps.hazmapper",
 ]
 
 MIDDLEWARE = [

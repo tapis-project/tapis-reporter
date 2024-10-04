@@ -4,7 +4,6 @@ import os
 import re
 from datetime import datetime, time, timedelta
 from time import sleep
-from urllib.parse import urlparse, urlunparse
 
 import django
 import requests
@@ -15,7 +14,7 @@ from django.conf import settings
 os.environ["DJANGO_SETTINGS_MODULE"] = "reporter.settings"
 django.setup()
 
-from ..apps.tapis.models import TenantServiceUsage
+from ..apps.tapis.models import TapisCallData, TenantServiceUsage
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +47,8 @@ class TapisUsage:
                         f"Error querying splunk, start date {start_date} later than end date {end_date}"
                     )
                     return
+                end_date = args.end_date
+            start_date = args.start_date
 
         print(start_date, end_date)
         temp_date = start_date
@@ -122,11 +123,16 @@ class TapisUsage:
                                         + dt_microseconds[0:3]
                                     )
 
-                                    service = data_dict["path"].split("/")[2]
-                                    parsed_service = urlparse(service)
-                                    service = urlunparse(
-                                        parsed_service._replace(query="")
+                                    service = re.search(
+                                        r"\/v3\/([^\/\W]+)", data_dict["path"]
                                     )
+
+                                    service = service.group(1)
+                                    # parsed_service = urlparse(service)
+                                    # print(service, parsed_service)
+                                    # service = urlunparse(
+                                    #     parsed_service._replace(query="")
+                                    # )
 
                                     tenant = data_dict["tenant"]
 
@@ -159,6 +165,15 @@ class TapisUsage:
 
                 tenants_and_services = {}
 
+        # Need to save this somewhere else
+        if args.start_date is None:
+            TapisCallData.objects.create(
+                date=start_date,
+                num_calls=total_result_count,
+                tenant=tenant,
+                service=service,
+            )
+
         saved = False
         try:
             TenantServiceUsage.objects.bulk_create(bulk_splunk_data)
@@ -169,7 +184,7 @@ class TapisUsage:
         if args.start_date is not None:
             message = f"Finished parsing splunk logs from {start_date} - {end_date}"
         else:
-            message = f"Got {total_result_count} TAPIS NGNINX logs from Splunk API call for {start_date} - {end_date}"
+            message = f"Got {total_result_count} TAPIS NGINX logs from Splunk API call for {start_date} - {end_date}"
 
         if not saved:
             message += " -- Got error saving info!"

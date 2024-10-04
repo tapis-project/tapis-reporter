@@ -529,18 +529,22 @@ def tapis(request):
 def splunk(request):
     if request.method == "GET":
         logger.debug(f"In {request.method} method of Splunk")
-        template = loader.get_template("tapis/splunk_data_form.html")
+        template = loader.get_template("tapis/splunk.html")
 
         context = {"error": False}
+
+        context["tenants"] = TenantServiceUsage.objects.values_list(
+            "tenant", flat=True
+        ).distinct()
 
         return HttpResponse(template.render(context, request))
 
     elif request.method == "POST":
         logger.debug(f"In {request.method} method of Splunk")
 
-        template = loader.get_template("tapis/splunk_data.html")
-        if "raw_tapis" in request.POST:
-            template = loader.get_template("tapis/raw_splunk_data.html")
+        template = loader.get_template("tapis/splunk.html")
+        # if "raw_tapis" in request.POST:
+        #     template = loader.get_template("tapis/raw_splunk_data.html")
 
         context = {"error": False}
 
@@ -551,44 +555,51 @@ def splunk(request):
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
 
-        logger.debug(start_date)
-        logger.debug(end_date)
-
         # try:
-        tapis_data = load_tapis_splunk_data(tenant, service, start_date, end_date)
+        tapis_data = generate_tapis_data(tenant, service, start_date, end_date)
+        # master_data = generate_master_data(tapis_data)
+        legend = generate_legend(tenant, service, tapis_data)
+        series = generate_series(tenant, service, tapis_data)
+        date_times = generate_date_times(tapis_data)
 
-        logger.debug(tapis_data)
+        logger.debug(f"LEGEND: {legend}\n\n")
+        logger.debug(f"SERIES: {series}\n\n")
+        logger.debug(f"DATE TIMES: {date_times}\n\n")
+
+        context["tapis_legend"] = legend
+        context["tapis_series"] = series
+        context["date_times"] = date_times
         context["tapis_data"] = tapis_data
-        context["tenant"] = tenant.upper()
-        # if "raw_tapis" in request.POST:
-        #     template = loader.get_template("tapis/raw_splunk_data.html")
-        #     return HttpResponse(template.render(context, request))
-        # except Exception as e:
-        #     logger.debug(f"Error getting tapis data: {e}")
-        #     return redirect("tapis:splunk")
 
-        service_counts = {}
-        labels = []
-        data = []
+        if tapis_data:
+            context["charts"] = True
 
-        for td in tapis_data:
-            service_counts[td["service"]] = (
-                service_counts.get(td["service"], 0) + td["count"]
-            )
+        context["tenants"] = TenantServiceUsage.objects.values_list(
+            "tenant", flat=True
+        ).distinct()
 
-        for key, value in service_counts.items():
-            labels.append(key)
-            data.append(value)
+        # service_counts = {}
+        # labels = []
+        # data = []
 
-        labels.append(td["service"])
-        data.append(td["count"])
+        # for td in tapis_data:
+        #     service_counts[td["service"]] = (
+        #         service_counts.get(td["service"], 0) + td["count"]
+        #     )
 
-        background_colors = get_background_colors(data)
+        # for key, value in service_counts.items():
+        #     labels.append(key)
+        #     data.append(value)
 
-        context["tenant"] = tenant.upper()
-        context["labels"] = labels
-        context["data"] = data
-        context["backgroundColors"] = background_colors
+        # labels.append(td["service"])
+        # data.append(td["count"])
+
+        # background_colors = get_background_colors(data)
+
+        # context["tenant"] = tenant.upper()
+        # context["labels"] = labels
+        # context["data"] = data
+        # context["backgroundColors"] = background_colors
 
         return HttpResponse(template.render(context, request))
 
@@ -723,7 +734,7 @@ def get_jobs_data(tenant: str = ""):
     return jobs_data
 
 
-def load_tapis_splunk_data(
+def generate_tapis_data(
     tenant, service, start_date, end_date, start_time="", end_time=""
 ):
     logger.info("in load tapis splunk data for html")
@@ -731,8 +742,6 @@ def load_tapis_splunk_data(
 
     if tenant and tenant != "null" and tenant != "":
         query &= Q(tenant=tenant)
-    else:
-        return None
 
     if service and service != "null" and service != "":
         query &= Q(service=service)
@@ -743,21 +752,28 @@ def load_tapis_splunk_data(
     if end_time and end_time != "null" and end_time != "":
         query &= Q(end_time__lte=end_time)
 
-    query &= Q(log_date__gte=start_date)
-    query &= Q(log_date__lte=end_date)
+    if start_date and start_date != "null" and start_date != "":
+        query &= Q(log_date__gte=start_date)
 
-    tenant_service_qs = TenantServiceUsage.objects.filter(query)
+    if end_date and end_date != "null" and end_date != "":
+        query &= Q(log_date__lte=end_date)
+
+    tenant_service_qs = TenantServiceUsage.objects.filter(query).order_by(
+        "log_date", "start_time"
+    )
 
     logger.debug(tenant_service_qs)
 
     tapis_data = []
 
     for tenant_service_data in tenant_service_qs:
+        # if not tenant or tenant == "null" or tenant == "":
         tapis_data.append(
             {
                 "date": tenant_service_data.log_date,
                 "start_time": tenant_service_data.start_time,
                 "end_time": tenant_service_data.end_time,
+                "tenant": tenant_service_data.tenant,
                 "service": tenant_service_data.service,
                 "count": tenant_service_data.log_count,
             }
@@ -765,6 +781,157 @@ def load_tapis_splunk_data(
 
     logger.debug(tapis_data)
     return tapis_data
+
+
+def generate_master_data(tapis_data):
+    master_data = {}
+
+    for t in tapis_data:
+        date = str(t["date"])
+        time = t["start_time"]
+        dt = f"{date}:{time}"
+        if dt not in master_data:
+            master_data[dt] = {}
+
+        tenant = t["tenant"]
+        service = t["service"]
+
+        if tenant not in master_data[dt]:
+            master_data[dt][tenant] = {}
+        master_data[dt][tenant][service] = t["count"]
+
+    return master_data
+
+
+def generate_legend(tenant, service, tapis_data):
+    ###
+    # if just tenant, legend = services
+    # if just service, legend = tenants
+    # if neither, legend = tenant:service
+    # if both, legend = []
+    legend = []
+
+    if tenant and tenant != "null" and tenant != "":
+        if not service or service == "":
+            legend = set(data["service"] for data in tapis_data)
+
+    if service and service != "null" and service != "":
+        if not tenant or tenant == "":
+            legend = set(data["tenant"] for data in tapis_data)
+
+    if (not service or service == "") and (not tenant or tenant == ""):
+        legend = set(f"{data['service']}:{data['tenant']}" for data in tapis_data)
+
+    return list(legend)
+
+
+def generate_series(tenant, service, tapis_data):
+    #######
+    # If tenant, name = service, data = [counts]
+    # If service, name = tenant, data = [counts_per_tenant]
+    # If both, name = None (null)
+    # If neither, name = tenant:service, data [counts_per_service_per_tenant]
+    series = []
+
+    if tenant and tenant != "null" and tenant != "":
+        if not service or service == "":
+            services = set(data["service"] for data in tapis_data)
+            services = list(services)
+
+            for serv in services:
+                data = []
+                datetimes = {}
+                for t in tapis_data:
+                    date = str(t["date"])
+                    time = t["start_time"]
+                    date_time = f"{date}:{time}"
+                    if date_time not in datetimes:
+                        datetimes[date_time] = True
+                    if t["service"] == serv:
+                        data.append(t["count"])
+                    else:
+                        data.append(0)
+                series.append(
+                    {
+                        "name": serv,
+                        "emphasis": {"focus": "series"},
+                        "smooth": "true",
+                        "data": data,
+                        "type": "line",
+                    }
+                )
+
+    if service and service != "null" and service != "":
+        if not tenant or tenant == "":
+            tenants = set(data["tenant"] for data in tapis_data)
+            tenants = list(tenants)
+
+            for ten in tenants:
+                data = []
+                for t in tapis_data:
+                    if t["tenant"] == ten:
+                        data.append(t["count"])
+                series.append(
+                    {
+                        "name": ten,
+                        "emphasis": {"focus": "series"},
+                        "smooth": "true",
+                        "data": data,
+                        "type": "line",
+                    }
+                )
+
+    if (not service or service == "") and (not tenant or tenant == ""):
+        tenant_serv_counts = {}
+        for t in tapis_data:
+            if t["tenant"] not in tenant_serv_counts:
+                tenant_serv_counts[t["tenant"]] = {}
+            if t["service"] not in tenant_serv_counts[t["tenant"]]:
+                tenant_serv_counts[t["tenant"]][t["service"]] = []
+            tenant_serv_counts[t["tenant"]][t["service"]].append(t["count"])
+
+        for key in tenant_serv_counts:
+            for ser in tenant_serv_counts[key]:
+                series.append(
+                    {
+                        "name": f"{key}:{ser}",
+                        "emphasis": {"focus": "series"},
+                        "smooth": "true",
+                        "data": tenant_serv_counts[key][ser],
+                        "type": "line",
+                    }
+                )
+    else:
+        if series != []:
+            tenant_serv_counts = {}
+            for t in tapis_data:
+                if t["tenant"] == tenant and t["service"] == service:
+                    series.append(
+                        {
+                            "name": "Count",
+                            "emphasis": {"focus": "series"},
+                            "smooth": "true",
+                            "data": t["count"],
+                            "type": "line",
+                        }
+                    )
+
+    return series
+
+
+def generate_date_times(tapis_data):
+    date_times = []
+    seen = {}
+
+    for t in tapis_data:
+        date = str(t["date"])
+        time = t["start_time"]
+        date_time = f"{date}:{time}"
+        if date_time not in seen:
+            seen[date_time] = True
+            date_times.append(date_time)
+
+    return date_times
 
 
 def load_tapis_papers():

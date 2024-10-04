@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    <!DOCTYPE html>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/main.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/filter.css' %}" />
+    <link rel="stylesheet"
+          type="text/css"
+          href="{% static 'main/css/chart.css' %}" />
+    <div class="main">
+        <div class="header">
+            <h1>Tapis Usage</h1>
+            <form class="filter-row" method="post">
+                {% csrf_token %}
+                <div class="filter">
+                    <label class="filter-label" for="start_date">Tenant:</label>
+                    <select name="tenant" id="tenant">
+                        <option value="" disabled selected>Filter tenant</option>
+                        {% for tenant in tenants %}
+                            <option value={{ tenant }}>{{ tenant }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter">
+                    <label class="filter-label" for="start_date">Service:</label>
+                    <input type="text" class="filter-input" name="service" placeholder="Service">
+                </div>
+                <div class="filter">
+                    <label class="filter-label" for="start_date">Start Date:</label>
+                    <input type="date" class="filter-input" name="start_date">
+                </div>
+                <div class="filter">
+                    <label class="filter-label" for="filter-input">End Date:</label>
+                    <input type="date" class="filter-input" name="end_date">
+                </div>
+                <button type="submit" class="btn filter-button">Submit</button>
+            </form>
+        </div>
+        <div class="content">
+            {% if tapis_data %}
+                <div class="chart-container">
+                    <div id="splunkChart" class="styled-chart"></div>
+                </div>
+            {% endif %}
+            {% if not charts %}
+                <div class="app-message">
+                    <h3>Please select a tenant, service, and/or date range to generate data</h3>
+                </div>
+            {% endif %}
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.7.2/echarts.min.js"></script>
+        <script>
+        var splunkChart = echarts.init(document.getElementById('splunkChart'));
+        var option = {
+            dataZoom: [
+                {
+                    id: 'dataZoomX',
+                    type: 'slider',
+                    xAxisIndex: [0],
+                    filterMode: 'filter',
+                },
+            ],
+            title: {
+                text: 'Tapis Usage'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: {{ tapis_legend|safe }}
+            },
+            grid: {
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: {{ date_times|safe }}
+            },
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: {{ tapis_series|safe }},
+            tooltip : {
+                trigger: 'axis',
+                axisPointer: {
+                    animation: true
+                },
+                formatter: function (params) {
+                    var colorSpan = color => '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + color + '"></span>';
+                    let rez = "<p class='tooltip-text'>" + params[0].axisValue + '</p>';
+                    var ordered_params = params.sort((a, b) => b.data - a.data)
+                    var total = ordered_params.reduce((total, item) => item.data + total, 0)
+
+                    var total_entry = "<p class='tooltip-text'> Total: " + total + '</p>'
+                    rez += total_entry;
+
+                    //console.log(params); //quite useful for debug
+                    ordered_params.forEach(item => {
+                        //console.log(item); //quite useful for debug
+                        var xx = "<p class='tooltip-text'>" + colorSpan(item.color) + ' ' + item.seriesName + ': ' + item.data + '</p>'
+                        rez += xx;
+                    });
+
+                    return rez;
+                }
+            }
+        };
+
+        splunkChart.setOption(option);
+        </script>
+    </div>
+{% endblock content %}

@@ -149,7 +149,14 @@ class DBParser:
     def save_jobs_data(self):
         try:
             for tenant_job_data in self.jobs_data:
-                JobsData.objects.update_or_create(**tenant_job_data)
+                JobsData.objects.update_or_create(
+                    tenant=tenant_job_data["tenant"],
+                    defaults={
+                        "avg_daily_jobs": tenant_job_data["avg_daily_jobs"],
+                        "dev_daily_jobs": tenant_job_data["dev_daily_jobs"],
+                        "total_jobs": tenant_job_data["total_jobs"],
+                    },
+                )
         except Exception as e:
             logger.error(f"Error saving JobsData: {e}")
 
@@ -181,9 +188,11 @@ class DBParser:
 
                 tenant_info, created = TapisInfo.objects.update_or_create(
                     tenant=tenant,
-                    num_tokens=int(num_tokens),
-                    num_unique_users=int(num_unique_users),
-                    num_ctr_apps=int(num_ctr_apps),
+                    defaults={
+                        "num_tokens": int(num_tokens),
+                        "num_unique_users": int(num_unique_users),
+                        "num_ctr_apps": int(num_ctr_apps),
+                    },
                 )
 
             # Will only work in updated Django
