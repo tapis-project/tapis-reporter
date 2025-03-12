@@ -1,6 +1,7 @@
 """
 Auth views.
 """
+
 import logging
 import secrets
 

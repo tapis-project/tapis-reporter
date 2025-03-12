@@ -139,9 +139,9 @@ class TapisUsage:
                                     if tenant == "www":
                                         tenant = data_dict["host"].split(".")[1]
 
-                                    tenants_and_services[
-                                        tenant
-                                    ] = tenants_and_services.get(tenant, {})
+                                    tenants_and_services[tenant] = (
+                                        tenants_and_services.get(tenant, {})
+                                    )
                                     tenants_and_services[tenant][service] = (
                                         tenants_and_services[tenant].get(service, 0) + 1
                                     )

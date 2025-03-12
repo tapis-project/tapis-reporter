@@ -19,9 +19,9 @@ def build_jupyterhub_email(data) -> MIMEMultipart:
     week_end = data["week_end"]
 
     message = MIMEMultipart()
-    message[
-        "Subject"
-    ] = f"{data['proper_name']} JupyterHub Usage for {week_begin} - {week_end}"
+    message["Subject"] = (
+        f"{data['proper_name']} JupyterHub Usage for {week_begin} - {week_end}"
+    )
     message["From"] = sender_email
     message["To"] = primary_receiver
     message.preamble = (
