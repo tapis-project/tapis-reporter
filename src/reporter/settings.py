@@ -24,7 +24,6 @@ if len(sys.argv) >= 2 and sys.argv[1] == "runserver":
 
     load_dotenv()
     DEBUG = True
-    NAME = os.environ.get("SQLITE_PATH")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -196,7 +195,7 @@ WSGI_APPLICATION = "reporter.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "/app/data/db.sqlite3" if not DEBUG else NAME,
+        "NAME": "/app/data/db.sqlite3",
     }
 }
 

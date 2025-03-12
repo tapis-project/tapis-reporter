@@ -1,4 +1,5 @@
 """Auth backends"""
+
 import logging
 
 import requests

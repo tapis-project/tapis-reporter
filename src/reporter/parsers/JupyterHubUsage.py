@@ -72,9 +72,8 @@ class JupyterHubUsage:
                             self.add_login_entry(log_info)
                         if log_info["file"] is not None and path is not None:
                             # Check if user created a notebook
-                            if (
-                                request_type == "GET"
-                                and "Untitled.ipynb?kernel_name" in path
+                            if request_type == "GET" and re.search(
+                                r"Untitled\d*\.ipynb\?kernel_name", path
                             ):
                                 self.add_created_file(log_info)
                             # Get opened notebooks and where they are
