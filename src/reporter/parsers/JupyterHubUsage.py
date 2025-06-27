@@ -10,7 +10,16 @@ logger = logging.getLogger(__name__)
 
 
 class JupyterHubUsage:
+    """
+    A class to parse NGINX log files from JupyterHub instances,
+    extracting information about user logins, created files, and opened files
+    """
+
     def __init__(self):
+        """
+        Initializes the JupyterHubUsage parser with empty dictionaries and lists
+        to store parsed log data
+        """
         self.login_counts = {}
         self.login_dates = {}
         self.login_times = {}
@@ -23,7 +32,13 @@ class JupyterHubUsage:
         self.file_entries_to_add = []
         self.login_entries_to_add = []
 
-    def is_file_parsed(self, filename):
+    def is_file_parsed(self, filename: str) -> bool:
+        """
+        Checks if an NGINX log file has already been parsed successfully
+
+        :param filename: The name of the NGINX log file to check
+        :return: True if the file exists in ParsedNginxFile and its status is 'Succeeded', otherwise False
+        """
         logger.error(f"filename: {filename}")
         file_exists = ParsedNginxFile.objects.filter(pk=filename).exists()
         if file_exists:
@@ -34,9 +49,12 @@ class JupyterHubUsage:
                 return True
         return False
 
-    def add_file_to_db(self, filename):
+    def add_file_to_db(self, filename: str) -> bool:
         """
-        Add NGINX file entry to ParsedNginxFile table
+        Adds an entry for a new NGINX log file to the ParsedNginxFile table
+
+        :param filename: The name of the NGINX log file to add
+        :return: True if the file entry was successfully created, otherwise False
         """
         file_exists = ParsedNginxFile.objects.filter(pk=filename).exists()
         if not file_exists:
@@ -52,7 +70,16 @@ class JupyterHubUsage:
                 logger.exception(e)
                 return False
 
-    def parse_jhub_file(self, file, filename):
+    def parse_jhub_file(self, file, filename: str) -> bool:
+        """
+        Parses a gzipped JupyterHub NGINX log file, extracting login,
+        created file, and opened file information. Also updates the parsing
+        status in the database
+
+        :param file: The file object of the gzipped log file
+        :param filename: The name of the log file being parsed
+        :return: True if parsing and database additions are successful, otherwise False
+        """
         try:
             with gzip.open(file, "rt") as logfile:
                 # Update ParsedNginxFile status to 'opened'
@@ -68,8 +95,11 @@ class JupyterHubUsage:
                         request_type = log_info["request_type"]
                         path = log_info["raw_path"]
 
+                        # Check for login events
                         if "/hub/api/oauth2/authorize" in log:
                             self.add_login_entry(log_info)
+
+                        # Check for file-related events if file and path are available
                         if log_info["file"] is not None and path is not None:
                             # Check if user created a notebook
                             if request_type == "GET" and re.search(
@@ -85,14 +115,21 @@ class JupyterHubUsage:
                                 self.add_opened_file(log_info)
 
             success = True
+            error = ""
+
+            # Attempt to add collected file entries to the database
             if len(self.file_entries_to_add) > 0:
                 files_added = self.add_file_entries_to_db()
                 success = False if not files_added == "Added" else success
                 error = files_added if not files_added == "Added" else ""
+
+            # Attempt to add collected login entries to the database
             if len(self.login_entries_to_add) > 0:
                 logins_added = self.add_login_entries_to_db()
                 success = False if not logins_added == "Added" else success
                 error = logins_added if not logins_added == "Added" else ""
+
+            # Update ParsedNginxFile status based on success/failure
             if success:
                 logger.info(f"{filename} -- Succeeded")
                 ParsedNginxFile.objects.filter(pk=filename).update(status="Succeeded")
@@ -108,42 +145,48 @@ class JupyterHubUsage:
             logger.exception(e)
             return False
 
-    def add_file_entries_to_db(self):
+    def add_file_entries_to_db(self) -> str:
         """
-        Add file entries to database
+        Performs a bulk creation of FileLog entries collected during parsing
 
-        :return: String -- Added or error
+        :return: "Added" on success, or exception object on failure
         """
         try:
             FileLog.objects.bulk_create(self.file_entries_to_add)
+            self.file_entries_to_add = []
             return "Added"
         except Exception as e:
             logger.error(f"Unable to add file entries; error: {e}")
             return e
 
-    def add_login_entries_to_db(self):
+    def add_login_entries_to_db(self) -> str:
         """
-        Add login entries to database
+        Performs a bulk creation of LoginLog entries collected during parsing
 
-        :return: String -- Added or error
+        :return: "Added" on success, or exception object on failure
         """
         try:
             LoginLog.objects.bulk_create(self.login_entries_to_add)
+            self.login_entries_to_add = []
             return "Added"
         except Exception as e:
             logger.error(f"Unable to add login entries; error: {e}")
             return e
 
-    def add_log_to_entries(self, info):
+    def add_log_to_entries(self, info: dict) -> None:
         """
-        Add model object to entries list
+        Adds a parsed log entry (either FileLog or LoginLog) to the appropriate
+        batch list for later bulk insertion into the database
 
-        :param info: dictionary containg info from log
-        :return: nothing, but update list of entries
+        :param info: A dictionary containing parsed information from a log line
+        :return: None. Updates lists `file_entries_to_add` or `login_entries_to_add`
         """
+        # Ensure user is a string; log and skip if not valid
         if not isinstance(info["user"], str):
             logger.error(f"NO USER FOUND: {info} -- SKIPPING")
             return
+
+        # Use IP address as user if user is empty
         user = info["ip_address"] if info["user"] == "" else info["user"]
         if info["action"] in ["created", "opened"]:
             self.file_entries_to_add.append(
@@ -165,12 +208,13 @@ class JupyterHubUsage:
                 )
             )
 
-    def set_tenant(self, log):
+    def set_tenant(self, log: str) -> None:
         """
-        Set tenant if tenant not provided
+        Identifies and sets the `tenant` based on keywords found in the log line.
+        Supports 'tacc' and 'designsafe' tenants
 
-        :param log: current log in file
-        :return: nothing, but update tenant
+        :param log: The raw log line
+        :return: None. Updates the `self.tenant` attribute
         """
         split_log = re.split(r"\s", log)
         if "jupyter.tacc.cloud" in log or "/home/jovyan/" in split_log[6]:
@@ -178,12 +222,13 @@ class JupyterHubUsage:
         elif "jupyter.designsafe-ci.org" in log or "/home/jupyter/" in split_log[6]:
             self.tenant = "designsafe"
 
-    def get_user(self, path):
+    def get_user(self, path: str) -> str | None:
         """
-        Gets user from HTTP call
+        Extracts the username from a given URL path. Looks for patterns
+        related to `client_id` or `/user/` in the path
 
-        :param split_log: current log split into an array
-        :return: username or None if not found
+        :param path: The URL path from the log entry
+        :return: The extracted username as a string, or None if not found
         """
         split_with_user = None
         if "client_id=" in path:
@@ -194,32 +239,37 @@ class JupyterHubUsage:
             split_with_user = path.split("/")
 
         if split_with_user is not None:
-            user_index = split_with_user.index("user")
-            jhub_user = split_with_user[user_index + 1]
-            return jhub_user
+            try:
+                user_index = split_with_user.index("user")
+                jhub_user = split_with_user[user_index + 1]
+                return jhub_user
+            except ValueError:
+                pass
 
         return None
 
-    def parse_special_characters(self, str):
+    def parse_special_characters(self, s: str) -> str:
         """
-        Replace percent encoding with represented character
+        Replaces common encoded characters in a string with their
+        represented characters
 
-        :param str: str to replace the percent encoded characters
-        :return: string without any percent encoded characters
+        :param s: The input string to decode
+        :return: The string with encoded characters replaced
         """
-        str = str.replace("%20", " ")
-        str = str.replace("%C3%B3", "o")
-        str = str.replace("%C3%A1", "a")
-        str = str.replace("%3A", ":")
-        str = str.replace("%26", "&")
-        return str
+        s = s.replace("%20", " ")
+        s = s.replace("%C3%B3", "o")
+        s = s.replace("%C3%A1", "a")
+        s = s.replace("%3A", ":")
+        s = s.replace("%26", "&")
+        return s
 
-    def check_for_symbolic_link(self, path):
+    def check_for_symbolic_link(self, path: str) -> str:
         """
-        Check for symbolic path (ie. DesignSafe: /home/jupyter/projects -> /home/jupyter/MyProjects)
+        Checks if a given path contains a known symbolic link and replaces
+        it with the corresponding true path from self.symbolic_links
 
-        :param path: path to check
-        :return: updated path changed to represent symbolic link if able
+        :param path: The path to check
+        :return: The updated path with symbolic link resolved, or the original path if no link found
         """
         for key in self.symbolic_links:
             if key in path:
@@ -227,12 +277,14 @@ class JupyterHubUsage:
                 return new_path
         return path
 
-    def get_true_path(self, user, path):
+    def get_true_path(self, user: str, path: str) -> str:
         """
-        Get absolute path to file
+        Determines the absolute file path based on the user's home path
+        and known network path patterns. Also resolves symbolic links
 
-        :param path: network path to file
-        :return: absolute path
+        :param user: Username associated with the path
+        :param path: Network path from the log
+        :return: Absolute file path, or the original path if resolution fails
         """
         network_paths = [
             f"/user/{user}/notebooks",
@@ -250,12 +302,12 @@ class JupyterHubUsage:
                     return true_path
         return path
 
-    def get_path(self, path):
+    def get_path(self, path: str) -> str:
         """
         Gets path accessed in HTTP call
 
-        :param split_log: current log split into an array
-        :return: path accessed
+        :param split_log: URL path from the log
+        :return: Extracted directory path
         """
         init_path = path.rsplit("/", 1)
         if ".ipynb" in init_path[0]:
@@ -264,12 +316,12 @@ class JupyterHubUsage:
             file_path = init_path[0]
         return self.parse_special_characters(file_path)
 
-    def get_file(self, path):
+    def get_file(self, path: str) -> str:
         """
-        Gets file accessed in HTTP call
+        Extracts filename from a given URL path
 
-        :param split_log: current log split into an array
-        :return: file accessed
+        :param path: Full URL path from the log entry
+        :return: Extracted filename, or None if not found
         """
         file = re.search(r"[^/]*.ipynb", path)
         if file:
@@ -277,22 +329,25 @@ class JupyterHubUsage:
             file = self.parse_special_characters(file)
         return file
 
-    def get_date(self, date):
+    def get_date(self, date_str: str) -> str:
         """
-        Change date to YYYY-MM-DD format
+        Converts a date string from "%d/%b/%Y" format
+        to "%Y-%m-%d" format
 
-        :param init_date: date from log
-        :return: formatted date
+        :param date_str: Date string from the log
+        :return: Formatted date string
         """
-        date_obj = datetime.strptime(date, "%d/%b/%Y")
+        date_obj = datetime.strptime(date_str, "%d/%b/%Y")
         return date_obj.strftime("%Y-%m-%d")
 
-    def get_info_from_log(self, log):
+    def get_info_from_log(self, log: str) -> dict | None:
         """
-        Change date to YYYY-MM-DD format
+        Parses a single NGINX log line using a regular expression to extract
+        date, request type, time, IP address, and system info. Also fills in
+        user, different paths, and file name
 
-        :param init_date: date from log
-        :return: formatted date
+        :param log: Raw NGINX log line
+        :return: Dictionary containing parsed log information, or None if the log line doesn't match the regex
         """
         regex = re.compile(
             r'(?P<client_ip>\S+) - - \[(?P<date>\d{2}\/\w+\/\d{4}):(?P<time>\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] "(?P<method>\S+) (?P<path>\S+) \S+" (?P<status_code>\d+) (?P<bytes_sent>\d+) "(?P<referer>[^"]+)" "(?P<user_agent>[^"]+)" "-"'
@@ -334,12 +389,14 @@ class JupyterHubUsage:
 
         return None
 
-    def add_login_entry(self, log_info):
+    def add_login_entry(self, log_info: dict) -> None:
         """
-        Count login entry from current log
+        Processes a login event, tracking user login counts and times.
+        Adds the login information to the login list if it represents
+        a new session (based on a 2-minute time difference)
 
-        :param log_info: current log's info
-        :return: nothing
+        :param log_info: Dictionary containing parsed login information
+        :return: None. Updates login_entries_to_add
         """
         user = log_info["user"]
         date = log_info["date"]
@@ -379,12 +436,13 @@ class JupyterHubUsage:
         if insert:
             self.add_log_to_entries(info)
 
-    def add_created_file(self, info):
+    def add_created_file(self, info: dict) -> None:
         """
-        Add file to created files dict
+        Adds a created file event from a log entry if it's a new file
+        or a new date for an existing file
 
-        :param split_log: current log split into an array
-        :return: nothing
+        :param info: Dictionary containing parsed file creation information
+        :return: None. Updates file_entries_to_add
         """
         user = info["user"]
         path = info["path"]
@@ -418,12 +476,13 @@ class JupyterHubUsage:
         elif not new_file and new_date:
             self.add_log_to_entries(info)
 
-    def add_opened_file(self, info):
+    def add_opened_file(self, info: dict) -> None:
         """
-        Add file to opened files dict
+        Adds an opened file event from a log entry if it's a new file
+        or a new date for an existing file
 
-        :param split_log: current log split into an array
-        :return:  nothing
+        :param info: Dictionary containing parsed file creation information
+        :return: None. Updates file_entries_to_add
         """
         user = info["user"]
         path = info["path"]
