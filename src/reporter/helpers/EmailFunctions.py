@@ -7,7 +7,6 @@ from itertools import chain
 
 import django
 import matplotlib.pyplot as plt
-import mysql.connector
 import requests
 from django.conf import settings
 
@@ -56,7 +55,7 @@ def generate_email_data(service, tenant, week_begin, week_end) -> dict:
             }
             return data
         case "tapis":
-            jobs_data = get_jobs_data(week_begin, week_end)
+            jobs_data = get_jobs_data()
             jobs_data["tenant_recipients"] = tenant_recipients
             jobs_data["primary_receiver"] = tenant.primary_receiver
             return jobs_data
@@ -203,36 +202,37 @@ def get_old_servers():
     return old_servers
 
 
-def get_jobs_data(week_begin, week_end):
+def get_jobs_data():
     dbdata_path = "/app/reporter/dbdata/tapis"
     dbdata_files = os.listdir(dbdata_path)
 
     jobs_data = {}
 
-    try:
-        mydb = mysql.connector.connect(
-            host=settings.MYSQL_HOST,
-            user=settings.MYSQL_USER,
-            password=settings.MYSQL_PASS,
-            database=settings.MYSQL_DB,
-        )
+    # Commenting out, v2 has been discontinued
+    # try:
+    #     mydb = mysql.connector.connect(
+    #         host=settings.MYSQL_HOST,
+    #         user=settings.MYSQL_USER,
+    #         password=settings.MYSQL_PASS,
+    #         database=settings.MYSQL_DB,
+    #     )
 
-        mycursor = mydb.cursor()
+    #     mycursor = mydb.cursor()
 
-        mycursor.execute(
-            f"SELECT tenant_id, count(*) FROM aloe_jobs WHERE accepted between '{week_begin}' AND '{week_end}' group by tenant_id;"
-        )
+    #     mycursor.execute(
+    #         f"SELECT tenant_id, count(*) FROM aloe_jobs WHERE accepted between '{week_begin}' AND '{week_end}' group by tenant_id;"
+    #     )
 
-        myresult = mycursor.fetchall()
+    #     myresult = mycursor.fetchall()
 
-        v2_jobs_data = {}
-        for res in myresult:
-            if res[0] is not None:
-                v2_jobs_data[res[0]] = res[1]
+    #     v2_jobs_data = {}
+    #     for res in myresult:
+    #         if res[0] is not None:
+    #             v2_jobs_data[res[0]] = res[1]
 
-        jobs_data["v2"] = v2_jobs_data
-    except Exception as e:
-        logger.error(f"Error getting v2 jobs data: {e}")
+    #     jobs_data["v2"] = v2_jobs_data
+    # except Exception as e:
+    #     logger.error(f"Error getting v2 jobs data: {e}")
 
     for file in dbdata_files:
         filename = os.path.basename(file)

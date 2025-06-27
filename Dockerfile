@@ -13,8 +13,9 @@ RUN pip uninstall pycrypto
 RUN pip install pycryptodome
 RUN python3 -m pip install tabulate
 RUN python3 -m pip install PyGithub
-RUN apt-get update
+RUN apt-get clean && apt-get update
 RUN apt-get install -y build-essential
+RUN apt-get install -y vim
 RUN pip install splunklib
 
 COPY ./entrypoint.sh /entrypoint.sh
