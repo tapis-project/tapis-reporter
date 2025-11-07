@@ -3,9 +3,13 @@
 ## Typical Log Entries
 
 **GET Request for an existing notebook**: `GET /user/<username>/notebooks/path/to/MyCoolNotebook.ipynb HTTP/1.1" 200`
+
 **POST Request for creating a new notebook**: `POST /user/<username>/api/contents/ HTTP/1.1" 201`
+
 **GET Request for loading a new notebook**: `GET /user/<username>/api/contents/Untitled.ipynb HTTP/1.1" 200`
+
 **API Requests for the Kernel**: `POST /user/<username>/api/sessions HTTP/1.1" 201`
+
 ---
 ## When Someone Creates a Notebook
 When a user **creates a new notebook**, the primary indicator is a POST request to the single-user server's contents API for file management:
