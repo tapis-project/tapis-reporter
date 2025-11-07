@@ -80,6 +80,14 @@ class JupyterHubUsage:
         :param filename: The name of the log file being parsed
         :return: True if parsing and database additions are successful, otherwise False
         """
+
+        # /api/contents is the endpoint of users interacting with the file/directory system
+        CREATION_POST_PATTERN = (
+            r'^.*?"POST /user/[^/]+/api/contents/.*? HTTP/1\.[01]" 201 .*$'
+        )
+        LOADING_GET_PATTERN = r'^.*?"GET /user/[^/]+/api/contents/.*?/Untitled\.ipynb\?.*? HTTP/1\.[01]" 200 .*$'
+        creation_sequences = {}
+
         try:
             with gzip.open(file, "rt") as logfile:
                 # Update ParsedNginxFile status to 'opened'
@@ -99,15 +107,33 @@ class JupyterHubUsage:
                         if "/hub/api/oauth2/authorize" in log:
                             self.add_login_entry(log_info)
 
-                        # Check for file-related events if file and path are available
-                        if log_info["file"] is not None and path is not None:
-                            # Check if user created a notebook
-                            if request_type == "GET" and re.search(
-                                r"Untitled\d*\.ipynb\?kernel_name", path
+                        if request_type == "POST" and re.search(
+                            CREATION_POST_PATTERN, log
+                        ):
+                            if "checkpoint" in path:
+                                continue
+                            if log_info["user"] not in creation_sequences:
+                                creation_sequences[log_info["ip_address"]] = []
+
+                            creation_sequences[log_info["ip_address"]].append(
+                                {"type": "Creation", "path": path}
+                            )
+
+                        if request_type == "GET" and re.search(
+                            LOADING_GET_PATTERN, log
+                        ):
+                            if (
+                                log_info["ip_address"] in creation_sequences
+                                and creation_sequences[log_info["ip_address"]]
+                                and creation_sequences[log_info["ip_address"]][-1][
+                                    "type"
+                                ]
+                                == "Creation"
                             ):
                                 self.add_created_file(log_info)
-                            # Get opened notebooks and where they are
-                            elif (
+
+                        if log_info["file"] is not None and path is not None:
+                            if (
                                 request_type == "GET"
                                 and "/user" in path
                                 and ".ipynb" in log_info["file"]
@@ -350,7 +376,7 @@ class JupyterHubUsage:
         :return: Dictionary containing parsed log information, or None if the log line doesn't match the regex
         """
         regex = re.compile(
-            r'(?P<client_ip>\S+) - - \[(?P<date>\d{2}\/\w+\/\d{4}):(?P<time>\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] "(?P<method>\S+) (?P<path>\S+) \S+" (?P<status_code>\d+) (?P<bytes_sent>\d+) "(?P<referer>[^"]+)" "(?P<user_agent>[^"]+)" "-"'
+            r'(?P<client_ip>\S+) - - \[(?P<date>\d{2}\/\w+\/\d{4}):(?P<time>\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] "(?P<method>\S+) (?P<path>\S+) \S+" (?P<status_code>\d+) (?P<bytes_sent>\d+) "(?P<referer>[^"]+)" "(?P<user_agent>[^"]*)" "-"'
         )
         match = regex.match(log)
 
